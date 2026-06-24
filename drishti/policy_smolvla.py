@@ -31,6 +31,11 @@ def _device(pref: Optional[str] = None) -> torch.device:
 
 
 def _activate_offline_if_cached(model_id: str) -> None:
+    # Opt-in only (DRISHTI_HF_OFFLINE=1): auto-enabling offline mode based on the
+    # main repo being cached wrongly blocks first-time download of dependencies
+    # (e.g. SmolVLA's SmolVLM2 backbone), which hangs the load.
+    if os.environ.get("DRISHTI_HF_OFFLINE") != "1":
+        return
     repo = Path.home() / ".cache" / "huggingface" / "hub" / f"models--{model_id.replace('/', '--')}"
     if repo.exists():
         os.environ.setdefault("HF_HUB_OFFLINE", "1")

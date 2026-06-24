@@ -52,8 +52,10 @@ def sample_action_chunks(policy, batch, n: int = 8) -> np.ndarray:
 
     outs = []
     for _ in range(n):
+        # clone per call so in-place prep (e.g. prepare_images) can't corrupt reuse
+        b = {k: (v.clone() if torch.is_tensor(v) else v) for k, v in batch.items()}
         with torch.inference_mode():
-            ch = policy.predict_action_chunk(batch, noise=None)
+            ch = policy.predict_action_chunk(b, noise=None)
         arr = ch.detach().float().cpu().numpy()
         outs.append(arr[0] if arr.ndim == 3 else arr)
     return np.stack(outs, axis=0)
