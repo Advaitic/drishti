@@ -23,6 +23,10 @@ build/
 npm-debug.log*
 
 # ml / data
+data/*.db
+data/*.db-*
+data/obs_blobs/
+data/lerobot/
 *.ckpt
 *.pt
 *.pth
