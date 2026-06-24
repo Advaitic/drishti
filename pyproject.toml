@@ -1,0 +1,24 @@
+[project]
+name = "drishti"
+version = "0.0.1"
+description = "advaitic platform — observability + uncertainty for robot policies"
+requires-python = ">=3.12"
+# Light deps we own. Heavy runtime (torch, lerobot, mujoco) comes from the base
+# .venv; data-conversion deps (h5py, decord) are added when we wire MolmoSpaces.
+dependencies = [
+  "fastapi>=0.136",
+  "uvicorn>=0.46",
+  "sqlalchemy>=2.0",
+  "numpy>=2.0",
+  "pillow>=11",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["drishti*", "ingest*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
