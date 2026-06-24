@@ -81,7 +81,7 @@ def _smoke() -> None:
     env.reset()
     out = Path("data/so101_smoke")
     out.mkdir(parents=True, exist_ok=True)
-    for cam in ("up", "side"):
+    for cam in ("up", "side", "wrist"):
         img = env.render(cam, 640, 480)
         Image.fromarray(img).save(out / f"{cam}.png")
         print(f"  rendered {cam}: {img.shape} -> {out / f'{cam}.png'}")
