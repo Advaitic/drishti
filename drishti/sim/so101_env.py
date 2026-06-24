@@ -36,12 +36,13 @@ class SO101Env:
         self._home = np.zeros(6, dtype=np.float64)
         self._renderers: dict = {}
 
-    def reset(self, cube_xy=(0.18, 0.0), seed: Optional[int] = None) -> np.ndarray:
-        mujoco.mj_resetData(self.model, self.data)
+    def reset(self, cube_xy=None, seed: Optional[int] = None) -> np.ndarray:
+        mujoco.mj_resetData(self.model, self.data)  # cube → its XML-defined pose
         for adr, val in zip(self._qadr, self._home):
             self.data.qpos[adr] = val
-        cx, cy = cube_xy
-        self.data.qpos[self._cube_qadr:self._cube_qadr + 7] = [cx, cy, 0.0125, 1, 0, 0, 0]
+        if cube_xy is not None:  # optional override (e.g. for randomized starts)
+            cx, cy = cube_xy
+            self.data.qpos[self._cube_qadr:self._cube_qadr + 7] = [cx, cy, 0.0125, 1, 0, 0, 0]
         self.data.ctrl[:6] = self._home
         mujoco.mj_forward(self.model, self.data)
         return self.state()

@@ -20,15 +20,15 @@
     <light pos="0.1 0.0 1.2" dir="0 0 -1" directional="true" diffuse="0.5 0.5 0.5"/>
     <geom name="floor" type="plane" size="1 1 0.05" pos="0 0 0" material="tabletop"/>
 
-    <!-- red lego-brick to pick -->
-    <body name="cube" pos="0.2 -0.03 0.008">
+    <!-- red lego-brick to pick (on the right side of the workspace, seen from the top view) -->
+    <body name="cube" pos="0.2 -0.09 0.008">
       <freejoint name="cube_free"/>
       <geom name="cube" type="box" size="0.022 0.011 0.008" rgba="0.86 0.15 0.13 1"
             mass="0.02" friction="1.0 0.01 0.001"/>
     </body>
 
-    <!-- open tray (the "box" target): transparent base + orange-ish low walls -->
-    <body name="box" pos="0.13 0.14 0.0">
+    <!-- open tray (the "box" target): transparent base + orange-ish low walls (right side) -->
+    <body name="box" pos="0.13 -0.14 0.0">
       <geom type="box" pos="0 0 0.001" size="0.05 0.035 0.001" material="tray" contype="0" conaffinity="0"/>
       <geom type="box" pos="0.05 0 0.012" size="0.003 0.035 0.012" material="tray_edge" contype="0" conaffinity="0"/>
       <geom type="box" pos="-0.05 0 0.012" size="0.003 0.035 0.012" material="tray_edge" contype="0" conaffinity="0"/>
@@ -37,13 +37,13 @@
     </body>
 
     <!-- invisible aim point at the workspace centre (for the over-the-shoulder camera) -->
-    <body name="viewtarget" pos="0.13 0.0 0.04">
+    <body name="viewtarget" pos="0.15 -0.06 0.04">
       <geom type="sphere" size="0.001" rgba="0 0 0 0" contype="0" conaffinity="0"/>
     </body>
 
     <!-- up: diagonal over-the-shoulder from BEHIND the arm, looking forward+down at the workspace -->
     <camera name="up" pos="-0.40 -0.13 0.46" mode="targetbody" target="viewtarget"/>
-    <!-- side: low front view across the workspace -->
-    <camera name="side" pos="0.07 -0.34 0.11" mode="targetbody" target="base"/>
+    <!-- side: low front view, pulled back so the WHOLE robot is in frame -->
+    <camera name="side" pos="0.03 -0.56 0.27" mode="targetbody" target="base"/>
   </worldbody>
 </mujoco>
