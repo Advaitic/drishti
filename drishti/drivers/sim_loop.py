@@ -106,10 +106,13 @@ def run(
                 ace=ace_score(chunks),
             )
         env.step(action_deg * DEG2RAD)  # degrees → radian ctrl (env clamps to ctrlrange)
-        rel = f"{run.run_id}/0_{k}_up.jpg"
+        # save all three views for the dashboard (model still only consumed up+side)
+        wrist = env.render("wrist", 640, 480)
         (BLOB_DIR / run.run_id).mkdir(parents=True, exist_ok=True)
-        Image.fromarray(up).save(BLOB_DIR / rel)
-        run.log_frame(camera="up", blob_path=rel, step_idx=k, t=float(k))
+        for cam, img in (("up", up), ("side", side), ("wrist", wrist)):
+            rel = f"{run.run_id}/0_{k}_{cam}.jpg"
+            Image.fromarray(img).save(BLOB_DIR / rel)
+            run.log_frame(camera=cam, blob_path=rel, step_idx=k, t=float(k))
         if (k + 1) % 4 == 0:
             print(f"[run] step {k+1}/{steps}", flush=True)
     run.finish()

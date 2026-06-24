@@ -42,6 +42,8 @@
   .film{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;margin-top:8px}
   .film img{height:104px;border-radius:6px;border:1px solid var(--line);cursor:pointer;flex:0 0 auto}
   .film img:hover{border-color:var(--info)}
+  .camrow{margin-top:12px}
+  .camlabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .toolbar{display:flex;gap:10px;align-items:center;margin:14px 0 8px}
   .btn{background:var(--bg2);border:1px solid var(--line);color:var(--dim);padding:5px 11px;
     border-radius:7px;cursor:pointer;font:inherit}
@@ -99,6 +101,24 @@ function chartCard(title, vals, color){
   return `<div class="card"><h3>${title}<span class="now">${fmt(last)}</span></h3>${spark(vals,color)}</div>`;
 }
 
+// one labelled filmstrip per camera (up / side / wrist), in a sensible order
+function filmstrips(frames){
+  if(!frames.length) return "";
+  const ORDER = ["up","side","wrist"];
+  const byCam = {};
+  frames.forEach(f => { (byCam[f.camera] ||= []).push(f); });
+  const cams = Object.keys(byCam).sort((a,b)=>{
+    const ia=ORDER.indexOf(a), ib=ORDER.indexOf(b);
+    return (ia<0?99:ia) - (ib<0?99:ib);
+  });
+  return cams.map(cam=>`
+    <div class="camrow">
+      <div class="camlabel">${cam} camera</div>
+      <div class="film">${byCam[cam].sort((x,y)=>x.step_idx-y.step_idx).map(f=>
+        `<img src="${API}/blobs/${f.blob_path}" title="${cam} · step ${f.step_idx}"/>`).join("")}</div>
+    </div>`).join("");
+}
+
 async function render(){
   if(!sel) return;
   const [detail, stepsR] = await Promise.all([
@@ -110,8 +130,7 @@ async function render(){
   const col = k => steps.map(s=> k==="action[0]" ? (s.action?s.action[0]:null) : s[k]);
   const charts = ["smd","rnd","ace","latency_ms","action[0]"]
     .map(k=>chartCard(k, col(k), C[k])).join("");
-  const film = frames.length ? `<div class="film">${frames.map(f=>
-    `<img src="${API}/blobs/${f.blob_path}" title="step ${f.step_idx} · ${f.camera}"/>`).join("")}</div>` : "";
+  const film = filmstrips(frames);
   document.getElementById("main").innerHTML = `
     <div class="head">
       <h1>${run.task||'run'}</h1>
