@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>drishti · observability</title>
+<style>
+  :root{
+    --bg:#0a0c0f; --bg1:#0f1318; --bg2:#141a21; --line:#1d242d;
+    --ink:#e6edf3; --dim:#8b95a1; --mute:#5a636e;
+    --ok:#38d39f; --warn:#f5b54a; --bad:#ff6b6b; --info:#5b9cf6; --viol:#b083f0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;}
+  a{color:inherit}
+  .app{display:grid;grid-template-columns:260px 1fr;height:100vh}
+  .side{border-right:1px solid var(--line);background:var(--bg1);overflow-y:auto}
+  .brand{padding:14px 16px;border-bottom:1px solid var(--line);letter-spacing:.18em;
+    text-transform:uppercase;font-size:11px;color:var(--dim)}
+  .brand b{color:var(--ink)}
+  .runs{padding:6px}
+  .run{padding:9px 10px;border:1px solid transparent;border-radius:7px;cursor:pointer;margin-bottom:3px}
+  .run:hover{background:var(--bg2)}
+  .run.sel{background:var(--bg2);border-color:var(--line)}
+  .run .m{color:var(--ink)}
+  .run .s{color:var(--mute);font-size:10px;display:flex;justify-content:space-between;margin-top:3px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+  .running{background:var(--warn)} .done{background:var(--ok)}
+  .main{overflow-y:auto;padding:18px 22px}
+  .head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+  .head h1{font-size:15px;margin:0;font-weight:600}
+  .head .k{color:var(--mute)} .head .v{color:var(--dim)}
+  .sub{color:var(--mute);margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .card{background:var(--bg1);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .card h3{margin:0 0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+    display:flex;justify-content:space-between}
+  .card h3 .now{color:var(--ink);font-weight:600}
+  .card .rng{color:var(--mute);font-size:10px;margin-top:4px;display:flex;justify-content:space-between}
+  svg{display:block;width:100%;height:72px;margin-top:4px}
+  .film{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;margin-top:8px}
+  .film img{height:104px;border-radius:6px;border:1px solid var(--line);cursor:pointer;flex:0 0 auto}
+  .film img:hover{border-color:var(--info)}
+  .toolbar{display:flex;gap:10px;align-items:center;margin:14px 0 8px}
+  .btn{background:var(--bg2);border:1px solid var(--line);color:var(--dim);padding:5px 11px;
+    border-radius:7px;cursor:pointer;font:inherit}
+  .btn.on{color:var(--bg);background:var(--ok);border-color:var(--ok)}
+  .empty{color:var(--mute);padding:40px;text-align:center}
+  .legend{font-size:10px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="side">
+    <div class="brand">drishti · <b>observability</b></div>
+    <div class="runs" id="runs"></div>
+  </div>
+  <div class="main" id="main">
+    <div class="empty">select a run</div>
+  </div>
+</div>
+<script>
+const API = "";                       // same origin (served by ingest)
+const C = {smd:"--info", rnd:"--warn", ace:"--bad", latency_ms:"--viol", "action[0]":"--ok"};
+let sel = null, following = false, timer = null;
+
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (x,n=2) => x==null?"–":(+x).toFixed(n);
+
+async function getRuns(){
+  const r = await fetch(`${API}/v1/runs`).then(r=>r.json()).catch(()=>({runs:[]}));
+  const el = document.getElementById("runs");
+  el.innerHTML = (r.runs||[]).map(run=>`
+    <div class="run ${run.run_id===sel?'sel':''}" onclick="select('${run.run_id}')">
+      <div class="m">${run.task||'–'}</div>
+      <div class="s"><span><span class="dot ${run.status}"></span>${run.model_id||''}</span>
+        <span>${run.n_steps||0} steps</span></div>
+    </div>`).join("") || `<div class="empty">no runs yet</div>`;
+}
+
+function spark(vals, color){
+  const xs = vals.map((_,i)=>i), ys = vals.filter(v=>v!=null);
+  if(!ys.length) return `<svg></svg><div class="rng"><span>–</span></div>`;
+  const lo=Math.min(...ys), hi=Math.max(...ys), W=300,H=72,pad=4;
+  const sx=i=>pad+(W-2*pad)*(vals.length<2?0:i/(vals.length-1));
+  const sy=v=>{const d=hi-lo||1;return H-pad-(H-2*pad)*((v-lo)/d);};
+  let d="",started=false;
+  vals.forEach((v,i)=>{ if(v==null)return; d+=(started?"L":"M")+sx(i).toFixed(1)+" "+sy(v).toFixed(1)+" "; started=true;});
+  const last = ys[ys.length-1];
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <path d="${d}" fill="none" stroke="${css(color)}" stroke-width="1.6"/>
+    </svg>
+    <div class="rng"><span>min ${fmt(lo,2)}</span><span>max ${fmt(hi,2)}</span></div>`;
+}
+
+function chartCard(title, vals, color){
+  const last = [...vals].reverse().find(v=>v!=null);
+  return `<div class="card"><h3>${title}<span class="now">${fmt(last)}</span></h3>${spark(vals,color)}</div>`;
+}
+
+async function render(){
+  if(!sel) return;
+  const [detail, stepsR] = await Promise.all([
+    fetch(`${API}/v1/runs/${sel}`).then(r=>r.json()),
+    fetch(`${API}/v1/runs/${sel}/steps`).then(r=>r.json()),
+  ]);
+  const run = detail.run, steps = stepsR.steps||[], frames = detail.frames||[];
+  if(!run){ document.getElementById("main").innerHTML=`<div class="empty">run not found</div>`; return; }
+  const col = k => steps.map(s=> k==="action[0]" ? (s.action?s.action[0]:null) : s[k]);
+  const charts = ["smd","rnd","ace","latency_ms","action[0]"]
+    .map(k=>chartCard(k, col(k), C[k])).join("");
+  const film = frames.length ? `<div class="film">${frames.map(f=>
+    `<img src="${API}/blobs/${f.blob_path}" title="step ${f.step_idx} · ${f.camera}"/>`).join("")}</div>` : "";
+  document.getElementById("main").innerHTML = `
+    <div class="head">
+      <h1>${run.task||'run'}</h1>
+      <span><span class="k">model</span> <span class="v">${run.model_id||'–'}</span></span>
+      <span><span class="k">backend</span> <span class="v">${run.backend||'–'}</span></span>
+      <span><span class="k">steps</span> <span class="v">${run.n_steps||steps.length}</span></span>
+      <span><span class="k">success</span> <span class="v">${fmt(run.success_rate,2)}</span></span>
+      <span class="dot ${run.status}"></span><span class="v">${run.status||''}</span>
+    </div>
+    <div class="sub">${run.run_id} &middot; <span class="legend">uncertainty: smd (state) · rnd (vision embedding) · ace (action head)</span></div>
+    <div class="toolbar">
+      <button class="btn ${following?'on':''}" onclick="toggleFollow()">${following?'● following':'follow live'}</button>
+    </div>
+    <div class="grid">${charts}</div>
+    ${film}`;
+}
+
+function toggleFollow(){
+  following = !following;
+  if(following){ timer = setInterval(()=>{render();getRuns();}, 1000); }
+  else { clearInterval(timer); }
+  render();
+}
+
+window.select = async (id)=>{ sel=id; following=false; clearInterval(timer); await getRuns(); render(); };
+
+getRuns(); setInterval(()=>{ if(!following) getRuns(); }, 3000);
+</script>
+</body>
+</html>

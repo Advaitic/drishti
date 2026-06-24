@@ -7,10 +7,13 @@ for the dashboard, and rebroadcasts every event to live-tail WebSocket clients.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from drishti.store import Store
 
@@ -19,6 +22,20 @@ app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 store = Store(os.environ.get("DRISHTI_OBS_DB_URL"))
+
+_ROOT = Path(__file__).resolve().parent.parent
+WEB_DIR = _ROOT / "web"
+BLOB_DIR = Path(os.environ.get("DRISHTI_BLOB_DIR") or (_ROOT / "data" / "obs_blobs"))
+BLOB_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/blobs", StaticFiles(directory=str(BLOB_DIR)), name="blobs")
+
+
+@app.get("/")
+def index():
+    page = WEB_DIR / "dashboard.html"
+    if page.exists():
+        return FileResponse(str(page))
+    return {"ok": True, "hint": "dashboard.html not built yet"}
 
 
 class Hub:
