@@ -34,7 +34,7 @@ app.mount("/blobs", StaticFiles(directory=str(BLOB_DIR)), name="blobs")
 def index():
     page = WEB_DIR / "dashboard.html"
     if page.exists():
-        return FileResponse(str(page))
+        return FileResponse(str(page), headers={"Cache-Control": "no-store"})
     return {"ok": True, "hint": "dashboard.html not built yet"}
 
 
