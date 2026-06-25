@@ -33,8 +33,21 @@ class SO101Env:
         self._qadr = np.array([int(self.model.joint(j).qposadr[0]) for j in ARM_JOINTS])
         self.ctrlrange = self.model.actuator_ctrlrange.copy()  # (nu, 2)
         self._cube_qadr = int(self.model.joint("cube_free").qposadr[0])
+        self._cube_vadr = int(self.model.joint("cube_free").dofadr[0])
         self._home = np.zeros(6, dtype=np.float64)
         self._renderers: dict = {}
+
+    def gripper_tcp(self) -> np.ndarray:
+        """World position of the gripper grasp point (the gripperframe site)."""
+        return self.data.site("gripperframe").xpos.astype(np.float32).copy()
+
+    def set_cube(self, xyz) -> None:
+        """Kinematically place the cube at xyz (zero its velocity). Used to attach
+        the cube to the gripper during a grasp (sim demo-gen)."""
+        self.data.qpos[self._cube_qadr:self._cube_qadr + 3] = xyz
+        self.data.qpos[self._cube_qadr + 3:self._cube_qadr + 7] = [1, 0, 0, 0]
+        self.data.qvel[self._cube_vadr:self._cube_vadr + 6] = 0.0
+        mujoco.mj_forward(self.model, self.data)
 
     def reset(self, cube_xy=None, seed: Optional[int] = None) -> np.ndarray:
         mujoco.mj_resetData(self.model, self.data)  # cube → its XML-defined pose
