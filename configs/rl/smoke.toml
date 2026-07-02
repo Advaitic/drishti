@@ -1,0 +1,40 @@
+# Stage 3a — SMOKE TRAIN. The point is NOT to learn a good corrector; it is to PROVE the signal path:
+# sim reward -> verifiers env -> advantages -> a LoRA weight update on the corrector VLM. Tiny + cheap.
+# Run with self-hosted prime-rl:  uv run rl @ configs/rl/smoke.toml
+# (min 2 GPUs: 1 inference + 1 trainer; the MolmoAct2 rollout server is a 3rd 4090 reached via rollout_url.)
+
+[model]
+name = "Qwen/Qwen3-VL-2B-Instruct"     # smallest VLM for the cheapest possible signal-path proof
+optimization_dtype = "bfloat16"        # mandatory for VLMs in prime-rl
+reduce_dtype = "bfloat16"
+
+[model.vlm]
+vision_encoder_attr = "model.visual"
+language_model_attr = "model.language_model"
+
+[model.lora]
+rank = 8
+alpha = 16
+dropout = 0.0
+
+# GRPO — deliberately tiny so a few steps complete in minutes and confirm reward -> update.
+max_steps = 3
+batch_size = 4
+rollouts_per_example = 4               # GRPO group size
+
+[sampling]
+max_tokens = 48
+temperature = 1.0
+
+# The environment: our verifiers env, a thin client of the MolmoAct2 rollout server on the pod.
+[[env]]
+id = "vla-corrector"
+args = { rollout_url = "http://ROLLOUT_POD_HOST:8100", n_episodes = 16, max_turns = 3, shaping = false, include_image = true }
+
+[wandb]
+project = "drishti-vla-corrector"
+name = "smoke-qwen3vl-2b"
+
+# NOTE: the [inference]/[trainer]/[orchestrator] topology sections are finalized on the pod by diffing
+# against a prime-rl VLM example (e.g. `examples/` after the prime-rl install). This file pins the parts
+# specific to THIS experiment: the VLM model + LoRA, GRPO scale, and the vla-corrector env wiring.
