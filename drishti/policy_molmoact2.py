@@ -104,6 +104,30 @@ def _patch_model_for_mixed_dtype(local_dir: str) -> None:
     print(f"[MolmoAct] Patched {target} for bf16/fp16 inference.")
 
 
+def _patch_tokenizer_config(local_dir: str) -> None:
+    """MolmoAct2 ships `extra_special_tokens` as a LIST, but transformers 4.57's
+    `_set_model_specific_special_tokens` expects a name->token DICT (it calls `.keys()`), so the fast
+    tokenizer crashes. Convert the list to a dict (sanitized names) in place. Idempotent."""
+    import json
+    import re
+    p = os.path.join(local_dir, "tokenizer_config.json")
+    cfg = json.load(open(p))
+    est = cfg.get("extra_special_tokens")
+    if not isinstance(est, list):
+        return
+    d: dict = {}
+    for tok in est:
+        name = re.sub(r"[^0-9a-zA-Z]+", "_", str(tok)).strip("_").lower() or "extra"
+        while name in d:
+            name += "_x"
+        d[name] = tok
+    cfg["extra_special_tokens"] = d
+    if os.path.islink(p):
+        os.remove(p)                                     # replace the snapshot symlink with a real file
+    json.dump(cfg, open(p, "w"))
+    print(f"[MolmoAct] Patched tokenizer_config.json extra_special_tokens list->dict ({len(d)} tokens).")
+
+
 class MolmoAct2VLA:
     """Adapter exposing the `VLA` surface (predict / sample / reasoning) over the HF MolmoAct2 model.
 
@@ -171,15 +195,18 @@ class MolmoAct2VLA:
 
 @functools.lru_cache(maxsize=1)
 def load_molmoact2(model_id: str = DEFAULT_MODEL_ID, device: Optional[str] = None,
-                   dtype: str = "bfloat16", num_steps: int = 10) -> MolmoAct2VLA:
+                   dtype: Optional[str] = None, num_steps: int = 10) -> MolmoAct2VLA:
     """Load MolmoAct2-SO100_101. Snapshots the repo (for norm_stats.json), patches modeling for bf16,
-    loads .to(cuda).eval(). ~12 GiB bf16 on a 24GB 4090. LRU-cached."""
+    loads .to(cuda).eval(). `dtype` from arg or $DRISHTI_VLA_DTYPE (default bfloat16 ~12 GiB fits a 24GB
+    4090; use float32 ~26 GiB on a >=40GB card to skip the bf16 patch). LRU-cached."""
     import torch
     from huggingface_hub import snapshot_download
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
+    dtype = dtype or os.environ.get("DRISHTI_VLA_DTYPE", "bfloat16")
     torch_dtype = {"float32": torch.float32, "float16": torch.float16, "bfloat16": torch.bfloat16}[dtype]
     local_dir = snapshot_download(model_id)
+    _patch_tokenizer_config(local_dir)
     if dtype != "float32":
         _patch_model_for_mixed_dtype(local_dir)
     dev = _device(device)

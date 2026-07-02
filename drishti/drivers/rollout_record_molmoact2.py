@@ -67,23 +67,29 @@ def record_episode(vla, embedder, env, task, cube_xy, *, ingest, ace_b, max_fram
     return success, run.run_id
 
 
-def _smoke(vla, task):
-    """R4 gate: step MolmoAct2 a few frames, save the overhead view, report motion + success."""
+def _smoke(vla, task, n_frames: int = 25):
+    """R4 gate: step MolmoAct2 and check whether the gripper APPROACHES the cube (automated verdict),
+    plus save frames for a visual OOD (R9) read."""
     env = SO101Env()
     _grasp_config(env, (0.26, 0.0))
     out = Path("data/molmoact2_smoke")
     out.mkdir(parents=True, exist_ok=True)
     start = env.state().copy()
-    for f in range(20):
-        Image.fromarray(env.render("up", 640, 480)).save(out / f"f{f:02d}.png")
+    g2c = lambda: float(np.linalg.norm(env.gripper_tcp() - env.cube_pos()))
+    d0 = dmin = g2c()
+    for f in range(n_frames):
+        Image.fromarray(env.render("up", 640, 480)).save(out / f"up_{f:02d}.png")
+        Image.fromarray(env.render("side", 640, 480)).save(out / f"side_{f:02d}.png")
         action = _first_action(vla.predict([env.render(CAMS_VLA[0], 320, 240),
                                             env.render(CAMS_VLA[1], 320, 240)], task, env.state()))
         env.step(action.astype(np.float64), n_substeps=N_SUBSTEPS)
+        dmin = min(dmin, g2c())
     moved = float(np.linalg.norm(env.state() - start))
-    print(f"smoke: cube={np.round(env.cube_pos(), 3)} success={_cube_in_tray(env.cube_pos(), TRAY_XY)} "
-          f"joint_motion={moved:.3f} rad")
-    print(f"saved 20 frames to {out} — verify the arm moves TOWARD the cube. If it moves AWAY, "
-          f"flip JOINT_SIGNS/JOINT_OFFSETS in drishti/policy_molmoact2.py (R4).")
+    approached = dmin < d0 - 0.02                      # gripper got >=2cm closer to the cube
+    print(f"smoke: joint_motion={moved:.3f} rad | gripper->cube start={d0*100:.1f}cm "
+          f"min={dmin*100:.1f}cm end={g2c()*100:.1f}cm | success={_cube_in_tray(env.cube_pos(), TRAY_XY)}")
+    print(f"R4 VERDICT: {'PASS — gripper approached the cube (joint convention looks right)' if approached else 'CHECK — gripper did NOT approach; if it moved AWAY, flip JOINT_SIGNS/JOINT_OFFSETS in policy_molmoact2.py'}")
+    print(f"saved {n_frames}x2 frames to {out} (also inspect for R9 visual OOD)")
 
 
 def main():
