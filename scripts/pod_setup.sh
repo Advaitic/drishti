@@ -4,8 +4,7 @@
 set -uo pipefail
 cd "$(cd "$(dirname "$0")/.." && pwd)"
 export DEBIAN_FRONTEND=noninteractive
-export MUJOCO_GL=egl
-export HF_HUB_ENABLE_HF_TRANSFER=1
+export MUJOCO_GL=egl                  # xet handles fast HF downloads now; hf_transfer not needed
 
 echo "=== [1/5] apt deps for headless EGL ==="
 (apt-get update -y && apt-get install -y libegl1 libgl1 libglib2.0-0 git curl >/dev/null 2>&1) \

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import base64
 import io
+import os
 import threading
 import uuid
 from dataclasses import dataclass, field
@@ -36,8 +37,9 @@ from drishti.sim.scripted_pick import TRAY_XY, _cube_in_tray, _grasp_config, _is
 from drishti.uq import ace_score
 
 DEG2RAD = np.pi / 180.0
-CAMS_VLA = ("up", "wrist")           # the two views fed to MolmoAct2 SO-100/101: [scene, wrist].
-                                     # Stage-1 knob (R9): try ("side","wrist")/("up","side") for OOD.
+# the two views fed to MolmoAct2 SO-100/101: [scene, wrist]. Stage-1 knob (R9) — swap via
+# DRISHTI_VLA_CAMS=side,wrist (or up,side) to probe which view is least OOD, no code change.
+CAMS_VLA = tuple(os.environ.get("DRISHTI_VLA_CAMS", "up,wrist").split(","))
 WARMUP = 3                           # don't flag a spike in the first few frames (start transient)
 ACE_RANGE = (-3.2, 3.2)              # joint-radian range for ACE binning (absolute scale, not [-1,1])
 N_SUBSTEPS = 18                      # sim steps per control frame (matches live_fleet)
