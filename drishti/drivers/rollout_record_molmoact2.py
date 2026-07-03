@@ -37,9 +37,11 @@ def _first_action(chunk) -> np.ndarray:
     return chunk.reshape(-1, chunk.shape[-1])[0][:6]
 
 
-def record_episode(vla, embedder, env, task, cube_xy, *, ingest, ace_b, max_frames):
+def record_episode(vla, embedder, env, task, cube_xy, *, store, ace_b, max_frames):
     _grasp_config(env, cube_xy)
-    run = start_run("MolmoAct2-SO100_101", task, ingest_url=ingest, backend="in_process",
+    if hasattr(vla, "reset"):
+        vla.reset()                       # clear the action-step queue so each episode starts fresh (LeRobot VLA)
+    run = start_run("MolmoAct2-SO100_101", task, store=store, backend="in_process",
                     meta={"sim": "so101", "policy": "MolmoAct2-SO100_101",
                           "cube_xy": [round(cube_xy[0], 4), round(cube_xy[1], 4)]})
     bdir = BLOB_DIR / run.run_id
@@ -49,11 +51,16 @@ def record_episode(vla, embedder, env, task, cube_xy, *, ingest, ace_b, max_fram
         state_rad = env.state()
         with run.step(step_idx=f, t=float(f)) as st:
             action = _first_action(vla.predict([f0, f1], task, state_rad))
-            samples = vla.sample([f0, f1], task, state_rad, ace_b)
-            ace = float(ace_score(samples, value_range=ACE_RANGE))
+            if hasattr(vla, "action_head_std"):          # fast ACE: single-forward chunk spread (SmolVLA-style)
+                head_std = list(vla.action_head_std())
+            else:                                        # HF VLA fallback: sample N chunks, per-dim spread
+                samples = vla.sample([f0, f1], task, state_rad, ace_b)
+                s = np.asarray(samples, dtype=float).reshape(-1, np.asarray(samples).shape[-1])
+                head_std = list(s.std(axis=0)[:6])
+            ace = float(np.mean(np.abs(head_std)))
             emb = np.asarray(embedder(f0, f1), dtype=np.float32)
             st.log_observation(env_deg(state_rad).tolist()).log_action(action.tolist())
-            st.internals["action_head_std"] = [ace]      # the intrinsic 'act' signal calibrate.py fits on
+            st.internals["action_head_std"] = head_std   # per-dim spread; calibrate._act_spread reads it
             st.log_uncertainty(ace=ace)
             np.save(bdir / f"embed_{f:03d}.npy", emb)     # RND source (SigLIP), where calibrate looks
         env.step(action.astype(np.float64), n_substeps=N_SUBSTEPS)
@@ -118,23 +125,32 @@ def main():
     ap.add_argument("--exec-steps", type=int, default=25, help="chunk steps executed per query (smoke)")
     ap.add_argument("--chunk-substeps", type=int, default=8, help="sim substeps per chunk step (smoke)")
     ap.add_argument("--queries", type=int, default=8, help="VLA queries (smoke)")
+    ap.add_argument("--lerobot-ckpt", default=None,
+                    help="path to a finetuned LeRobot molmoact2 checkpoint; uses the finetuned VLA "
+                         "(with the joint-frame correction) instead of the zero-shot HF checkpoint")
     args = ap.parse_args()
 
-    from drishti.policy_molmoact2 import load_molmoact2
-    vla = load_molmoact2()
+    if args.lerobot_ckpt:
+        from drishti.policy_molmoact2_lerobot import load_molmoact2_lerobot
+        vla = load_molmoact2_lerobot(args.lerobot_ckpt)
+    else:
+        from drishti.policy_molmoact2 import load_molmoact2
+        vla = load_molmoact2()
     if args.smoke:
         _smoke(vla, args.task, exec_steps=args.exec_steps,
                chunk_substeps=args.chunk_substeps, n_queries=args.queries)
         return
 
     from drishti.uq.embed_frames import load_rnd_embedder
+    from drishti.store import Store
     embedder = load_rnd_embedder()
+    store = Store()                       # persist telemetry DIRECTLY to data/obs.db (no ingest HTTP on the pod)
     rng = np.random.default_rng(args.seed)
     n_succ = 0
     for i in range(args.episodes):
         cxy = (float(rng.uniform(0.24, 0.28)), float(rng.uniform(-0.03, 0.03)))
         succ, rid = record_episode(vla, embedder, SO101Env(), args.task, cxy,
-                                   ingest=args.ingest, ace_b=args.ace_b, max_frames=args.max_frames)
+                                   store=store, ace_b=args.ace_b, max_frames=args.max_frames)
         n_succ += int(succ)
         print(f"[{i+1}/{args.episodes}] {rid} success={succ} rate={n_succ}/{i+1}", flush=True)
     print(f"done: {n_succ}/{args.episodes} success. Next: python -m drishti.calibrate --auto")

@@ -49,7 +49,8 @@ def load_rnd_embedder(model_id: str = DEFAULT_EMBED_MODEL, device: Optional[str]
         for img in (up_img, side_img):
             pil = Image.fromarray(np.asarray(img, dtype=np.uint8))
             inputs = processor(images=pil, return_tensors="pt").to(dev)
-            feats = model.get_image_features(**inputs)          # (1, D)
+            feats = model.get_image_features(**inputs)          # (1, D) tensor, or an output object (tf>=4.57)
+            feats = getattr(feats, "pooler_output", feats)      # unwrap BaseModelOutputWithPooling if returned
             parts.append(feats.float().cpu().numpy().reshape(-1))
         return np.concatenate(parts).astype(np.float32)         # (2D,)
 

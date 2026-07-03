@@ -242,9 +242,13 @@ class EpisodeManager:
         state_rad = env.state()
         chunk = np.asarray(vla.predict(images, ep.task, state_rad), dtype=float)
         action = chunk.reshape(-1, chunk.shape[-1])[0][:6]           # first step of the chunk
-        # uncertainty: ACE from action samples (+ SMD/RND when a CalibScorer wants them)
-        samples = vla.sample(images, ep.task, state_rad, self.ace_n)
-        ace_raw = ace_score(samples, value_range=ACE_RANGE)
+        # uncertainty: fast ACE (single-forward chunk spread, ZERO extra passes) if the VLA exposes it,
+        # else sample N chunks (HF VLA). Matches how calibrate fit the 'act' signal (mean|action_head_std|).
+        if hasattr(vla, "action_head_std"):
+            ace_raw = float(np.mean(np.abs(vla.action_head_std())))
+        else:
+            ace_raw = float(ace_score(vla.sample(images, ep.task, state_rad, self.ace_n),
+                                      value_range=ACE_RANGE))
         smd_raw = rnd_raw = 0.0
         if isinstance(scorer, CalibScorer):
             smd_raw = float(scorer.smd.score(env_deg(state_rad)))
@@ -272,7 +276,8 @@ class EpisodeManager:
             self.vlas[eid] = self.vla_factory(env)
             return {"episode_id": eid, "task": task, "phase": "approach"}
 
-    def run(self, episode_id: str, max_frames: Optional[int] = None) -> dict:
+    def run(self, episode_id: str, max_frames: Optional[int] = None,
+            stop_on_spike: bool = True) -> dict:
         with self.lock:
             ep = self._get(episode_id)
             mf = max_frames or self.max_frames_default
@@ -283,7 +288,7 @@ class EpisodeManager:
                 if _cube_in_tray(ep.env.cube_pos(), TRAY_XY):
                     ep.success, ep.done = True, True
                     return self._report(ep, "success")
-                if ep.frame >= self.warmup and ep.uq_trace[-1]["combined"] > self.scorer.threshold:
+                if stop_on_spike and ep.frame >= self.warmup and ep.uq_trace[-1]["combined"] > self.scorer.threshold:
                     return self._report(ep, "spike")       # pause; the client injects a correction
             ep.done = True
             return self._report(ep, "timeout")
