@@ -1,39 +1,58 @@
-# Stage 3b — MODEST REAL RUN. GRPO-train the Qwen3-VL corrector against the sim's verifiable reward.
-# Budget-capped: watch the pod-hours (MolmoAct2 rollouts dominate cost, not the LLM). Start shaping=false
-# (pure success) to confirm signal, then enable shaping if credit assignment is too sparse.
+# Stage 3b — MODEST REAL RUN. GRPO-train the Qwen3-VL-4B corrector against the sim's verifiable reward.
+# Each rollout is a FULL MolmoAct2-in-sim episode (~30-60s), so batch_size × max_steps is the cost knob —
+# sized conservatively (~200 rollouts, ~2-3h). Bump after watching the smoke's per-rollout time.
 #   uv run rl @ configs/rl/grpo_qwen3vl_4b.toml
+# Topology (2x A100-80GB): GPU0 = vLLM inference, GPU1 = trainer + the MolmoAct2 rollout server (:8100).
+
+max_steps = 20
+seq_len = 4096
 
 [model]
-name = "Qwen/Qwen3-VL-4B-Instruct"
-optimization_dtype = "bfloat16"        # mandatory for VLMs
-reduce_dtype = "bfloat16"
+name = "Qwen/Qwen3-VL-4B-Instruct"     # in prime-rl's MODEL_RENDERER_MAP -> Qwen3VLRenderer (images work)
 
 [model.vlm]
 vision_encoder_attr = "model.visual"
 language_model_attr = "model.language_model"
 
-[model.lora]
+[deployment]
+num_infer_gpus = 1
+num_train_gpus = 1
+gpus_per_node = 2
+
+[orchestrator]
+batch_size = 8                         # total rollouts per step (cost knob — each is a full sim episode)
+group_size = 8                         # GRPO group (rollouts per prompt)
+
+[[orchestrator.post_batch_filters]]    # don't crash on uniform-reward (zero-advantage) groups early on
+type = "zero_advantage"
+enforce = false
+
+[orchestrator.train.sampling]
+max_completion_tokens = 64
+
+[[orchestrator.train.env]]
+id = "vla-corrector"
+args = { rollout_url = "http://localhost:8100", n_episodes = 64, max_turns = 4, shaping = true, include_image = true }
+
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+[trainer.model.lora]
 rank = 16
 alpha = 32
 dropout = 0.0
 
-# GRPO. Scale batch_size / rollouts_per_example up only as rollout throughput (parallel pods) allows —
-# each rollout is a full MolmoAct2-in-sim episode, so this is the cost/throughput knob (plan R2).
-max_steps = 100
-batch_size = 32
-rollouts_per_example = 8               # GRPO group size
+[trainer.optim]
+lr = 3e-6
 
-[sampling]
-max_tokens = 64
-temperature = 1.0
+[inference.model]
+enforce_eager = true                   # vLLM Qwen3-VL deepstack buffer bug workaround
 
-[[env]]
-id = "vla-corrector"
-args = { rollout_url = "http://ROLLOUT_POD_HOST:8100", n_episodes = 256, max_turns = 4, shaping = true, include_image = true }
+[inference.parallel]
+dp = 1
+tp = 1
 
 [wandb]
 project = "drishti-vla-corrector"
 name = "grpo-qwen3vl-4b"
-
-# Trainer sizing: a 4B VLM + LoRA fits ~1x A100-80GB for the trainer with gradient checkpointing; inference
-# (vLLM) fits a 4090. Finalize [inference]/[trainer]/[orchestrator] on the pod against a prime-rl VLM example.

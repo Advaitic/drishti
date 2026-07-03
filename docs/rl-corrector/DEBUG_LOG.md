@@ -180,6 +180,55 @@ Write the script to a file + rsync + run, instead of a heredoc/`-c` with non-ASC
 `predict`s (recorder) vs not (driver) produces different executed rollouts. Kept in mind when comparing the
 recorder's success rate to a driver's; the fast ACE (no sampling) removes this divergence.
 
+## Phase 6 — standing up prime-rl GRPO (the trainer integration, ~10 gotchas)
+
+**🔴 crusoe pods have proxied SSH only** — no public IP ever populates, so rsync + background procs don't
+work. **🟢** Use **datacrunch** (direct IP) or massedcompute. Verify `prime pods status --plain` shows an IP
+before doing any setup; if N/A after ~5 min, terminate + switch. 💡 Provider SSH model matters more than price.
+
+**🔴 datacrunch offers no `prime_rl` / pytorch image** (only base `ubuntu_22_cuda_12`). **🟢** Provision the
+base image + install everything (torch, prime-rl, the lerobot venv) manually.
+
+**🔴 prime-rl's `install.sh` clones a NESTED copy.** Run inside a cloned `prime-rl/`, it creates
+`prime-rl/prime-rl/` with the real venv + populated `deps/` submodules; the outer clone's `deps/` stay empty
+(`uv run` fails: "pydantic-config is not a Python project"). **🟢** Use the nested `prime-rl/prime-rl/`.
+
+**🔴 Current lerobot needs transformers 5.x** (`torch_compilable_check` import); our 4.57 pin broke its `eo1`
+policy import. **🟢** Keep transformers 5.5.4 — the finetuned checkpoint still loads (the 4.57-era HF-load
+gotchas were for the raw-HF path, not the lerobot `MolmoAct2Policy` path).
+
+**🔴 macOS rsync (2.6.9) has no `--info=progress2`** — it silently prints usage and exits (the checkpoint
+"upload" did nothing). **🟢** Drop `--info`; background rsync with plain `-az`.
+
+**🔴 Qwen3-VL-2B is not in prime-rl's `MODEL_RENDERER_MAP`** → it'd fall back to a renderer that drops the
+image parts. **🟢** Use **Qwen3-VL-4B** (mapped → `Qwen3VLRenderer` handles the spike frames). Config caught
+this at parse time (validate configs before launching!). Also: LoRA lives at **`[trainer.model.lora]`**, not
+`[model.lora]`, in an RL config.
+
+**🔴 `uvicorn module:app` served 500s** — `app = None` at module level shadows the lazy `__getattr__` that
+builds the app, so uvicorn got `None`. **🟢** `uvicorn drishti.sim.rollout_server:build_default_app --factory`.
+
+**🔴 SSH commands with `pkill` / `bash -lc` + a backgrounded server truncate their output** (the bg proc holds
+the channel; the tool times out). **🟢** Launch with a direct `nohup CMD > log 2>&1 & echo pid`; kill by
+explicit pid (never `pkill` in a compound ssh cmd).
+
+**🔴 Three verifiers-0.1.15.dev API diffs broke every rollout** (our env was written for 0.1.14): (1) each
+dataset row's `info` must carry `env_id`; (2) `info['task']` is now RESERVED as a JSON task-payload (our
+plain-string task → `json.loads` error) → renamed ours to `vla_task`; (3) `state['final_env_response']` must
+be a **list of Message dicts**, not the raw report (iterating the dict yielded str keys → "Invalid item type
+str"). **🟢** Patched `vla_corrector.py` for all three (editable install picks them up live). 💡 Pin-relaxing
+`verifiers==0.1.14`→`>=0.1.14` to accept prime-rl's version means re-checking the multi-turn API.
+
+**🔴 `RuntimeError: 10 consecutive empty train batches`** — prime-rl enforces a `zero_advantage` batch filter
+by default, which drops uniform-reward groups; our early steps were all-fail (uniform) → every batch empty →
+crash. **🟢** `[[orchestrator.post_batch_filters]] type="zero_advantage" enforce=false` (same as prime-rl's own
+`configs/debug/multimodal.toml`). 💡 A tiny smoke on hard episodes is uniform-reward by nature; don't enforce
+zero-advantage dropping until reward variance exists.
+
+💡 **The reward-variance lesson (the real one):** the loop *runs* but only *learns* when advantages are
+non-zero, which needs reward variance within each GRPO group. Pure-success reward on a VLA that fails
+uniformly gives none; the continuous `uq_reduction` **shaping** is what made 66–100% of rollouts trainable.
+
 ## Running cost & hardware notes
 
 - Cumulative Prime spend so far ≈ **$5–6** (well under the $200 cap / $500 budget).

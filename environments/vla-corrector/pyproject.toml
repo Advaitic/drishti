@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "verifiers env: train a corrective policy over a MolmoAct2 VLA in MuJoCo (drishti rollout server)"
 requires-python = ">=3.10"
 dependencies = [
-    "verifiers==0.1.14",
+    "verifiers>=0.1.14",   # prime-rl bundles 0.1.15.dev; accept it rather than pin (API verified compatible)
     "httpx",
     "datasets",
     "numpy",

@@ -56,3 +56,8 @@ runs/
 .idea/
 *.swp
 *.swo
+
+# recorded demo dataset (large)
+data/demos/
+data/policy/
+docs/rl-corrector/results/grpo_adapter/*.safetensors

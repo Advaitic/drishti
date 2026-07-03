@@ -378,18 +378,30 @@ def _sanitize(prompt: str, max_words: int = 40) -> str:
 
 # ------------------------------------------------------------ default app (Stage 1+, on the pod)
 def build_default_app() -> FastAPI:
-    """MolmoAct2 on the pod. `UNCERTAINTY=ace` (default before calibration exists) scores the intrinsic
-    ACE signal vs. `ACE_THRESHOLD`; `UNCERTAINTY=calib` uses the calibrated SMD+RND+ACE combined score
+    """MolmoAct2 on the pod. `DRISHTI_LEROBOT_CKPT` → use the finetuned LeRobot VLA (buffered receding
+    horizon + joint-frame fix + fast ACE); else the zero-shot HF checkpoint. `UNCERTAINTY=ace` scores the
+    intrinsic ACE vs `ACE_THRESHOLD`; `UNCERTAINTY=calib` uses the calibrated SMD+RND+ACE combined score
     from data/calib/ (+ a standalone SigLIP RND embedder). Requires CUDA."""
     import os
-    from drishti.policy_molmoact2 import load_molmoact2
-    vla = load_molmoact2()
+    ckpt = os.environ.get("DRISHTI_LEROBOT_CKPT")
+    if ckpt:
+        from drishti.policy_molmoact2_lerobot import load_molmoact2_lerobot
+        vla = load_molmoact2_lerobot(ckpt)
+    else:
+        from drishti.policy_molmoact2 import load_molmoact2
+        vla = load_molmoact2()
+
+    def factory(env):
+        if hasattr(vla, "reset"):
+            vla.reset()                       # one shared VLA, fresh action queue per episode
+        return vla
+
     if os.environ.get("UNCERTAINTY", "ace") == "ace":
         scorer = AceOnlyScorer(threshold=float(os.environ.get("ACE_THRESHOLD", "5.0")))
-        return create_app(vla_factory=lambda env: vla, scorer=scorer)
+        return create_app(vla_factory=factory, scorer=scorer)
     from drishti.uq.embed_frames import load_rnd_embedder
     embedder = load_rnd_embedder()
-    return create_app(vla_factory=lambda env: vla, scorer=CalibScorer(embedder=embedder), embedder=embedder)
+    return create_app(vla_factory=factory, scorer=CalibScorer(embedder=embedder), embedder=embedder)
 
 
 app: Optional[FastAPI] = None

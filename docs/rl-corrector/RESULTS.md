@@ -19,6 +19,7 @@ The positive record: milestones hit, with the numbers and where the raw proof li
 | Calibration | UQ threshold + success/failure AUC | **combined AUC 1.0** (RND 1.0, SMD .52→.78, ACE weak) | `results/calib/` |
 | Stage 2 | corrective prompting help? | partial pass — `procedural` +12%, situation-dependent | `results/logs/prompt_sweep.log` |
 | RL smoke | loop on live VLA → verifiable reward | **6/6 spike→correct→resume→reward, mean 0.50** | `results/logs/rlsmoke.log` |
+| **GRPO (Stage 3)** | prime-rl trains the Qwen3-VL corrector | **signal path proven: reward→advantages→LoRA update** | `results/logs/smoke.log`, `modest.log` |
 
 ---
 
@@ -151,6 +152,36 @@ Every stage of the loop is functional with the real VLA + calibrated detectors, 
 `MultiTurnEnv` over HTTP (Stage-0-tested with a stub) and stand up the **prime-rl GRPO trainer** (2 GPUs:
 vLLM inference serving Qwen3-VL + FSDP/LoRA trainer). The env + reward path is proven; the trainer is the
 remaining integration.
+
+## Stage 3 — prime-rl GRPO: the signal path, proven end-to-end
+
+Stood up the whole trainer on a **datacrunch 2× A100-80GB** pod: the finetuned-VLA rollout server (GPU1
+:8100) + prime-rl (vLLM **Qwen3-VL-4B** corrector on GPU0 + FSDP/LoRA trainer on GPU1 + orchestrator running
+our `vla-corrector` verifiers env). It **runs end-to-end** — sim reward → GRPO grouping/advantages → LoRA
+trainer steps.
+
+- **Smoke** (`smoke.toml`, 3 steps): all 3 steps executed, reward flowed from the sim into the trainer — but
+  uniform reward (every episode failed) → `Trainable 0/4` (zero advantage) → no *meaningful* update. (The
+  prime-rl multimodal example warns about exactly this "uniform early steps" case.)
+- **Modest run** (`grpo_qwen3vl_4b.toml`, 20 steps, group 8, **shaping=true**): the continuous
+  uncertainty-reduction shaping created within-group reward variance →
+
+```
+Step 0 | Reward -0.1490 | Trainable 8/9  (88.9%)
+Step 1 | Reward -0.1490 | Trainable 13/15 (86.7%)
+Step 2 | Reward -0.1486 | Trainable 6/9  (66.7%)
+Step 3 | Reward -0.1494 | Trainable 7/7  (100%)
+```
+
+**66–100% of rollouts trainable → non-zero advantages → the corrector's LoRA weights are actually updated
+from the sim reward.** That's the milestone: **reward → advantages → LoRA weight update**, on a real VLM
+corrector over the real MolmoAct2-in-sim loop.
+
+**What it doesn't yet do: *learn* (raise success).** Reward variance is thin — the VLA fails most episodes and
+RND-uncertainty barely drops with corrections (matches the Stage-2 finding: corrections are modest and
+situational). Next levers: curriculum/easier episodes where the VLA sometimes succeeds, a denser reward, or a
+LoRA-VLM VLA finetune to lift the baseline. Getting the loop *running* was the goal here; making it *climb* is
+the follow-on.
 
 ## Status & cost
 

@@ -1,40 +1,62 @@
-# Stage 3a — SMOKE TRAIN. The point is NOT to learn a good corrector; it is to PROVE the signal path:
-# sim reward -> verifiers env -> advantages -> a LoRA weight update on the corrector VLM. Tiny + cheap.
-# Run with self-hosted prime-rl:  uv run rl @ configs/rl/smoke.toml
-# (min 2 GPUs: 1 inference + 1 trainer; the MolmoAct2 rollout server is a 3rd 4090 reached via rollout_url.)
+# Stage 3a — SMOKE TRAIN. Prove the signal path: sim reward -> verifiers env -> advantages -> a LoRA
+# weight update on the corrector VLM. Tiny + cheap. Run: uv run rl @ configs/rl/smoke.toml
+# Topology (2x A100-80GB, from prime-rl rl.py): GPU0 = vLLM inference, GPU1 = trainer. The MolmoAct2
+# rollout server runs SEPARATELY on GPU1 (CUDA_VISIBLE_DEVICES=1) at :8100, reached via rollout_url.
+# Schema matches prime-rl configs/debug/multimodal.toml + examples/reverse_text/rl.toml.
+
+max_steps = 3
+seq_len = 4096
 
 [model]
-name = "Qwen/Qwen3-VL-2B-Instruct"     # smallest VLM for the cheapest possible signal-path proof
-optimization_dtype = "bfloat16"        # mandatory for VLMs in prime-rl
-reduce_dtype = "bfloat16"
+name = "Qwen/Qwen3-VL-4B-Instruct"     # 4B is in prime-rl's MODEL_RENDERER_MAP (Qwen3VLRenderer handles
+                                        # the image parts); 2B is not mapped -> would fall back + drop images.
 
 [model.vlm]
 vision_encoder_attr = "model.visual"
 language_model_attr = "model.language_model"
 
-[model.lora]
+[deployment]
+num_infer_gpus = 1                     # GPU0: vLLM serving the Qwen3-VL corrector
+num_train_gpus = 1                     # GPU1: FSDP + LoRA trainer
+gpus_per_node = 2
+
+[orchestrator]
+batch_size = 4                         # total rollouts per step
+group_size = 4                         # GRPO group (rollouts per prompt) -> within-group reward variance
+
+# Early steps can be uniform-reward (all rollouts of a group succeed or all fail) -> zero advantage.
+# prime-rl enforces a zero_advantage drop by default, which crashes as "10 consecutive empty batches".
+# Don't enforce it (same as prime-rl's own configs/debug/multimodal.toml) so training proceeds.
+[[orchestrator.post_batch_filters]]
+type = "zero_advantage"
+enforce = false
+
+[orchestrator.train.sampling]
+max_completion_tokens = 48
+
+[[orchestrator.train.env]]
+id = "vla-corrector"
+args = { rollout_url = "http://localhost:8100", n_episodes = 16, max_turns = 3, shaping = false, include_image = true }
+
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+[trainer.model.lora]
 rank = 8
 alpha = 16
 dropout = 0.0
 
-# GRPO — deliberately tiny so a few steps complete in minutes and confirm reward -> update.
-max_steps = 3
-batch_size = 4
-rollouts_per_example = 4               # GRPO group size
+[trainer.optim]
+lr = 3e-6
 
-[sampling]
-max_tokens = 48
-temperature = 1.0
+[inference.model]
+enforce_eager = true                   # vLLM 0.20.1 Qwen3-VL deepstack buffer bug workaround (prime-rl note)
 
-# The environment: our verifiers env, a thin client of the MolmoAct2 rollout server on the pod.
-[[env]]
-id = "vla-corrector"
-args = { rollout_url = "http://ROLLOUT_POD_HOST:8100", n_episodes = 16, max_turns = 3, shaping = false, include_image = true }
+[inference.parallel]
+dp = 1
+tp = 1
 
 [wandb]
 project = "drishti-vla-corrector"
 name = "smoke-qwen3vl-2b"
-
-# NOTE: the [inference]/[trainer]/[orchestrator] topology sections are finalized on the pod by diffing
-# against a prime-rl VLM example (e.g. `examples/` after the prime-rl install). This file pins the parts
-# specific to THIS experiment: the VLM model + LoRA, GRPO scale, and the vla-corrector env wiring.

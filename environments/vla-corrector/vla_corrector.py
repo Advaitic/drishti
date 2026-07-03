@@ -67,6 +67,13 @@ def _last_assistant_text(messages) -> str:
     return ""
 
 
+def _terminal_message(report: dict) -> list:
+    """verifiers >=0.1.15 requires state['final_env_response'] to be a list of Message-like objects
+    (not the raw report dict). The reward is read from state['success'] (set by _absorb), not from here."""
+    return [{"role": "user",
+             "content": f"Episode ended ({report['status']}): success={report['success']}."}]
+
+
 def _report_message(report: dict, include_image: bool) -> dict:
     """Build the user turn the corrector sees: the text failure report (+ spike frames as image parts)."""
     text = report["failure_report"]
@@ -98,7 +105,7 @@ class VLACorrectorEnv(vf.MultiTurnEnv):
     async def setup_state(self, state: vf.State) -> None:
         info = state.get("info") or {}
         ep = await asyncio.to_thread(self.client.start, info.get("seed"),
-                                     info.get("cube_xy"), info.get("task", DEFAULT_TASK))
+                                     info.get("cube_xy"), info.get("vla_task", DEFAULT_TASK))
         state["episode_id"] = ep["episode_id"]
         state["n_interventions"] = 0
         state["uq_trace"] = []
@@ -107,7 +114,7 @@ class VLACorrectorEnv(vf.MultiTurnEnv):
         if report["status"] == "spike":                  # ask the model to fix it
             state["prompt"] = list(state["prompt"]) + [_report_message(report, self.include_image)]
         else:                                            # VLA already finished (success/timeout) -> stop
-            state["final_env_response"] = report
+            state["final_env_response"] = _terminal_message(report)
 
     async def env_response(self, messages: vf.Messages, state: vf.State, **kwargs) -> vf.Messages:
         correction = _last_assistant_text(messages)
@@ -117,7 +124,7 @@ class VLACorrectorEnv(vf.MultiTurnEnv):
         self._absorb(state, report)
         if report["status"] == "spike":
             return [_report_message(report, self.include_image)]
-        state["final_env_response"] = report             # terminal -> @vf.stop ends the rollout
+        state["final_env_response"] = _terminal_message(report)   # terminal -> ends the rollout
         return []
 
 
@@ -150,9 +157,12 @@ def load_environment(rollout_url: str = "http://localhost:8100", n_episodes: int
     rows = [{
         "prompt": [{"role": "system", "content": SYSTEM}],
         "answer": "",
-        "info": {"seed": int(seed0 + i),
+        # verifiers >=0.1.15 reserves info['task'] as a JSON task-payload + routes by info['env_id'];
+        # keep our per-episode instruction under a non-reserved key.
+        "info": {"env_id": "vla-corrector",
+                 "seed": int(seed0 + i),
                  "cube_xy": [float(rng.uniform(*cube_x)), float(rng.uniform(*cube_y))],
-                 "task": task},
+                 "vla_task": task},
     } for i in range(n_episodes)]
     dataset = Dataset.from_list(rows)
 
