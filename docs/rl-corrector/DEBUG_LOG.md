@@ -229,6 +229,67 @@ zero-advantage dropping until reward variance exists.
 non-zero, which needs reward variance within each GRPO group. Pure-success reward on a VLA that fails
 uniformly gives none; the continuous `uq_reduction` **shaping** is what made 66–100% of rollouts trainable.
 
+## Phase 7 — colocated single-GPU H200 run (the dense-reward + curriculum session)
+
+Goal this session: run the real GRPO run with the dense staged-progress reward + curriculum, capture a
+training curve for a Prime Intellect demo. No 2× GPU nodes were available, so everything ran **colocated on
+one H200-141GB**. Each gotcha below is written as **what the tool expected vs what we did**.
+
+**🔴 The `prime_rl` provider image is effectively bare.** Despite the name, the nebius `prime_rl` image had
+no torch / uv / prime-rl / vllm preinstalled (Python 3.10, git, gcc only). **🟢** Installed everything via one
+scripted pass (`scripts/pod_h200_setup.sh`): apt EGL libs, uv, prime-rl from source, lerobot venv, model
+pre-pulls. 💡 Don't trust image names; verify with `find / -name prime-rl` before assuming.
+
+**🔴 prime-rl's `deps/*` submodules are declared with `git@github.com:` SSH URLs.** On a pod with no GitHub
+SSH auth they fail ("Host key verification failed"), leaving `deps/{verifiers,renderers,research-environments,
+pydantic-config}` **empty** — yet `uv sync` still PASSES (it defers building editable deps), so the breakage
+only surfaces later at `uv run` as `"pydantic-config is not a Python project"`. **🟢 What the tool expected:**
+HTTPS remotes. Fix: `git config --global url."https://github.com/".insteadOf "git@github.com:"` → `git
+submodule sync --recursive` → `update --init --recursive`; force-reclone any that stayed empty. 💡 `uv sync`
+success ≠ submodules populated — check `deps/*/pyproject.toml` exists.
+
+**🔴 THE BIG ONE — the RL trainer must run under `torchrun`, not bare `uv run trainer`.** Launching
+`uv run trainer @ config` dies instantly: `ValueError: environment variable RANK expected, but not set`
+(torch.distributed `env://` rendezvous). **What the tool expected:** to be launched as
+`torchrun --role=trainer --rdzv-endpoint=localhost:PORT --nproc-per-node=1 -m prime_rl.trainer.rl.train @
+<trainer.toml>` (torchrun sets `RANK`/`WORLD_SIZE`/`LOCAL_RANK`). The combined `rl` entrypoint does this
+internally; a manual split must replicate it. **Nasty symptom:** the orchestrator still logs
+`Step N | Reward | Trainable X/Y` (those are ORCHESTRATOR-side advantage computations) so it *looks* like it's
+training — but the trainer is dead, the weights dir stays EMPTY, and the run deadlocks a few steps in
+(`Train batch k/8; 0 inflight`, orchestrator waiting for a policy update that never comes). 💡 Verify a real
+training step (trainer.log: `LoRA enabled: … adapter params` + `Initializing optimizer` + no RANK error, and
+non-empty `outputs/weights/`) — not just the orchestrator's Step lines.
+
+**🔴 Stale calibration → embedding-dimension mismatch (500s on every rollout).** The old `data/calib` RND was
+fit on **2880-dim** embeddings; the current SigLIP pipeline produces **1536-dim** (2 cameras × 768). `rnd.py
+_white` (whitening) then fails `RuntimeError: tensor a (1536) must match tensor b (2880)` → rollout server 500
+→ the verifiers env's httpx client gets a non-JSON body → `JSONDecodeError`. **🟢** Recalibrate on the current
+pipeline (record 16 eps → `calibrate --auto` → fresh 1536-dim `data/calib`, RND AUC back to 1.0). 💡
+Calibration artifacts are embedding-pipeline-specific; re-fit whenever transformers / SigLIP / camera-count
+changes. Pushed the fresh calib to HF so it's reusable.
+
+**🔴 11 GB checkpoint upload: single-stream SSH/rsync collapsed to ~12 MB/min** (TCP congestion on one long
+connection → ~11 h ETA). **🟢** Parallel chunked upload (`dd` byte-ranges piped to `ssh` in parallel) →
+**~897 MB/min, a 75× speedup** — proving it was single-stream choke, not the raw uplink (the user's HF-upload
+instinct was the same fix: parallel HTTPS). **🔴 But an unverified 16-stream pass silently dropped ~1.4 GB**
+(some streams reset under load → short chunks → `cat` reassembled a 9.46 GB file vs the true 10.88 GB). **🟢**
+Verified upload: per-chunk size check against the expected byte count + retry, 8 streams. 💡 Parallelism fixes
+congestion, but ALWAYS verify each chunk's size before reassembling — a corrupt concat looks "done."
+
+**🟢 Made the pod disposable via HF.** Pushed the finetuned VLA checkpoint + calib to a private HF repo
+(`aryanmadhavverma/molmoact2-so101-ft`) — pod→HF is datacenter-fast, so future re-provisioning pulls the 11 GB
+in ~5 min instead of re-uploading from a laptop. The RL-tuned **corrector** is a ~33 M-param LoRA adapter
+(HF-native format straight from prime-rl) → also HF. 💡 Prime Intellect = compute + framework, not a model
+host; HF is the home for the weights.
+
+**🔴 No pod pause — only terminate.** Prime has no suspend/stop that keeps the disk; the only way to stop
+billing is `prime pods terminate`. 💡 Secure everything to HF *first* so terminate is lossless; re-provision is
+scripted + fast.
+
+**💡 Monitoring quirk:** piping a long process's stdout through `| tail` (or a `tee` log) BUFFERS — no
+per-step visibility until it exits. Track liveness via `nvidia-smi` utilization + fresh log timestamps
+instead, and key completion watchers off explicit markers written on the pod.
+
 ## Running cost & hardware notes
 
 - Cumulative Prime spend so far ≈ **$5–6** (well under the $200 cap / $500 budget).
