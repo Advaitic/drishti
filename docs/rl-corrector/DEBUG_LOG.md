@@ -260,6 +260,22 @@ training — but the trainer is dead, the weights dir stays EMPTY, and the run d
 training step (trainer.log: `LoRA enabled: … adapter params` + `Initializing optimizer` + no RANK error, and
 non-empty `outputs/weights/`) — not just the orchestrator's Step lines.
 
+**🔴 THE ACTUAL WALL (1-GPU manual split can't sustain training).** After the torchrun fix the trainer
+*starts* clean (loads the model, `LoRA enabled: 33,030,144 adapter params`, `Initializing optimizer`) — but
+then hangs forever logging `Waiting for run 0 to be created multi_run_manager.id_2_idx={}`, while the
+orchestrator sits at `Train batch 0/4; 0 inflight`. Every attempt (batch 8 → 4, `max_off_policy_steps` 0 → 16)
+died **identically at ~step 3**: the orchestrator generates 3 batches of rollouts + advantages (the "Step N |
+Trainable 4/4" lines are orchestrator-side) but the **trainer never attaches to the run**, so no LoRA update
+ever lands (`outputs/weights/` stays empty), the send-buffer fills, and it deadlocks. **What the tool
+expected:** the combined `rl` launcher performs a **filesystem run-registration handshake** between
+orchestrator and trainer (`src/prime_rl/trainer/runs.py` MultiRunManager polls for a run the orchestrator
+registers). Launching the two as separate manual processes — even sharing `--output-dir` — does **not**
+reproduce that registration, so the trainer waits for a "run 0" that never appears. 💡 **Conclusion: on a
+single GPU there is no clean path** — the combined `rl` entrypoint (which wires this coordination) requires
+**2 disjoint GPUs** (`num_infer_gpus + num_train_gpus`, and it errors if that total exceeds physical GPUs).
+The manual split gets you rollouts+advantages but not sustained training. **Next time: get a 2-GPU node and
+use `uv run rl @ config` (the proven path from the earlier 2×A100 session) — do NOT hand-split on 1 GPU.**
+
 **🔴 Stale calibration → embedding-dimension mismatch (500s on every rollout).** The old `data/calib` RND was
 fit on **2880-dim** embeddings; the current SigLIP pipeline produces **1536-dim** (2 cameras × 768). `rnd.py
 _white` (whitening) then fails `RuntimeError: tensor a (1536) must match tensor b (2880)` → rollout server 500

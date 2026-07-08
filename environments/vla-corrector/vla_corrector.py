@@ -38,7 +38,7 @@ DEFAULT_TASK = "pick up the cube and place it in the box"
 class RolloutClient:
     """Thin sync client of the drishti rollout server (called off the event loop via to_thread)."""
 
-    def __init__(self, base_url: str, timeout: float = 180.0):
+    def __init__(self, base_url: str, timeout: float = 600.0):  # serialized rollout server -> queued
         self._c = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout)
 
     def start(self, seed, cube_xy, task) -> dict:

@@ -1,0 +1,126 @@
+{
+  "grid": [
+    {
+      "cube_xy": [
+        0.215,
+        -0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.219,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.215,
+        0.0
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.3,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.215,
+        0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.205,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.245,
+        -0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.3,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.245,
+        0.0
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.375,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.245,
+        0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.261,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.275,
+        -0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.3,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.275,
+        0.0
+      ],
+      "success_rate": 0.5,
+      "mean_progress": 0.787,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.275,
+        0.055
+      ],
+      "success_rate": 1.0,
+      "mean_progress": 1.0,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.305,
+        -0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.3,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.305,
+        0.0
+      ],
+      "success_rate": 1.0,
+      "mean_progress": 1.0,
+      "n": 4
+    },
+    {
+      "cube_xy": [
+        0.305,
+        0.055
+      ],
+      "success_rate": 0.0,
+      "mean_progress": 0.214,
+      "n": 4
+    }
+  ],
+  "curriculum": [
+    [
+      0.275,
+      0.0
+    ]
+  ],
+  "note": "1 positions in [0.2,0.8] success band",
+  "params": {
+    "nx": 4,
+    "ny": 3,
+    "trials": 4,
+    "lo": 0.2,
+    "hi": 0.8
+  }
+}

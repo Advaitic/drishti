@@ -183,6 +183,35 @@ situational). Next levers: curriculum/easier episodes where the VLA sometimes su
 LoRA-VLM VLA finetune to lift the baseline. Getting the loop *running* was the goal here; making it *climb* is
 the follow-on.
 
+## H200 single-GPU session (dense reward + curriculum) — validated a lot, hit a 1-GPU wall
+
+No 2× GPU nodes were available, so this session ran everything **colocated on one H200-141GB**. Outcome is
+honest and mixed:
+
+**✅ Validated (the pipeline is real):**
+- Dense **staged-progress reward** + **curriculum sampler** built, unit-tested (10 green), and running in the
+  live env (`vla-corrector ready: num_tasks=64`).
+- **Recalibration** on the current 1536-dim embedding pipeline: **RND AUC 1.0**, threshold 0.083 (the old
+  2880-dim calib was stale — see DEBUG_LOG Phase 7).
+- **Frontier profile** ran (48 baseline episodes): the finetuned VLA is fairly *binary* across the grid —
+  only **1 cube position** (`[0.275, 0.0]`) fell in the 0.2–0.8 "flippable" band. A real finding: limited
+  headroom for a corrector, and a finer grid / more-capable VLA is the lever.
+- **Colocated single-GPU serving proven**: MolmoAct2 rollout server + Qwen3-VL-4B vLLM + trainer all on one
+  card (~88 GB/141 GB); the verifiers env drove **spike→correct→resume→reward** with the corrector invoked
+  (`Turns 4.0`) and the orchestrator computing non-zero advantages (`Trainable 4/4`).
+- Checkpoint + calib pushed to **HF** (`aryanmadhavverma/molmoact2-so101-ft`) → pod is disposable.
+
+**❌ Blocked (no NEW training milestone this session):** sustained GRPO training. On 1 GPU we're forced into
+prime-rl's **manual 3-process split**, which deadlocks at ~step 3 — the trainer starts (torchrun fix) but
+hangs `Waiting for run 0 to be created`; the orchestrator/trainer **run-registration handshake** that the
+combined `rl` launcher provides isn't reproduced by hand. Tried batch 8→4 and `max_off_policy_steps` 0→16;
+identical wall each time. `outputs/weights/` stayed empty → **the LoRA was never actually updated this
+session.** (The earlier 2×A100 session — combined `rl` — is where real LoRA updates were proven.)
+
+**➡️ Clear next step:** a **2-GPU node** + `uv run rl @ config` (the proven combined entrypoint that wires the
+coordination). Do NOT hand-split on 1 GPU. Everything else (dense reward, curriculum, calib, colocated
+serving) is ready to plug in. Pod terminated; validation logs in `results/h200_run/`.
+
 ## Status & cost
 
 - Cumulative Prime spend ≈ **$7** (cap $200 / budget $500). **Pod terminated** — no ongoing billing.

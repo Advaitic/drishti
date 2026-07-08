@@ -45,9 +45,11 @@ for i in $(seq 1 90); do
   sleep 5; [ $i -eq 90 ] && { echo "  !! inference not ready — see $LOGS/inference.log"; tail -20 "$LOGS/inference.log"; exit 1; }
 done
 
-echo "===== 3. trainer (GPU 0) ====="
+echo "===== 3. trainer (GPU 0) — MUST launch under torchrun (sets RANK/WORLD_SIZE) ====="
 cd "$PRL"
-CUDA_VISIBLE_DEVICES=0 nohup $UV run trainer @ "$DRISHTI/configs/rl/h200_train.toml" --output-dir "$OUT" $OVR \
+CUDA_VISIBLE_DEVICES=0 nohup $UV run torchrun --role=trainer --rdzv-endpoint=localhost:29501 \
+  --rdzv-id="drishti-$MODE" --nproc-per-node=1 \
+  -m prime_rl.trainer.rl.train @ "$DRISHTI/configs/rl/h200_train.toml" --output-dir "$OUT" $OVR \
   > "$LOGS/trainer.log" 2>&1 & echo "  trainer pid=$!"
 sleep 8
 
