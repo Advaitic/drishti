@@ -100,6 +100,7 @@ class VLACorrectorEnv(vf.MultiTurnEnv):
         state["status"] = report["status"]
         state["success"] = bool(report["success"])
         state["done"] = bool(report["done"])
+        state["progress"] = max(state.get("progress", 0.0), float(report.get("progress", 0.0)))
         state.setdefault("uq_trace", []).append(report["uncertainty"])
 
     async def setup_state(self, state: vf.State) -> None:
@@ -139,6 +140,13 @@ async def penalty_interventions(*, state=None, **kwargs) -> float:
     return float((state or {}).get("n_interventions", 0))
 
 
+async def reward_progress(*, state=None, **kwargs) -> float:
+    """Dense staged task-progress in [0,1] (reached<grasped<lifted<placed), max over the episode.
+    Gives GRPO reward variance from *real progress* on failing episodes — the main fix for the flat-reward
+    problem. Group-relative advantage isolates the corrector's effect (same start pose across the group)."""
+    return float((state or {}).get("progress", 0.0))
+
+
 async def reward_uq_reduction(*, state=None, **kwargs) -> float:
     """Optional shaping: did the corrections calm the uncertainty over the episode? (>= 0)."""
     tr = (state or {}).get("uq_trace", [])
@@ -149,11 +157,22 @@ async def reward_uq_reduction(*, state=None, **kwargs) -> float:
 
 def load_environment(rollout_url: str = "http://localhost:8100", n_episodes: int = 64, seed0: int = 0,
                      max_turns: int = 4, max_frames: int = 110, cube_x=(0.24, 0.28),
-                     cube_y=(-0.03, 0.03), shaping: bool = True, include_image: bool = True,
+                     cube_y=(-0.03, 0.03), curriculum=None, curriculum_jitter: float = 0.008,
+                     shaping: bool = True, dense: bool = True, include_image: bool = True,
                      task: str = DEFAULT_TASK, client: Optional[RolloutClient] = None,
                      **kwargs) -> vf.Environment:
     import numpy as np
     rng = np.random.default_rng(seed0)
+
+    def _cube_xy():
+        # curriculum: sample cube positions from the frontier band (where the VLA succeeds SOMETIMES, so a
+        # correction can flip the outcome -> real reward variance) with small jitter. Else uniform box.
+        if curriculum:
+            base = curriculum[int(rng.integers(len(curriculum)))]
+            j = curriculum_jitter
+            return [float(base[0] + rng.uniform(-j, j)), float(base[1] + rng.uniform(-j, j))]
+        return [float(rng.uniform(*cube_x)), float(rng.uniform(*cube_y))]
+
     rows = [{
         "prompt": [{"role": "system", "content": SYSTEM}],
         "answer": "",
@@ -161,14 +180,17 @@ def load_environment(rollout_url: str = "http://localhost:8100", n_episodes: int
         # keep our per-episode instruction under a non-reserved key.
         "info": {"env_id": "vla-corrector",
                  "seed": int(seed0 + i),
-                 "cube_xy": [float(rng.uniform(*cube_x)), float(rng.uniform(*cube_y))],
+                 "cube_xy": _cube_xy(),
                  "vla_task": task},
     } for i in range(n_episodes)]
     dataset = Dataset.from_list(rows)
 
     funcs = [reward_success, penalty_interventions]
     weights = [1.0, -0.05]
-    if shaping:
+    if dense:                                            # dense staged progress — the main reward-variance fix
+        funcs.append(reward_progress)
+        weights.append(0.3)
+    if shaping:                                          # uncertainty-reduction shaping (secondary, noisy)
         funcs.append(reward_uq_reduction)
         weights.append(0.1)
     rubric = vf.Rubric(funcs=funcs, weights=weights)

@@ -118,6 +118,25 @@ def _geometry(env: SO101Env, grasping: bool) -> dict:
     }
 
 
+def _progress(env: SO101Env, grasping: bool) -> float:
+    """Dense staged task-progress in [0,1] — credits partial success so two FAILING episodes differ by
+    how far they got (reached < grasped < lifted < placed). This is the signal that gives GRPO reward
+    variance from real progress instead of the noisy uq-reduction shaping. Tracked as a per-episode max."""
+    g = env.gripper_tcp().astype(float)
+    c = env.cube_pos().astype(float)
+    if _cube_in_tray(c, TRAY_XY):
+        return 1.0                                   # placed (== success)
+    if grasping and float(c[2]) > 0.10:
+        return 0.85                                  # lifted the cube clear
+    if grasping:
+        return 0.60                                  # closed on the cube
+    dist = float(np.linalg.norm(g - c))
+    if dist < 0.05:
+        return 0.30                                  # reached the cube (grasp-ready)
+    # smooth approach credit toward 0.30: 0 at >=20cm, ramps up as the gripper nears the cube
+    return round(0.30 * (1.0 - min(dist, 0.20) / 0.20), 4)
+
+
 _MEANING = {
     "smd": "the robot's pose is unusual / off-distribution",
     "rnd": "the camera view is unfamiliar to the policy",
@@ -157,6 +176,7 @@ class Episode:
     last_emb: Optional[np.ndarray] = None
     uq_trace: list = field(default_factory=list)
     last_report: Optional[dict] = None
+    best_progress: float = 0.0                        # dense staged progress, max over the episode
 
 
 # ---- request bodies (module-level so FastAPI introspects them as JSON bodies, not query params) ----
@@ -221,6 +241,7 @@ class EpisodeManager:
             "task": ep.task, "n_interventions": ep.n_interventions,
             "done": status in ("success", "timeout"), "success": ep.success,
             "reward": 1.0 if ep.success else 0.0,
+            "progress": round(ep.best_progress, 4),
             "geometry": _geometry(env, grasping),
             "uncertainty": {
                 "smd": per["smd"], "rnd": per["rnd"], "ace": per["ace"], "combined": comb,
@@ -259,7 +280,9 @@ class EpisodeManager:
         comb, dominant, per = scorer.score(smd_raw=smd_raw, rnd_raw=rnd_raw, ace_raw=ace_raw)
         env.step(action.astype(np.float64), n_substeps=N_SUBSTEPS)
         ep.frame += 1
-        ep.phase = _phase(env, _is_grasping(env))
+        grasping = _is_grasping(env)
+        ep.phase = _phase(env, grasping)
+        ep.best_progress = max(ep.best_progress, _progress(env, grasping))
         ep.uq_trace.append({"frame": ep.frame, "phase": ep.phase, "combined": round(comb, 4),
                             "dominant": dominant, **{k: round(v, 4) for k, v in per.items()}})
 

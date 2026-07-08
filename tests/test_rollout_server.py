@@ -68,6 +68,18 @@ def test_baseline_no_correction_fails():
     assert last["status"] in ("spike", "timeout")
 
 
+def test_progress_reported_and_maxed():
+    """Dense staged progress is in every report, in [0,1], and reaches 1.0 once the cube is placed."""
+    m = _mgr()
+    eid = m.start(seed=1)["episode_id"]
+    rep = m.run(eid, max_frames=40)
+    assert "progress" in rep and 0.0 <= rep["progress"] <= 1.0
+    m.correct(eid, "lower onto the cube and close")           # stub then solves -> places the cube
+    rep2 = m.run(eid, max_frames=40)
+    assert rep2["success"] is True and rep2["progress"] == 1.0
+    m.end(eid)
+
+
 def test_http_wiring():
     """FastAPI wiring: healthz + start + one run (a single request cycle is safe on macOS)."""
     c = TestClient(create_app(vla_factory=lambda env: StubVLA(env, seed=0),

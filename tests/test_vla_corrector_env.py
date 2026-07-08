@@ -90,3 +90,29 @@ def test_load_environment_builds():
     env = vc.load_environment(n_episodes=5, client=FakeClient(), shaping=False)
     assert isinstance(env, vc.VLACorrectorEnv)
     assert len(env.dataset) == 5
+
+
+def test_reward_progress_reads_state():
+    assert asyncio.run(vc.reward_progress(state={"progress": 0.6})) == 0.6
+    assert asyncio.run(vc.reward_progress(state={})) == 0.0
+    assert asyncio.run(vc.reward_progress(state=None)) == 0.0
+
+
+def test_progress_absorbed_as_running_max():
+    """The env tracks the episode's best staged progress across turns (a max, robust to late dips)."""
+    env = vc.load_environment(n_episodes=1, client=FakeClient(), dense=True, shaping=False)
+    state = {}
+    for prog in (0.3, 0.6, 0.5):                              # rises to 0.6, then dips -> max stays 0.6
+        env._absorb(state, {"status": "spike", "success": False, "done": False,
+                            "progress": prog, "uncertainty": {"combined": 0.4}})
+    assert state["progress"] == 0.6
+    assert asyncio.run(vc.reward_progress(state=state)) == 0.6
+
+
+def test_curriculum_samples_from_band():
+    """With a curriculum band, cube positions cluster around the given frontier point (within jitter)."""
+    env = vc.load_environment(n_episodes=12, client=FakeClient(), curriculum=[[0.26, 0.0]],
+                              curriculum_jitter=0.008, seed0=0)
+    for row in env.dataset:
+        x, y = row["info"]["cube_xy"]
+        assert abs(x - 0.26) <= 0.008 + 1e-9 and abs(y - 0.0) <= 0.008 + 1e-9
