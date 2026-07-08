@@ -61,3 +61,7 @@ runs/
 data/demos/
 data/policy/
 docs/rl-corrector/results/grpo_adapter/*.safetensors
+
+# finetuned VLA checkpoint (11GB, backed up, never commit)
+data/molmoact2_so101_ft_ckpt/
+data/calib/
