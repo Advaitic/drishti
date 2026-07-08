@@ -1,0 +1,25 @@
+# Colocated single-GPU (H200) — ORCHESTRATOR (drives rollouts: asks the vLLM corrector, runs our env,
+# computes reward, feeds the trainer). CPU-side; connects to the inference server (default localhost:8000).
+#   uv run orchestrator @ configs/rl/h200_orch.toml
+# Each rollout is a FULL MolmoAct2-in-sim episode via the vla-corrector env -> the rollout server (:8100).
+max_steps = 20
+batch_size = 8
+group_size = 8                         # GRPO group (rollouts per prompt)
+
+[model]
+name = "Qwen/Qwen3-VL-4B-Instruct"
+
+[renderer]
+name = "auto"                          # -> Qwen3VLRenderer (keeps the spike frames as image parts)
+
+[train.sampling]
+max_completion_tokens = 64             # corrective instruction is one short line
+
+[[train.env]]
+id = "vla-corrector"
+# dense=true -> staged-progress reward (the reward-variance fix). curriculum filled from the frontier profile.
+args = { rollout_url = "http://localhost:8100", n_episodes = 64, max_turns = 4, dense = true, shaping = true, include_image = true, curriculum = [] }
+
+[[post_batch_filters]]                 # don't crash on uniform-reward (zero-advantage) groups early on
+type = "zero_advantage"
+enforce = false

@@ -1,0 +1,16 @@
+# Colocated single-GPU (H200) — TRAINER (FSDP + LoRA on the Qwen3-VL-4B corrector).
+# Runs on GPU 0 alongside the inference server + the MolmoAct2 rollout server.
+#   CUDA_VISIBLE_DEVICES=0 uv run trainer @ configs/rl/h200_train.toml
+max_steps = 20
+
+[model]
+name = "Qwen/Qwen3-VL-4B-Instruct"
+seq_len = 4096
+
+[model.lora]                           # only the LoRA adapter trains; base Qwen3-VL-4B stays frozen
+rank = 16
+alpha = 32
+dropout = 0.0
+
+[optim]
+lr = 3e-6

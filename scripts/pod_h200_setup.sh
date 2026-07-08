@@ -33,7 +33,15 @@ if [ ! -d ~/prime-rl/.git ]; then
   git clone --depth 1 https://github.com/PrimeIntellect-ai/prime-rl.git ~/prime-rl
 fi
 cd ~/prime-rl
-git submodule update --init -- deps/verifiers deps/renderers deps/research-environments deps/pydantic-config 2>&1 | tail -3
+# CRITICAL: the deps/* submodules are declared with git@github.com SSH URLs, which fail on a pod with no
+# GitHub SSH auth ("Host key verification failed") — leaving deps/ EMPTY while `uv sync` still passes, so
+# `uv run` later dies with "pydantic-config is not a Python project". Rewrite SSH->HTTPS first.
+git config --global url."https://github.com/".insteadOf "git@github.com:"
+git submodule sync --recursive
+git submodule update --init --recursive 2>&1 | tail -4
+for d in deps/pydantic-config deps/verifiers deps/renderers deps/research-environments; do
+  [ -f "$d/pyproject.toml" ] || { echo "  ! $d empty — force re-clone"; git submodule deinit -f "$d"; rm -rf "$d" ".git/modules/$d"; git submodule update --init "$d" 2>&1 | tail -1; }
+done
 uv sync --all-extras 2>&1 | tail -6
 status prime_rl_sync $?
 echo "-- prime-rl entrypoints --"; ls .venv/bin/ | grep -iE "^rl$|trainer|inference|orchestrator" | tr '\n' ' '; echo
