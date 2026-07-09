@@ -1,0 +1,53 @@
+waiting for setup to finish...
+========== TEST #2 — STEERABILITY (opposite instructions -> action delta) ==========
+/home/ubuntu/lerobot/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+--- position 0 (0.265, -0.014) (frozen @ frame 25) ---
+  'move the gripper to the le' vs 'move the gripper to the ri' -> |Δ|/joint [0.   0.08 0.05 0.   0.   0.06]  mean 0.03
+  'lower the gripper straight' vs 'lift the gripper straight ' -> |Δ|/joint [0.   0.06 0.03 0.   0.   0.  ]  mean 0.02
+  'close the gripper now to g' vs 'keep the gripper fully ope' -> |Δ|/joint [0.   0.06 0.05 0.   0.   0.06]  mean 0.03
+  'move toward the cube      ' vs 'move away from the cube   ' -> |Δ|/joint [0.   0.07 0.09 0.   0.   0.  ]  mean 0.03
+--- position 1 (0.242, -0.029) (frozen @ frame 25) ---
+  'move the gripper to the le' vs 'move the gripper to the ri' -> |Δ|/joint [0.   0.03 0.02 0.   0.   0.  ]  mean 0.01
+  'lower the gripper straight' vs 'lift the gripper straight ' -> |Δ|/joint [0.   0.07 0.05 0.   0.   0.  ]  mean 0.02
+  'close the gripper now to g' vs 'keep the gripper fully ope' -> |Δ|/joint [0.   0.08 0.06 0.   0.   0.  ]  mean 0.03
+  'move toward the cube      ' vs 'move away from the cube   ' -> |Δ|/joint [0.   0.   0.04 0.   0.   0.  ]  mean 0.01
+--- position 2 (0.273, 0.025) (frozen @ frame 25) ---
+  'move the gripper to the le' vs 'move the gripper to the ri' -> |Δ|/joint [0. 0. 0. 0. 0. 0.]  mean 0.00
+  'lower the gripper straight' vs 'lift the gripper straight ' -> |Δ|/joint [0.   0.01 0.01 0.   0.   0.  ]  mean 0.00
+  'close the gripper now to g' vs 'keep the gripper fully ope' -> |Δ|/joint [0. 0. 0. 0. 0. 0.]  mean 0.00
+  'move toward the cube      ' vs 'move away from the cube   ' -> |Δ|/joint [0.   0.01 0.01 0.   0.   0.  ]  mean 0.00
+--- position 3 (0.264, 0.014) (frozen @ frame 25) ---
+  'move the gripper to the le' vs 'move the gripper to the ri' -> |Δ|/joint [0.   0.   0.   0.   0.   0.44]  mean 0.07
+  'lower the gripper straight' vs 'lift the gripper straight ' -> |Δ|/joint [0.   0.   0.01 0.   0.   0.  ]  mean 0.00
+  'close the gripper now to g' vs 'keep the gripper fully ope' -> |Δ|/joint [0.   0.03 0.05 0.   0.   0.06]  mean 0.02
+  'move toward the cube      ' vs 'move away from the cube   ' -> |Δ|/joint [0.   0.01 0.03 0.   0.   0.  ]  mean 0.01
+
+=== SUMMARY: mean |action delta| under OPPOSITE instructions (VLA action units ~ deg/joint) ===
+  move the gripper to the left     -> 0.03
+  lower the gripper straight down  -> 0.01
+  close the gripper now to grasp t -> 0.02
+  move toward the cube             -> 0.01
+
+GRAND MEAN: 0.02
+Read: <~2 => near-deaf to language (steering was trained out / never there); >~10 => clearly steerable (the bottleneck is RL/reward, not the VLA).
+========== TEST #1 — CORRECTION A/B (hand correction vs baseline -> success) ==========
+/home/ubuntu/lerobot/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+  [1/6] (0.2655, -0.0138) done
+  [2/6] (0.2416, -0.029) done
+  [3/6] (0.2725, 0.0248) done
+  [4/6] (0.2643, 0.0138) done
+  [5/6] (0.2617, 0.0261) done
+  [6/6] (0.2726, -0.0298) done
+
+=== TEST #1 — does a good correction help? ===
+baseline (no correction): 4/12 = 0.33
+  + 'lower the gripper straight down onto the cub' : 5/12 = 0.42   (Δ vs baseline +0.08)
+  + 'close the gripper now to grasp the cube     ' : 4/12 = 0.33   (Δ vs baseline +0.00)
+  + 'move down and forward until the gripper surr' : 5/12 = 0.42   (Δ vs baseline +0.08)
+  + 'keep going                                  ' : 4/12 = 0.33   (Δ vs baseline +0.00)
+
+Best correction Δ = +0.08. No correction beats baseline -> the failure is NOT correction-recoverable; the VLA is the ceiling.
+ALLTESTS_DONE
