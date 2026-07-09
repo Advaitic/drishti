@@ -1,5 +1,15 @@
 # vla-corrector
 
+> **🚧 DRAFT / RESEARCH ARTIFACT.** This is an early experiment shared for discussion, not a finished,
+> plug-and-play env. **What works:** the full loop runs end-to-end (custom multi-turn env + self-hosted
+> prime-rl, a vision corrector over a robot VLA-in-sim, 40 GRPO steps, no deadlock). **What we found (the
+> honest negative):** the corrector's language instructions don't improve task success, because the VLA
+> ignores them — steerability probes give ~0 action-change under *opposite* instructions for **both** our
+> finetuned VLA (0.02) and the zero-shot base (0.01, even on whole-task switches). So the RL machinery works;
+> the language channel to this VLA doesn't. See the drishti repo's `docs/rl-corrector/RESULTS.md` for the full
+> story + graphs, and `PRIME_HOSTED_VLM_LIMITATION.md` for the open questions. Layer-1 (sim + VLA + detectors)
+> is self-hosted — see "Set it up" below.
+
 A [verifiers](https://github.com/PrimeIntellect-ai/verifiers) environment that RL-trains a **corrective
 policy** to supervise a frozen **VLA worker** doing robot pick-and-place in a MuJoCo sim. When the VLA's
 calibrated uncertainty spikes, the corrector sees the failure context (telemetry + spike frames) and emits a

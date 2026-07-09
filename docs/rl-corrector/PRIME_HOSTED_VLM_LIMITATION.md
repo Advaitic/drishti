@@ -49,6 +49,25 @@ and more generally any "VLM-supervises-a-VLA" or image-in RL loop — be trained
 self-hosting a 2-GPU prime-rl deployment. Our `vla-corrector` env is a ready-made, non-trivial multimodal
 use case to validate it against.
 
+## The bigger request: continuous-space (robot) policy RL in prime-rl
+
+Everything above trains a **token/language policy** (an LLM) — prime-rl + verifiers + GRPO are built for
+discrete token sequences. Our whole "corrector" detour exists *because* the thing we can RL-train is a
+language model, not the robot. But our steerability tests show the language channel to the VLA is dead (both
+base and finetuned MolmoAct2 ignore instructions in our setup) — which points at the real want:
+
+**Let prime-rl RL-train continuous-action policies directly** — a VLA / robot policy that outputs continuous
+actions, RL-explored *inside* a verifiers-style environment (the sim), with verifiable reward = task success.
+Then you don't need a language corrector at all: **the environment becomes a simulation space where the VLA
+itself keeps exploring and improving** — the natural home for embodied RL.
+
+We understand this is a significant overhaul, not a config flag — it means continuous-control RL (PPO/SAC-style
+over an action distribution), not GRPO-over-tokens; a different rollout/advantage structure; and the policy
+being the *actor in the sim* rather than an LLM scoring text. But it would open Prime Intellect's RL stack to
+**robotics / embodied agents**, a domain the current token-only design can't reach. Our SO-101 sim + reward +
+detectors are a concrete, ready testbed to prototype it against. Worth the team's thought — happy to help
+prototype.
+
 ## The env as a reusable Hub abstraction (and its one documented limitation)
 
 Our `vla-corrector` verifiers env is **generic**: it trains a corrector over *any* VLA worker exposed via a

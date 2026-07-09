@@ -1,0 +1,42 @@
+Fetching 24 files:   0%|          | 0/24 [00:00<?, ?it/s]Fetching 24 files: 100%|██████████| 24/24 [00:00<00:00, 219310.01it/s]
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:00<00:00, 29.33it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 31.79it/s]
+>>> probing policy=base
+--- position 0 (0.265, -0.014) (frozen @ frame 25) ---
+  [FINE] 'move the gripper to th' vs 'move the gripper to th' -> mean |Δ| 0.04
+  [FINE] 'lower the gripper stra' vs 'lift the gripper strai' -> mean |Δ| 0.01
+  [FINE] 'close the gripper now ' vs 'keep the gripper fully' -> mean |Δ| 0.01
+  [FINE] 'move toward the cube  ' vs 'move away from the cub' -> mean |Δ| 0.00
+  [TASK] 'pick up the cube and p' vs 'push the cube off the ' -> mean |Δ| 0.01
+  [TASK] 'grasp the cube        ' vs 'raise your arm straigh' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'go back to the home po' -> mean |Δ| 0.01
+--- position 1 (0.242, -0.029) (frozen @ frame 25) ---
+  [FINE] 'move the gripper to th' vs 'move the gripper to th' -> mean |Δ| 0.00
+  [FINE] 'lower the gripper stra' vs 'lift the gripper strai' -> mean |Δ| 0.00
+  [FINE] 'close the gripper now ' vs 'keep the gripper fully' -> mean |Δ| 0.01
+  [FINE] 'move toward the cube  ' vs 'move away from the cub' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'push the cube off the ' -> mean |Δ| 0.01
+  [TASK] 'grasp the cube        ' vs 'raise your arm straigh' -> mean |Δ| 0.00
+  [TASK] 'pick up the cube and p' vs 'go back to the home po' -> mean |Δ| 0.00
+--- position 2 (0.273, 0.025) (frozen @ frame 25) ---
+  [FINE] 'move the gripper to th' vs 'move the gripper to th' -> mean |Δ| 0.05
+  [FINE] 'lower the gripper stra' vs 'lift the gripper strai' -> mean |Δ| 0.02
+  [FINE] 'close the gripper now ' vs 'keep the gripper fully' -> mean |Δ| 0.01
+  [FINE] 'move toward the cube  ' vs 'move away from the cub' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'push the cube off the ' -> mean |Δ| 0.01
+  [TASK] 'grasp the cube        ' vs 'raise your arm straigh' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'go back to the home po' -> mean |Δ| 0.01
+--- position 3 (0.264, 0.014) (frozen @ frame 25) ---
+  [FINE] 'move the gripper to th' vs 'move the gripper to th' -> mean |Δ| 0.02
+  [FINE] 'lower the gripper stra' vs 'lift the gripper strai' -> mean |Δ| 0.03
+  [FINE] 'close the gripper now ' vs 'keep the gripper fully' -> mean |Δ| 0.01
+  [FINE] 'move toward the cube  ' vs 'move away from the cub' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'push the cube off the ' -> mean |Δ| 0.01
+  [TASK] 'grasp the cube        ' vs 'raise your arm straigh' -> mean |Δ| 0.01
+  [TASK] 'pick up the cube and p' vs 'go back to the home po' -> mean |Δ| 0.02
+
+=== SUMMARY (base) — mean |action delta| under OPPOSITE instructions (~deg/joint) ===
+  FINE (corrections)     GRAND MEAN: 0.01
+  TASK (whole goals)     GRAND MEAN: 0.01
+
+Read: <~2 => near-deaf; >~10 => clearly steerable. If BASE's TASK pairs are large but our finetuned's were ~0 -> our finetune collapsed a real capability -> refinetune WILL help.

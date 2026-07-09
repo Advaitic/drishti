@@ -259,11 +259,33 @@ extra success, within noise); two corrections Δ +0.00.** Corrections do not rec
 
 **Conclusion:** not a reward/curriculum/RL problem — **no reward can steer a deaf actuator.** Root cause: we
 finetuned MolmoAct2 on ONE fixed instruction string, collapsing its language-conditioning for this task.
-**Fix (actionable):** refinetune the VLA on VARIED instructions to restore steerability; THEN the corrector
-loop can actually work. This turns "it mysteriously didn't climb" into "the worker is deaf because we
-handicapped it — here's the fix." Raw logs: `results/steerability_tests/tests.log`. Drivers:
-`drishti/drivers/{steerability_probe,correction_ab}.py`. (Caveat: 12 samples is small; but the mechanistic
-0.02 makes the conclusion solid.)
+Raw logs: `results/steerability_tests/tests.log`. Drivers: `drishti/drivers/{steerability_probe,correction_ab}.py`.
+
+**Then we tested the BASE (zero-shot) MolmoAct2 too** (`steerability_probe --policy base`, fine + task-level
+pairs) — to check whether refinetuning could *restore* a lost steerability:
+
+| policy | FINE (corrections) | TASK (whole goals) |
+|---|---|---|
+| base MolmoAct2 (zero-shot) | **0.01** | **0.01** |
+| our finetuned | 0.02 | — |
+
+**The base ignores even whole-task switches** ("pick up the cube" vs "push it off the table" → 0.01). So the
+"our finetune collapsed a real steerability" story is **NOT supported** — there's nothing to restore, and
+**refinetuning on varied instructions has no evidence behind it.**
+
+**Honest state (two confounds, can't cleanly blame the architecture):** in OUR sim both VLAs ignore language —
+decisive that the corrector can't work as-is. But we can't say "MolmoAct2 is architecturally deaf": the
+finetuned result is confounded by our one-string finetune, and the base result is confounded by our sim being
+**OOD to the base** (it approaches the cube 6.7→2.5cm but never grasps, so its ~0 delta could be
+OOD-confusion, not deafness). Definitive test to distinguish: base MolmoAct2 on its *native* inputs (Ai2's
+eval), not our sim. Raw: `results/steerability_tests/base_probe.log`.
+
+**The pivot this points to:** drop LANGUAGE correction; use **action-level correction** — when uncertainty
+spikes, SMD already gives the direction back onto the success-manifold, so the corrector emits a corrective
+*action/state* instead of words. This sidesteps "is the VLA steerable by language" entirely (it doesn't need
+to hear language). That's the more defensible direction now. (Also on the table for Prime: **continuous-space
+policy RL** in prime-rl — see PRIME_HOSTED_VLM_LIMITATION.md — which would let the VLA itself be RL-explored
+directly in the sim, no language corrector needed.)
 
 ## Status & cost
 
