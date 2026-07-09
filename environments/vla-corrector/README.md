@@ -4,10 +4,9 @@ Draft / research. RL-train an LLM to **correct a black-box action policy** (a VL
 sim. Bring your own policy and sim behind a small HTTP contract; the env trains the corrector.
 
 Status: the loop runs end-to-end (custom multi-turn env + self-hosted prime-rl, vision corrector over a robot
-VLA-in-sim, 40 GRPO steps). Honest finding so far: with our SO-101 VLA the corrector's *language* doesn't move
-task success — steerability probes show ~0 action change under opposite instructions. So the machinery works;
-whether language correction helps depends on the policy. Details + graphs in the drishti repo
-(`docs/rl-corrector/RESULTS.md`).
+VLA-in-sim, 40 GRPO steps). Honest finding so far: with the reference SO-101 VLA the corrector's *language*
+doesn't move task success — steerability probes show ~0 action change under opposite instructions. So the
+machinery works; whether language correction helps depends on the policy.
 
 ## Overview
 
@@ -28,7 +27,8 @@ The env is a thin HTTP client — no torch, no sim, no GPU. To run the flow with
    over vision embeddings, both fit on your successful rollouts; vision via a HuggingFace SigLIP encoder).
 3. **Point the env at your server** via the `rollout_url` arg.
 
-Reference `MolmoAct2` worker + calibration: HF `aryanmadhavverma/molmoact2-so101-ft`.
+**Starter policy:** a finetuned `MolmoAct2-SO100_101` (SO-101 pick-place, ~69% grasp) plus its calibration are
+public on HF (`aryanmadhavverma/molmoact2-so101-ft`) — use it to try the loop before wiring your own policy.
 
 ## Rollout-server contract
 
@@ -63,9 +63,12 @@ prime eval run vla-corrector -m Qwen/Qwen3-VL-4B-Instruct -n 20 -r 2 \
   -a '{"rollout_url":"http://<host>:8100","include_image":true}'
 ```
 
-RL training (self-hosted prime-rl, 2 GPUs): put the env in `[[orchestrator.train.env]]` with the args below;
-a worked config lives in the drishti repo (`configs/rl/grpo_qwen3vl_4b.toml`). Hosted Training is text-only
-today, so a *vision* corrector must be self-hosted; a *text* corrector (`include_image=false`) can run hosted.
+RL training (self-hosted prime-rl, 2 GPUs): put the env in `[[orchestrator.train.env]]` with the args below.
+Hosted Training is text-only today, so a *vision* corrector must be self-hosted; a *text* corrector
+(`include_image=false`) can run hosted.
+
+Note: eval and CI require a reachable `rollout_url`. With no server the env can't produce episodes and
+`prime eval` fails with a connection error — the env carries the corrector loop, not a policy of its own.
 
 ## Environment arguments
 
