@@ -243,6 +243,28 @@ frontier was only 1 — the VLA is too binary).
 reproducible on Prime 2-GPU compute. Making it *improve the policy* is the open research problem, not an
 infra one.
 
+## Steerability tests (2026-07-09) — WHY it didn't climb, settled by two independent tests
+
+Before concluding "text correction doesn't work," we ran two cheap 1-GPU tests (no training) that isolate the
+three explanations we'd conflated. **They agree decisively: the finetuned VLA is deaf to language.**
+
+**Test #2 — mechanistic (do the ACTIONS change?):** at frozen states, sample the VLA under OPPOSITE
+instructions ("move left" vs "move right", "close gripper" vs "keep open") and measure the action delta,
+averaging out flow-noise. Result: **grand-mean 0.02°/joint** — essentially zero. The VLA produces the same
+action regardless of the instruction.
+
+**Test #1 — behavioral (does SUCCESS change?):** baseline vs a hand-crafted correction injected at the first
+spike, over 6 positions × 2 trials. Result: **baseline 4/12 (33%); best correction 5/12 (42%, Δ +0.08 = one
+extra success, within noise); two corrections Δ +0.00.** Corrections do not recover failures.
+
+**Conclusion:** not a reward/curriculum/RL problem — **no reward can steer a deaf actuator.** Root cause: we
+finetuned MolmoAct2 on ONE fixed instruction string, collapsing its language-conditioning for this task.
+**Fix (actionable):** refinetune the VLA on VARIED instructions to restore steerability; THEN the corrector
+loop can actually work. This turns "it mysteriously didn't climb" into "the worker is deaf because we
+handicapped it — here's the fix." Raw logs: `results/steerability_tests/tests.log`. Drivers:
+`drishti/drivers/{steerability_probe,correction_ab}.py`. (Caveat: 12 samples is small; but the mechanistic
+0.02 makes the conclusion solid.)
+
 ## Status & cost
 
 - Cumulative Prime spend ≈ **$7** (cap $200 / budget $500). **Pod terminated** — no ongoing billing.
