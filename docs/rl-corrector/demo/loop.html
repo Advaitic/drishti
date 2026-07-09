@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Corrective-VLM RL — the loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151d; --ink:#eef2f8; --muted:#8b95a9; --faint:#5a6478;
+    --steel:#8ba0c4; --amber:#ffb454; --amber-dim:#7a5a2e; --teal:#2fd6ab; --teal-dim:#1f5b4c;
+    --grid:rgba(130,150,185,.05); --edge:rgba(140,160,195,.14);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --disp:"IBM Plex Sans Condensed","IBM Plex Mono",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--mono);
+    overflow:hidden; display:grid; place-items:center;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      radial-gradient(120% 120% at 50% 0%,#131826 0%,#0b0d12 55%,#07080c 100%);
+    background-size:34px 34px,34px 34px,100% 100%;
+  }
+  /* grain */
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+
+  .stage{width:min(96vw,1240px);aspect-ratio:1240/720;position:relative;padding:34px 40px 0}
+
+  /* header */
+  .head{position:absolute;top:30px;left:44px;z-index:6}
+  .kicker{font-size:12px;letter-spacing:.42em;color:var(--amber);text-transform:uppercase;
+    display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--amber);display:inline-block}
+  .title{font-family:var(--disp);font-weight:700;font-size:clamp(34px,4.6vw,60px);
+    letter-spacing:-.01em;line-height:.96;margin-top:12px}
+  .title em{font-style:normal;color:var(--muted)}
+  .sub{font-size:13.5px;color:var(--muted);margin-top:12px;max-width:44ch;line-height:1.55}
+  .sub b{color:var(--ink);font-weight:500}
+
+  /* diagram */
+  .diagram{position:absolute;inset:0;top:0;display:grid;place-items:center}
+  .canvas{position:relative;width:min(70%,760px);aspect-ratio:1000/660;margin-top:26px}
+  svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+
+  .flow{fill:none;stroke-width:2.2;stroke-linecap:round;
+    stroke-dasharray:2 9;animation:flow 1.1s linear infinite;filter:drop-shadow(0 0 5px currentColor)}
+  .flow.steel{color:var(--steel);stroke:var(--steel);opacity:.85}
+  .flow.amber{color:var(--amber);stroke:var(--amber)}
+  .flow.teal{color:var(--teal);stroke:var(--teal);stroke-dasharray:2 10;animation-duration:1.5s}
+  @keyframes flow{to{stroke-dashoffset:-11}}
+  .flow.teal{animation-name:flowT}@keyframes flowT{to{stroke-dashoffset:-12}}
+
+  .packet{filter:drop-shadow(0 0 6px currentColor)}
+
+  /* nodes */
+  .node{position:absolute;transform:translate(-50%,-50%);width:184px;
+    background:linear-gradient(180deg,#151a24,#0f131b);border:1px solid var(--edge);
+    border-radius:13px;padding:13px 14px;z-index:4;
+    box-shadow:0 18px 40px -22px #000,inset 0 1px 0 rgba(255,255,255,.04);
+    opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
+  .node .tag{font-size:10px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
+  .node .name{font-family:var(--disp);font-weight:600;font-size:19px;margin-top:3px;line-height:1.05}
+  .node .meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.35}
+  .node .dot{position:absolute;top:12px;right:12px;width:7px;height:7px;border-radius:50%}
+  .node.accent{border-color:rgba(255,180,84,.4);box-shadow:0 0 0 1px rgba(255,180,84,.12),0 18px 44px -20px #000}
+  .node.accent .name{color:var(--amber)}
+  .node.train{border-color:rgba(47,214,171,.4)}
+  .node.train .name{color:#dff8f0}
+  @keyframes rise{to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
+  .node{transform:translate(-50%,-50%) translateY(10px)}
+
+  .n-vlm{left:50%;top:15.9%;animation-delay:.05s}
+  .n-vla{left:84%;top:50%;animation-delay:.18s}
+  .n-emb{left:50%;top:84.1%;animation-delay:.31s}
+  .n-fail{left:16%;top:50%;animation-delay:.44s}
+
+  /* correction prompt callout */
+  .prompt{position:absolute;left:75%;top:19%;transform:translate(-50%,-50%);z-index:7;
+    background:#1b140a;border:1px solid var(--amber);border-radius:10px;padding:9px 13px;
+    font-size:12.5px;color:#ffd9a1;white-space:nowrap;
+    box-shadow:0 0 22px -4px rgba(255,180,84,.5);opacity:0;animation:rise .6s ease .8s forwards}
+  .prompt b{color:var(--amber);font-weight:600}
+  .prompt .cur{display:inline-block;width:7px;height:15px;background:var(--amber);
+    vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .prompt::after{content:"";position:absolute;left:16px;bottom:-7px;width:12px;height:12px;
+    background:#1b140a;border-right:1px solid var(--amber);border-bottom:1px solid var(--amber);
+    transform:rotate(45deg)}
+
+  /* edge labels */
+  .elabel{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.02em}
+  .elabel.k{fill:var(--faint);font-size:9.5px;letter-spacing:.18em}
+
+  /* legend + footer */
+  .legend{position:absolute;right:44px;top:34px;z-index:6;text-align:right;font-size:11px;color:var(--muted)}
+  .legend div{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:6px}
+  .legend i{width:20px;height:2px;border-radius:2px;display:inline-block}
+  .foot{position:absolute;left:44px;bottom:26px;right:44px;z-index:6;display:flex;
+    justify-content:space-between;align-items:flex-end;gap:20px}
+  .foot .cap{font-size:12.5px;color:var(--muted);max-width:60ch;line-height:1.5}
+  .foot .cap b{color:var(--ink);font-weight:500}
+  .next{font-size:12px;color:var(--amber);letter-spacing:.16em;text-transform:uppercase;
+    white-space:nowrap;display:flex;align-items:center;gap:9px}
+  .next::after{content:"";width:34px;height:1px;background:linear-gradient(90deg,var(--amber),transparent)}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="head">
+      <div class="kicker">Corrector VLM · RL loop</div>
+      <h1 class="title">A model that<br>learns to <em>fix</em> a robot.</h1>
+      <p class="sub">An LLM watches a robot policy attempt a task. When it fails, the LLM proposes a
+        <b>correction in language</b>; the reward is <b>task success in sim</b>; the correction policy is
+        trained with GRPO.</p>
+    </div>
+
+    <div class="legend">
+      <div>correction signal <i style="background:var(--amber)"></i></div>
+      <div>training update <i style="background:var(--teal)"></i></div>
+    </div>
+
+    <div class="diagram">
+      <div class="canvas">
+        <svg viewBox="0 0 1000 660" aria-hidden="true">
+          <defs>
+            <marker id="ar-steel" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+              <path d="M0,0 L8,4.5 L0,9 Z" fill="var(--steel)"/></marker>
+            <marker id="ar-amber" markerWidth="10" markerHeight="10" refX="6.5" refY="5" orient="auto">
+              <path d="M0,0 L9,5 L0,10 Z" fill="var(--amber)"/></marker>
+            <marker id="ar-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="5" orient="auto">
+              <path d="M0,0 L9,5 L0,10 Z" fill="var(--teal)"/></marker>
+          </defs>
+
+          <!-- hidden guide paths for travelling packets -->
+          <path id="ring" d="M500,105 A340,225 0 1 1 500,555 A340,225 0 1 1 500,105" fill="none" stroke="none"/>
+          <path id="rewardpath" d="M500,588 C 40,548 30,120 500,74" fill="none" stroke="none"/>
+
+          <!-- outer training arc (reward -> update) -->
+          <path class="flow teal" d="M500,588 C 40,548 30,120 500,74" marker-end="url(#ar-teal)"/>
+
+          <!-- inner correction ring, 4 clockwise arcs -->
+          <path class="flow amber" d="M562,140 A340,225 0 0 1 800,268" marker-end="url(#ar-amber)"/>
+          <path class="flow steel" d="M872,392 A340,225 0 0 1 566,548" marker-end="url(#ar-steel)"/>
+          <path class="flow steel" d="M434,548 A340,225 0 0 1 205,392" marker-end="url(#ar-steel)"/>
+          <path class="flow amber" d="M200,268 A340,225 0 0 1 438,140" marker-end="url(#ar-amber)"/>
+
+          <!-- edge labels -->
+          <text class="elabel" x="720" y="150" text-anchor="middle">corrective prompt</text>
+          <text class="elabel k" x="720" y="166" text-anchor="middle">VLM → VLA</text>
+          <text class="elabel" x="800" y="500" text-anchor="middle">6-D joint actions</text>
+          <text class="elabel k" x="800" y="516" text-anchor="middle">receding horizon</text>
+          <text class="elabel" x="228" y="500" text-anchor="middle">rollout → success / spike</text>
+          <text class="elabel k" x="228" y="516" text-anchor="middle">MuJoCo step</text>
+          <text class="elabel" x="250" y="150" text-anchor="middle">failure report</text>
+          <text class="elabel k" x="250" y="166" text-anchor="middle">state · uncertainty · frames</text>
+          <text class="elabel" x="120" y="330" text-anchor="middle" transform="rotate(-90 120 330)"
+            fill="var(--teal)">reward = task success → GRPO update</text>
+
+          <!-- travelling packets -->
+          <circle class="packet" r="5" fill="var(--amber)">
+            <animateMotion dur="6s" repeatCount="indefinite" rotate="auto"><mpath href="#ring"/></animateMotion></circle>
+          <circle class="packet" r="4.2" fill="var(--teal)">
+            <animateMotion dur="4.5s" repeatCount="indefinite"><mpath href="#rewardpath"/></animateMotion></circle>
+        </svg>
+
+        <!-- nodes -->
+        <div class="node train n-vlm">
+          <span class="dot" style="background:var(--teal);box-shadow:0 0 8px var(--teal)"></span>
+          <div class="tag">Corrector · trained</div>
+          <div class="name">Corrector VLM</div>
+          <div class="meta">Qwen3-VL · LoRA, updated by GRPO</div>
+        </div>
+        <div class="node n-vla">
+          <span class="dot" style="background:var(--steel)"></span>
+          <div class="tag">Worker · frozen</div>
+          <div class="name">VLA policy</div>
+          <div class="meta">MolmoAct2 · outputs actions</div>
+        </div>
+        <div class="node n-emb">
+          <span class="dot" style="background:var(--steel)"></span>
+          <div class="tag">Embodiment</div>
+          <div class="name">SO-101 arm</div>
+          <div class="meta">pick-and-place · MuJoCo sim</div>
+        </div>
+        <div class="node accent n-fail">
+          <span class="dot" style="background:var(--amber);box-shadow:0 0 9px var(--amber)"></span>
+          <div class="tag">Failure detected</div>
+          <div class="name">Uncertainty spike</div>
+          <div class="meta">SMD · RND · ACE · calibrated</div>
+        </div>
+
+        <!-- the corrective prompt -->
+        <div class="prompt"><b>correct:</b> approach the cube from the left<span class="cur"></span></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <p class="cap"><b>One rollout = one episode.</b> The correction loop runs inside it (up to 4 turns);
+        each episode's reward trains the corrector. Machinery works — whether language <i>steers</i> the VLA
+        is the open question.</p>
+      <div class="next">next: the RL environment</div>
+    </div>
+  </div>
+</body>
+</html>
