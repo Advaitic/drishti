@@ -306,6 +306,27 @@ scripted + fast.
 per-step visibility until it exits. Track liveness via `nvidia-smi` utilization + fresh log timestamps
 instead, and key completion watchers off explicit markers written on the pod.
 
+## Phase 8 — the 2-GPU vision run WORKED (combined `rl`), + two minor gotchas
+
+The combined path on 2× A100-80GB trained the Qwen3-VL-4B corrector for 40 GRPO steps with zero deadlock —
+confirming Phase 7's conclusion (the 1-GPU manual split was the whole problem). Checkpoint pulled from HF in
+minutes. Two small gotchas:
+
+**🔴 `prime pods create` PROBING accidentally provisions a pod.** Feeding newlines to *inspect* the create
+prompts (`printf '\n\n\n' | prime pods create …` then killing the CLI) actually **creates the pod** — the
+newlines accept the defaults and it provisions before you kill it (same as the H200 HTTP-500 case, where the
+pod was created despite the error). Killing the CLI does NOT undo it. Result: a duplicate `drishti-a100x2`
+billed for ~1h unnoticed. **🟢 Lesson: never probe `create` interactively. Pass `--disk-size`/`--image`
+flags to create non-interactively, and ALWAYS run `prime pods list` after any create attempt — including
+interrupted/errored ones — to catch orphans.** 💡 `prime` has terminate but no pause; an orphaned pod bills
+until you notice.
+
+**🔴 `KeyError('_as_dict')` in `wandb.save_final_summary` when `WANDB_MODE=disabled`.** prime-rl's
+`utils/monitor/wandb.py:save_final_summary` crashes in the wandb-disabled code path — but it fires AFTER
+training completes and AFTER the adapter is broadcast, so it's cosmetic (only the final-summary JSON fails).
+**🟢** The trained adapter is safe at `outputs/run_default/broadcasts/step_<N>/adapter_model.safetensors`;
+either ignore the traceback or enable wandb to avoid it.
+
 ## Running cost & hardware notes
 
 - Cumulative Prime spend so far ≈ **$5–6** (well under the $200 cap / $500 budget).

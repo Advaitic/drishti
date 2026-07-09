@@ -212,6 +212,37 @@ session.** (The earlier 2×A100 session — combined `rl` — is where real LoRA
 coordination). Do NOT hand-split on 1 GPU. Everything else (dense reward, curriculum, calib, colocated
 serving) is ready to plug in. Pod terminated; validation logs in `results/h200_run/`.
 
+## A100 2-GPU VISION run (2026-07-09) — the loop works end-to-end; doesn't climb yet
+
+Went back to the **proven combined path** on a **2× A100-80GB** node (datacrunch, $3.58/hr): our rollout
+server on GPU1 + **one `uv run rl @ grpo_qwen3vl_4b.toml`** command (inference GPU0 + trainer GPU1 +
+orchestrator). Checkpoint + calib **pulled from HF in minutes** (no upload saga). Dry-run validated the
+config first (free).
+
+**✅ THE INFRA MILESTONE (what broke on 1 GPU) IS PROVEN ON THE VISION CORRECTOR:**
+- **40 GRPO steps, zero deadlock** — the combined launcher owns the trainer↔orchestrator run-registration
+  handshake that the 1-GPU manual split couldn't. Steps ~30–60 s each.
+- **Qwen3-VL-4B corrector, `include_image=true`** — actually seeing the spike frames.
+- **`Max Off-Policy 1–2`** every step → the trainer is genuinely consuming batches + updating the LoRA
+  (async pipelining working). **The adapter trained + saved** → HF `aryanmadhavverma/qwen3vl-so101-corrector`
+  (66 MB).
+
+**❌ HONEST NEGATIVE — it trains but does NOT climb:**
+```
+Step 1  Reward -0.0594   Step 20 Reward -0.0594   Step 40 Reward -0.0577   (flat across all 40)
+```
+`Trainable` stayed 8/8 (GRPO had a gradient every step from dense-reward/shaping variance), but average
+reward never rose. The corrector's interventions don't flip episodes to success with this VLA + the narrow
+1-position curriculum (matches the Stage-2 "corrections are weak/situational" finding). **The loop learns
+*something* each step; there's just no real success signal to climb.** Levers for a climb (next iteration):
+a more language-steerable VLA (refinetune on varied instructions), a reward that credits real
+progress-to-success (not just shaping noise), and a wider curriculum with more flippable positions (the
+frontier was only 1 — the VLA is too binary).
+
+**Net:** the *"train a vision corrector over a VLA via verifiers + prime-rl"* pipeline is fully working and
+reproducible on Prime 2-GPU compute. Making it *improve the policy* is the open research problem, not an
+infra one.
+
 ## Status & cost
 
 - Cumulative Prime spend ≈ **$7** (cap $200 / budget $500). **Pod terminated** — no ongoing billing.

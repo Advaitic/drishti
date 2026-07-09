@@ -88,6 +88,14 @@ p=snapshot_download('Qwen/Qwen3-VL-4B-Instruct')
 print('qwen3vl cached at', p)" 2>&1 | tail -3
 status qwen_pull $?
 
+log "I. pull finetuned VLA checkpoint + calib from HF (fast datacenter download; needs ~/.cache/huggingface/token)"
+mkdir -p ~/hf_repo ~/ft_ckpt ~/drishti/data/calib
+~/prime-rl/.venv/bin/hf download aryanmadhavverma/molmoact2-so101-ft --local-dir ~/hf_repo 2>&1 | tail -3
+cp ~/hf_repo/*.safetensors ~/hf_repo/*.json ~/ft_ckpt/ 2>/dev/null      # checkpoint = root files
+cp ~/hf_repo/calib/* ~/drishti/data/calib/ 2>/dev/null                  # calib = subfolder
+status hf_pull $?
+echo "checkpoint size: $(du -sh ~/ft_ckpt 2>/dev/null | cut -f1) ; calib files: $(ls ~/drishti/data/calib 2>/dev/null | wc -l) ; model.safetensors bytes: $(stat -c%s ~/ft_ckpt/model.safetensors 2>/dev/null) (want 10884573720)"
+
 log "DONE — review the STATUS lines above. Checkpoint at ~/ft_ckpt:"
 du -sh ~/ft_ckpt 2>/dev/null
 echo "GPU:"; nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader
