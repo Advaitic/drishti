@@ -1,79 +1,85 @@
 # vla-corrector
 
-> **🚧 DRAFT / RESEARCH ARTIFACT.** This is an early experiment shared for discussion, not a finished,
-> plug-and-play env. **What works:** the full loop runs end-to-end (custom multi-turn env + self-hosted
-> prime-rl, a vision corrector over a robot VLA-in-sim, 40 GRPO steps, no deadlock). **What we found (the
-> honest negative):** the corrector's language instructions don't improve task success, because the VLA
-> ignores them — steerability probes give ~0 action-change under *opposite* instructions for **both** our
-> finetuned VLA (0.02) and the zero-shot base (0.01, even on whole-task switches). So the RL machinery works;
-> the language channel to this VLA doesn't. See the drishti repo's `docs/rl-corrector/RESULTS.md` for the full
-> story + graphs, and `PRIME_HOSTED_VLM_LIMITATION.md` for the open questions. Layer-1 (sim + VLA + detectors)
-> is self-hosted — see "Set it up" below.
+Draft / research. RL-train an LLM to **correct a black-box action policy** (a VLA) toward task success in a
+sim. Bring your own policy and sim behind a small HTTP contract; the env trains the corrector.
 
-A [verifiers](https://github.com/PrimeIntellect-ai/verifiers) environment that RL-trains a **corrective
-policy** to supervise a frozen **VLA worker** doing robot pick-and-place in a MuJoCo sim. When the VLA's
-calibrated uncertainty spikes, the corrector sees the failure context (telemetry + spike frames) and emits a
-short corrective instruction; the **verifiable reward is task success in sim**. Works with a text corrector
-(reads the telemetry) or a vision corrector like Qwen3-VL (also sees the frames).
+Status: the loop runs end-to-end (custom multi-turn env + self-hosted prime-rl, vision corrector over a robot
+VLA-in-sim, 40 GRPO steps). Honest finding so far: with our SO-101 VLA the corrector's *language* doesn't move
+task success — steerability probes show ~0 action change under opposite instructions. So the machinery works;
+whether language correction helps depends on the policy. Details + graphs in the drishti repo
+(`docs/rl-corrector/RESULTS.md`).
 
-## The VLA worker
+## Overview
 
-The reference worker is **MolmoAct2-SO100_101** — a ~5B Molmo2 VLM + a flow-matching action expert —
-finetuned on SO-101 pick-place, grasping ~69% of the time (a real success/failure mix, which is what the
-corrective loop needs). Its checkpoint + calibration live on HF (`aryanmadhavverma/molmoact2-so101-ft`). But
-the env is **worker-agnostic** — it trains a corrector over *any* action model you expose behind the
-rollout-server API. The uncertainty signal is a small **SMD (proprio) + RND (vision) + ACE (action)** detector
-cascade, calibrated so uncertainty separates success from failure (RND AUC ~1.0); the spike decides *when* to
-call the corrector.
+One rollout = one episode. `setup_state` starts the episode, runs the policy until its uncertainty spikes,
+and shows the corrector that failure report. Each corrector turn is one short instruction; `env_response`
+injects it, resumes the policy to the next spike or a terminal outcome. Reward = task success (plus optional
+shaping). Multimodal: with `include_image=true` the spike frames are sent as image parts (for a VLM corrector
+like Qwen3-VL); otherwise the corrector reads the text telemetry only.
 
-## ⚠️ You must self-host the VLA (this env is a thin HTTP client)
+## Bring your own policy
 
-This package carries **only** `verifiers` + `httpx` + `datasets` — no torch, no MuJoCo, no GPU. The heavy
-half (MuJoCo + MolmoAct2 + the detector cascade) runs behind a small HTTP **rollout server**
-(`/episode/start|run|correct|end`) that **you host on a GPU** — your own machine or a rented pod — and point
-this env at via the `rollout_url` arg. That's the one requirement: **bring your own GPU-hosted VLA server.**
+The env is a thin HTTP client — no torch, no sim, no GPU. To run the flow with *your* policy:
 
-## Set it up with Prime Intellect
+1. **Host a rollout server** that runs your policy in your sim and exposes `/episode/{start,run,correct,end}`
+   (contract below). A minimal, annotated skeleton is included: `rollout_server_reference.py`.
+2. **Calibrate an uncertainty trigger** on successful trajectories so the server knows *when* to call the
+   corrector. A compact, policy-agnostic detector is included: `uq.py` (SMD over proprioceptive state + RND
+   over vision embeddings, both fit on your successful rollouts; vision via a HuggingFace SigLIP encoder).
+3. **Point the env at your server** via the `rollout_url` arg.
 
-1. **Rent a GPU pod** and start the rollout server on it (MolmoAct2 + sim + calibrated UQ):
-   ```bash
-   prime pods create --gpu-type A100_80GB --gpu-count 1     # any single GPU with ~24GB+ works
-   # on the pod: pull the checkpoint from HF, then launch the server (see the drishti repo's
-   # scripts/pod_h200_setup.sh + scripts/pod_run_2gpu.sh — it does exactly this)
-   #   uvicorn drishti.sim.rollout_server:build_default_app --factory --host 0.0.0.0 --port 8100
-   ```
-   Note the pod's IP → your `rollout_url` is `http://<pod-ip>:8100`.
+Reference `MolmoAct2` worker + calibration: HF `aryanmadhavverma/molmoact2-so101-ft`.
 
-2. **Install + point this env at it:**
-   ```bash
-   prime env install <owner>/vla-corrector          # or: uv pip install -e environments/vla-corrector
-   prime eval run vla-corrector -m Qwen/Qwen3-VL-4B-Instruct \
-     -a '{"rollout_url":"http://<pod-ip>:8100","n_episodes":32,"include_image":true}'
-   ```
+## Rollout-server contract
 
-3. **RL-train the corrector** with self-hosted `prime-rl` (2 GPUs — the combined `uv run rl` launcher). Put
-   the env in your config's `[[orchestrator.train.env]]` with the args below. A worked 2-GPU config +
-   launch script live in the drishti repo (`configs/rl/grpo_qwen3vl_4b.toml`, `scripts/pod_run_2gpu.sh`).
+- `POST /episode/start {seed, cube_xy, task}` -> `{episode_id}`
+- `POST /episode/run {episode_id, max_frames}` -> a **report**; `status` is `spike` (pause for a correction),
+  `success`, or `timeout`.
+- `POST /episode/correct {episode_id, prompt}` -> applies the instruction to the policy.
+- `POST /episode/end {episode_id}`.
 
-> Hosted Training note: today Hosted Training is text-only, so a *vision* corrector must be self-hosted (2×
-> GPU). A **text** corrector (`include_image=false`, e.g. Qwen3.5-4B) reads the telemetry report and could run
-> on Hosted Training, with the rollout server still on your own GPU pod.
+A report carries: `status`, `success`, `progress`, `failure_report` (text the corrector reads), `frames_b64`
+(spike frames), `uncertainty` (per-detector scores + combined + threshold), and `geometry`.
 
-## `load_environment(...)` args
+## Uncertainty detection (`uq.py`)
+
+Policy-agnostic. Fit on your successful rollouts, then score any step:
+
+```python
+from uq import Calibrator
+cal = Calibrator().fit(success_states, success_frames)   # states: (N,D) proprio; frames: list of RGB arrays
+u = cal.score(state, frame)                              # -> {smd, rnd, combined, spike: bool}
+```
+
+SMD is a Mahalanobis distance from the mean successful pose; RND is a random-network-distillation residual on
+SigLIP embeddings (low on familiar views, high on novel ones). Both need only your successes — no labels.
+
+## Setup and eval
+
+```bash
+prime env install <owner>/vla-corrector          # or: uv pip install -e .
+# with your rollout server running at <url>:
+prime eval run vla-corrector -m Qwen/Qwen3-VL-4B-Instruct -n 20 -r 2 \
+  -a '{"rollout_url":"http://<host>:8100","include_image":true}'
+```
+
+RL training (self-hosted prime-rl, 2 GPUs): put the env in `[[orchestrator.train.env]]` with the args below;
+a worked config lives in the drishti repo (`configs/rl/grpo_qwen3vl_4b.toml`). Hosted Training is text-only
+today, so a *vision* corrector must be self-hosted; a *text* corrector (`include_image=false`) can run hosted.
+
+## Environment arguments
 
 | arg | default | meaning |
 |---|---|---|
-| `rollout_url` | `http://localhost:8100` | your hosted VLA rollout server |
-| `include_image` | `true` | send spike frames as image parts (vision corrector) vs text-only |
-| `dense` | `true` | add dense **staged-progress** reward (reached<grasped<lifted<placed) |
-| `curriculum` | `None` | list of frontier cube positions to sample from (where corrections can flip outcomes) |
-| `shaping` | `true` | add uncertainty-reduction shaping reward |
-| `n_episodes`, `max_turns` | 64, 4 | dataset size; interventions per episode |
+| `rollout_url` | `http://localhost:8100` | your rollout server |
+| `include_image` | `true` | send spike frames (vision corrector) vs text-only |
+| `dense` | `true` | add staged-progress reward (reached < grasped < lifted < placed) |
+| `curriculum` | `None` | cube positions to sample from (where corrections can flip outcomes) |
+| `shaping` | `true` | add uncertainty-reduction reward |
+| `n_episodes` | `64` | dataset size |
+| `max_turns` | `4` | interventions per episode |
 
-## Reward (`Rubric`)
+## Reward and metrics
 
-`reward_success` (1.0 on cube-in-tray) `+ 0.3·progress` (if `dense`) `− 0.05·interventions`
-`+ 0.1·uq_reduction` (if `shaping`). Computed here from `state["success"]`, never trusting the pod.
-
-One rollout = one episode; each model turn = one corrective intervention (`setup_state` seeds the first
-failure report, `env_response` injects the correction and resumes to the next spike or terminal outcome).
+`reward = success + 0.3·progress (dense) − 0.05·interventions + 0.1·uq_reduction (shaping)`, computed here
+from `state["success"]`. Metrics: `reward`, `success`, `progress` (0..1 staged), `n_interventions`.
