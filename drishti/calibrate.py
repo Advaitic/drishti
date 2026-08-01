@@ -1,22 +1,32 @@
-"""Calibrate the UQ detectors on selected successful rollouts → one combined conformal threshold.
+"""Calibrate the UQ detectors on successful rollouts → one combined conformal threshold.
 
-Reads the selected (successful) runs' per-step states + vision-embedding blobs, fits SMD (on
-states) and RND (on embeddings), z-normalizes each raw signal (SMD / RND / action-head spread) on
-the success steps, combines them as max-of-z into one uncertainty score, and sets the conformal
-threshold at the 95th percentile of that score over the successful steps. Then it RE-SCORES every
-rollout (writes smd/rnd/ace back to the steps so replays show the traces) and writes a VALIDATION
-report — does the combined score separate success from failure? — which is the honest "aha" test.
+Learning "normal" is the whole job. The detectors are defined relative to a reference distribution,
+so before calibration SMD and RND have nothing to say; after it, anything far from normal is
+suspicious. This reads the successful runs' per-step states and vision-embedding blobs, fits SMD on
+the states and RND on the embeddings, normalizes each raw signal against the success distribution,
+combines them with the rule in `drishti.scoring`, and sets the threshold at the 90th percentile of
+per-rollout peaks over the successes.
 
-    PYTHONPATH=. .venv/bin/python -m drishti.calibrate --auto        # all successful runs
-    PYTHONPATH=. .venv/bin/python -m drishti.calibrate --runs r1 r2  # explicit selection
+It then RE-SCORES every rollout (writing smd/rnd/ace back onto the steps so replays show the
+traces) and writes a validation report: does the combined score actually separate success from
+failure? That report is the honest test, and it is what the published numbers come from.
 
-Persists to data/calib/ (detectors + threshold + report) for the Stage-2 live Monitor.
+    drishti calibrate --auto          # all successful runs
+    drishti calibrate --runs r1 r2    # explicit selection
+
+Scoring happens at the SAME cadence the live monitor runs at — every frame, with SMD on that
+frame's state and RND/ACE carried forward from the last inference frame. Calibrating only on
+inference frames while serving every frame is a train/serve skew: mid-chunk poses the calibration
+never saw spike SMD, and every live rollout false-alarms.
+
+Persists to data/calib/ (detectors + threshold + report) for the live Monitor.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -24,17 +34,16 @@ import sqlalchemy as sa
 import torch
 from safetensors.torch import save_file
 
+from drishti.scoring import CAP, PCTL_RUN, SIGNALS, combined_series, conformal_threshold
 from drishti.store import Store
 from drishti.uq import SMD, RND
 
-CALIB_DIR = Path("data/calib")
-BLOB_DIR = Path("data/obs_blobs")
-PCTL = 95.0
-PCTL_RUN = 90.0   # threshold = this percentile of success RUN-PEAKS → ~(100-PCTL_RUN)% per-rollout false alarms
-SIGNALS = ("smd", "rnd", "act")
-CAP = 32.0  # capped-z ceiling: clip each signal's z at CAP sigmas above normal, then scale to [0,1].
-            # Must stay well above the out-of-sample z range — cap=8 saturated held-out successes AND
-            # failures to 1.0 and destroyed separation (held-out AUC 0.78 vs 0.99 at cap>=32).
+CALIB_DIR = Path(os.environ.get("DRISHTI_CALIB_DIR") or "data/calib")
+BLOB_DIR = Path(os.environ.get("DRISHTI_BLOB_DIR") or "data/obs_blobs")
+# A pick-place rollout that "succeeds" in fewer frames than this never picked anything up — the
+# geometric oracle just found the cube already in the tray. See the note in calibrate(). Retune for
+# a task with a different natural length.
+MIN_CALIB_STEPS = 20
 
 
 def _act_spread(action_head_std) -> float:
@@ -60,19 +69,10 @@ def load_calib(calib_dir: Path = CALIB_DIR):
     return smd, rnd, cal["norm"], float(cal["threshold"])
 
 
-def _capped_z(x, mu, sd, cap=CAP) -> float:
-    return min(max((x - mu) / sd, 0.0), cap) / cap
-
-
 def combined_score(smd_raw, rnd_raw, act_raw, norm, cap=CAP) -> float:
-    """Mean of capped-z over the three signals (matches calibrate's combine).
-    Each signal -> clip((x - mu_success)/sd_success, 0, cap)/cap in [0,1] — BOUNDED, so no single
-    detector can dominate by raw magnitude (the whitened RND's tiny success-std used to blow its
-    z ~100x past the others). Averaging the three bounded scores is agreement-aware: a lone detector
-    grazing can't max-out the combined, which is what cut false alarms in the ablation."""
-    vals = [_capped_z(r, norm[k][0], norm[k][1], cap)
-            for r, k in ((smd_raw, "smd"), (rnd_raw, "rnd"), (act_raw, "act"))]
-    return float(sum(vals) / len(vals))
+    """One step's combined uncertainty. Thin wrapper over `drishti.scoring` for the live callers."""
+    from drishti.scoring import combined_score as _cs
+    return _cs({"smd": smd_raw, "rnd": rnd_raw, "act": act_raw}, norm, cap)
 
 
 def load_run_data(store: Store, run_id: str):
@@ -137,12 +137,23 @@ def _auc(scores: np.ndarray, labels: np.ndarray):
     return float((ranks[labels == 1].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 
-def calibrate(run_ids=None, auto=True):
+def calibrate(run_ids=None, auto=True, min_steps=MIN_CALIB_STEPS, seed: int = 0):
     store = Store()
     runs = store.list_runs(limit=2000)
     succ = {r["run_id"]: (r.get("success_rate") or 0.0) >= 0.5 for r in runs}
+    n_steps = {r["run_id"]: int(r.get("n_steps") or 0) for r in runs}
     sel = [r for r in succ if succ[r]] if (auto or not run_ids) else list(run_ids)
     sel = [r for r in sel if succ.get(r)]   # only ever calibrate on successes
+    # Drop implausibly short "successes". The oracle is geometric (is the cube inside the tray?), so
+    # a rollout that ends after a handful of frames scored a success the arm never earned — the cube
+    # spawned in/near the tray, or a live run halted at once. Folding those into "normal" widens the
+    # success manifold with poses no real pick-place visits and costs real separation (on our set,
+    # combined AUC 0.93 with them vs 0.99 without).
+    dropped = [r for r in sel if n_steps.get(r, 0) < min_steps]
+    sel = [r for r in sel if n_steps.get(r, 0) >= min_steps]
+    if dropped:
+        print(f"skipping {len(dropped)} success run(s) under {min_steps} steps "
+              f"(oracle artifacts, not rollouts): {', '.join(sorted(dropped))}", flush=True)
     if not sel:
         raise SystemExit("no successful runs to calibrate on")
 
@@ -153,11 +164,18 @@ def calibrate(run_ids=None, auto=True):
         d = load_run_data(store, rid)
         if d:
             E.append(d[1])
+    if not E:
+        raise SystemExit(
+            f"{len(sel)} successful run(s) selected, but none has vision embeddings under "
+            f"{BLOB_DIR}/<run_id>/embed_<step>.npy — RND has nothing to fit.\n"
+            "Embeddings are written by the rollout recorders (they come off the policy's vision "
+            "encoder through a forward hook). To try calibration without a policy, use the bundled "
+            "rollouts: `drishti calibrate --demo --auto`.")
     S, E = np.array(S), np.concatenate(E)
     print(f"calibrating on {len(sel)} successful runs · {len(S)} state-frames · "
           f"{len(E)} embed-frames · embed_dim {E.shape[1]}", flush=True)
     smd = SMD.fit(S)
-    rnd = RND(d_in=E.shape[1]).fit(E, epochs=12)
+    rnd = RND(d_in=E.shape[1], seed=seed).fit(E, epochs=12)
 
     # --- raw signals on success steps AT LIVE CADENCE (every frame, RND carried) → norm + threshold ---
     rs = {"smd": [], "rnd": [], "act": []}
@@ -169,16 +187,12 @@ def calibrate(run_ids=None, auto=True):
     raw_s = {k: np.concatenate(v) for k, v in rs.items()}
     norm = {k: (float(v.mean()), float(v.std() + 1e-9)) for k, v in raw_s.items()}
 
-    def _comb_vec(sm, rn, a):   # mean of capped-z, vectorized — matches combined_score()
-        cz = lambda v, k: np.clip((np.asarray(v) - norm[k][0]) / norm[k][1], 0, CAP) / CAP
-        return (cz(sm, "smd") + cz(rn, "rnd") + cz(a, "act")) / 3.0
+    def _comb_vec(sm, rn, a):
+        return combined_series({"smd": sm, "rnd": rn, "act": a}, norm)
 
-    # threshold = conformal on success RUN-PEAKS (per-ROLLOUT control): a new successful rollout
-    # exceeds it with prob ~<=(100-PCTL_RUN)%. The old per-STEP 95th pct made ~73% of multi-step
-    # runs graze at least once (5% of steps × ~50 steps/run), so it was the wrong object to bound.
-    run_peaks = np.array([_comb_vec(rs["smd"][i], rs["rnd"][i], rs["act"][i]).max()
-                          for i in range(len(rs["smd"]))])
-    threshold = float(np.percentile(run_peaks, PCTL_RUN))
+    run_peaks = [_comb_vec(rs["smd"][i], rs["rnd"][i], rs["act"][i]).max()
+                 for i in range(len(rs["smd"]))]
+    threshold = conformal_threshold(run_peaks)
 
     # --- re-score ALL runs + per-run stats for validation ---
     # PHASE 1: score every run (reads + compute only — NO open write transaction). Holding a write
@@ -215,8 +229,9 @@ def calibrate(run_ids=None, auto=True):
     fails = [r for r in rids if not per_run[r][2]]
     succs = [r for r in rids if per_run[r][2]]
     report = {
-        "threshold": threshold, "pctl": PCTL_RUN,
+        "threshold": threshold, "pctl": PCTL_RUN, "min_calib_steps": min_steps, "seed": seed,
         "n_success_runs_calib": len(sel), "n_calib_steps": int(len(S)),
+        "n_success_runs_dropped_short": len(dropped),
         "embed_dim": int(E.shape[1]), "combine": "mean_capped_z(smd,rnd,act)", "cap": CAP, "norm": norm,
         "n_runs_scored": len(rids), "n_fail_runs": len(fails), "n_succ_runs": len(succs),
         "auc_fail_vs_success": _auc(scores, labels),
@@ -249,8 +264,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", nargs="*", default=None)
     ap.add_argument("--auto", action="store_true", help="calibrate on ALL successful runs")
+    ap.add_argument("--min-steps", type=int, default=MIN_CALIB_STEPS,
+                    help="ignore 'successful' runs shorter than this (oracle artifacts)")
+    ap.add_argument("--seed", type=int, default=0, help="RND init/shuffle seed — fixed so the report reproduces")
     args = ap.parse_args()
-    calibrate(run_ids=args.runs, auto=args.auto or not args.runs)
+    calibrate(run_ids=args.runs, auto=args.auto or not args.runs,
+              min_steps=args.min_steps, seed=args.seed)
 
 
 if __name__ == "__main__":
