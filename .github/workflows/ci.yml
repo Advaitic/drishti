@@ -9,8 +9,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # The runner is headless and has no GPU, so MuJoCo cannot open a GL context and aborts with
+      # SIGABRT — a core dump, not a Python exception — the first time a test renders a camera.
+      # osmesa is the software rasteriser; EGL would be faster but needs a GPU driver that is not
+      # here. On a real GPU box use MUJOCO_GL=egl (and apt install libegl1).
+      MUJOCO_GL: osmesa
+      PYOPENGL_PLATFORM: osmesa
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install headless GL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libosmesa6-dev libgl1 libglx-mesa0
 
       - uses: actions/setup-python@v5
         with:
