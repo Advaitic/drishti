@@ -6,62 +6,77 @@ __pycache__/
 .Python
 env/
 venv/
-.venv/
+.venv*/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+build/
+dist/
 
 # node
 node_modules/
 .next/
-dist/
-build/
 .npm
 .yarn
-*.log
-npm-debug.log*
 
-# ml / data
-data/*.db
-data/*.db-*
-data/obs_blobs/
-data/lerobot/
-*.ckpt
-*.pt
-*.pth
-*.safetensors
-*.h5
-*.npy
-*.npz
-data/raw/
-data/processed/
-checkpoints/
-wandb/
-mlruns/
-runs/
-
-# secrets
+# secrets / local config
 .env
 .env.local
 .env.*.local
 *.pem
 *.key
+.prime/
+.claude/launch.json
+.claude/*.local.*
 
-# macos
+# ---------------------------------------------------------------------------
+# data/ is generated, never committed. Everything under it is ignored and the
+# few small committed sets are re-allowed explicitly. A whitelist (rather than
+# one ignore rule per new directory) is what stops the next multi-GB rollout
+# dump from riding along in a `git add -A`. data/README.md says how to
+# regenerate each of them.
+# ---------------------------------------------------------------------------
+/data/**
+!/data/README.md
+!/data/demo/
+!/data/demo/**
+
+# Model weights and training dumps, wherever they land
+*.ckpt
+*.pt
+*.pth
+*.h5
+checkpoints/
+wandb/
+mlruns/
+runs/
+
+# Telemetry stores and blob dirs, at any depth
+**/obs.db
+**/obs.db-*
+**/obs_blobs/
+
+# ---------------------------------------------------------------------------
+# Logs and raw tensors are ignored by default, but docs/ holds the proof the
+# results documents cite — training curves, pod logs, the calibration bundle —
+# and data/demo/ holds the bundled rollouts. Both are re-allowed here.
+# ---------------------------------------------------------------------------
+*.log
+*.npy
+*.npz
+*.safetensors
+!docs/**/*.log
+!docs/**/*.npz
+!docs/**/*.safetensors
+# ...except the 66 MB GRPO LoRA. It is the artifact of a negative result and it lives on the HF
+# Hub; adapter_config.json next to it records the run configuration, which is the part worth reading.
+docs/**/grpo_adapter/*.safetensors
+!/data/demo/**
+
+# macos / editors
 .DS_Store
-
-# editors
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# recorded demo dataset (large)
-data/demos/
-data/policy/
-docs/rl-corrector/results/grpo_adapter/*.safetensors
-
-# finetuned VLA checkpoint (11GB, backed up, never commit)
-data/molmoact2_so101_ft_ckpt/
-data/calib/
