@@ -59,4 +59,4 @@ tp = 1
 
 [wandb]
 project = "drishti-vla-corrector"
-name = "smoke-qwen3vl-2b"
+name = "smoke-qwen3vl-4b"

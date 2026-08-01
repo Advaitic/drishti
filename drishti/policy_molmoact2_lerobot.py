@@ -27,7 +27,7 @@ import numpy as np
 
 DEG2RAD = np.pi / 180.0
 CAMS_VLA = ("up", "wrist")
-DEFAULT_TASK = "Pick up the cube and place it in the box"   # matches the dataset's task string (capital P)
+from drishti.sim.task import DEFAULT_TASK  # noqa: F401  (re-exported for existing importers)
 
 
 def _frame_fix(a) -> np.ndarray:

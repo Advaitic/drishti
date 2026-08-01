@@ -12,7 +12,7 @@ injects a corrective prompt and resumes the same episode.
     app = create_app(vla_factory=lambda env: StubVLA(env), scorer=AceOnlyScorer(threshold=1.5))
 
     # Stage 1+ (pod, MolmoAct2, calibrated threshold):
-    uvicorn drishti.sim.rollout_server:app --host 0.0.0.0 --port 8100
+    uvicorn "drishti.sim.rollout_server:build_default_app" --factory --host 0.0.0.0 --port 8100
 
 Endpoints: POST /episode/{start,run,correct,end}, GET /episode/{id}, GET /healthz.
 """
@@ -43,7 +43,7 @@ CAMS_VLA = tuple(os.environ.get("DRISHTI_VLA_CAMS", "up,wrist").split(","))
 WARMUP = 3                           # don't flag a spike in the first few frames (start transient)
 ACE_RANGE = (-3.2, 3.2)              # joint-radian range for ACE binning (absolute scale, not [-1,1])
 N_SUBSTEPS = 18                      # sim steps per control frame (matches live_fleet)
-DEFAULT_TASK = "pick up the cube and place it in the box"
+from drishti.sim.task import DEFAULT_TASK  # noqa: E402  (the one instruction string)
 
 
 # --------------------------------------------------------------------------------------- scorers
@@ -427,11 +427,14 @@ def build_default_app() -> FastAPI:
     return create_app(vla_factory=factory, scorer=CalibScorer(embedder=embedder), embedder=embedder)
 
 
-app: Optional[FastAPI] = None
-
-
 def __getattr__(name: str):
-    # Lazy so `import drishti.sim.rollout_server` (for create_app in tests) doesn't load MolmoAct2.
+    """Build the default app on first attribute access.
+
+    Deliberately NOT a module-level `app = build_default_app()`: importing this module for
+    `create_app` (which the tests do) must not load a multi-GB VLA. Module `__getattr__` only fires
+    when normal lookup fails, so there must be no `app` global here — an earlier `app = None`
+    placeholder shadowed this and made every documented `uvicorn ...:app` start with a None target.
+    """
     if name == "app":
         return build_default_app()
     raise AttributeError(name)

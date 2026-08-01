@@ -109,4 +109,11 @@ def make_app(new_policy, new_sim, calibrator, task_default="do the task"):
     return app
 
 
-# app = make_app(Policy, Sim, Calibrator().fit(success_states, success_frames))
+# Wire your own three pieces and expose the result as `app`, then:
+#     uvicorn rollout_server_reference:app --port 8100
+#
+#     app = make_app(Policy, Sim, Calibrator().fit(success_states, success_frames))
+#
+# Left commented on purpose: this file is a template, and importing it must not try to construct
+# somebody's robot. drishti ships a runnable CPU version of the same contract at
+# `drishti.sim.stub_server`, useful for exercising the env end to end before you have a policy.

@@ -12,7 +12,7 @@ set -euo pipefail
 #   prime pods ssh drishti-vla
 # Then run the rest of this script on the pod.
 
-REPO_URL="${REPO_URL:-<your-drishti-git-remote>}"
+REPO_URL="${REPO_URL:-https://github.com/Advaitic/drishti.git}"
 BRANCH="${BRANCH:-rl-corrector}"
 PORT="${PORT:-8100}"
 export MUJOCO_GL="${MUJOCO_GL:-egl}"          # headless GL on the pod (NOT the macOS default)
@@ -51,7 +51,7 @@ PYTHONPATH=. MUJOCO_GL=egl .venv-pod/bin/python -m drishti.drivers.rollout_recor
 # --- 5. launch the rollout server (Stage-1 baseline uses ace-only; switch to calib after calibration)-
 echo "launching rollout server on :$PORT (uncertainty=${UNCERTAINTY:-ace})"
 PYTHONPATH=. MUJOCO_GL=egl UNCERTAINTY="${UNCERTAINTY:-ace}" \
-  .venv-pod/bin/uvicorn drishti.sim.rollout_server:app --host 0.0.0.0 --port "$PORT"
+  .venv-pod/bin/uvicorn "drishti.sim.rollout_server:build_default_app" --factory --host 0.0.0.0 --port "$PORT"
 
 # From your laptop, tunnel it for the verifiers env's rollout_url:
 #   prime pods forward drishti-vla $PORT:$PORT      # or use the pod's public URL

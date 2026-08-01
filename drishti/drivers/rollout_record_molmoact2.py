@@ -118,7 +118,6 @@ def main():
     ap.add_argument("--episodes", type=int, default=30)
     ap.add_argument("--max-frames", type=int, default=110)
     ap.add_argument("--ace-b", type=int, default=6)
-    ap.add_argument("--ingest", default="http://localhost:8010")
     ap.add_argument("--task", default=DEFAULT_TASK)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--smoke", action="store_true", help="short chunk-executing rollout + frames (R4/R9 gate)")

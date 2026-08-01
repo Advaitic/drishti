@@ -22,7 +22,7 @@ from drishti.sim.so101_env import SO101Env
 from drishti.sim.rollout_server import N_SUBSTEPS, _render_pair
 from drishti.sim.scripted_pick import _grasp_config
 
-DEFAULT_TASK = "pick up the cube and place it in the box"
+from drishti.sim.task import DEFAULT_TASK
 
 # FINE-corrective pairs — the kind our corrector needs (small nudges). Steerable => action moves a lot.
 PAIRS = [

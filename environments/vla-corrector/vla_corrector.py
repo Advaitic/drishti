@@ -32,7 +32,9 @@ SYSTEM = (
     "Reply with ONE short corrective instruction (<= 20 words) telling the policy what to do next. "
     "No preamble, no explanation — just the instruction."
 )
-DEFAULT_TASK = "pick up the cube and place it in the box"
+# Kept as a literal (this env is standalone by design, it must not import drishti). Must match
+# drishti/sim/task.py — the finetuned policy was trained on this exact string.
+DEFAULT_TASK = "Pick up the cube and place it in the box"
 
 
 class RolloutClient:
@@ -99,7 +101,7 @@ class VLACorrectorEnv(vf.MultiTurnEnv):
         state["last_report"] = report
         state["status"] = report["status"]
         state["success"] = bool(report["success"])
-        state["done"] = bool(report["done"])
+        state["done"] = bool(report.get("done", report.get("status") in ("success", "timeout")))
         state["progress"] = max(state.get("progress", 0.0), float(report.get("progress", 0.0)))
         state.setdefault("uq_trace", []).append(report["uncertainty"])
 

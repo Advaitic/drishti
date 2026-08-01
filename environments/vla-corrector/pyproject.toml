@@ -1,6 +1,6 @@
 [project]
 name = "vla-corrector"
-version = "0.1.1"
+version = "0.1.2"
 description = "verifiers env: RL-train an LLM to correct a black-box action policy (VLA) toward task success in sim"
 requires-python = ">=3.10"
 dependencies = [

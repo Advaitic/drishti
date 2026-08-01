@@ -109,12 +109,33 @@ def load_embedder(model_id: str = SIGLIP, device: Optional[str] = None):
 
 # --------------------------------------------------------------------------- combined calibrator
 class Calibrator:
-    """Fit SMD + RND on successful trajectories; combine as max-of-z; threshold at a success percentile."""
+    """Fit SMD + RND on successful trajectories, then score anything against that "normal".
 
-    def __init__(self, pctl: float = 95.0, embedder=None):
-        self.pctl, self.embed = pctl, embedder
+    The combine rule is the one drishti settled on after ablating the alternatives; the reasoning is
+    worth repeating here because the obvious choices are both wrong:
 
-    def fit(self, states, frames: Sequence[Sequence]) -> "Calibrator":
+    - **mean of capped-z, not max-of-z.** `max` fires on whichever detector is loudest, so a single
+      detector grazing its threshold is a false alarm. Averaging bounded scores is agreement-aware.
+      Capping matters too: after whitening, RND's spread over successes is tiny, so its raw z runs
+      ~100x past SMD's and would decide every score on its own.
+    - **percentile of per-trajectory PEAKS, not of steps.** What you want to bound is how often a
+      good trajectory trips the alarm. Bounding steps at the 95th percentile sounds tight until you
+      notice 5% of steps over a ~50-step trajectory means ~73% of trajectories graze at least once.
+    """
+
+    CAP = 32.0   # capped-z ceiling; at 8 both held-out successes and failures saturate to 1.0
+
+    def __init__(self, pctl: float = 90.0, embedder=None, cap: float = CAP):
+        self.pctl, self.embed, self.cap = pctl, embedder, cap
+
+    def _cz(self, x, mu, sd):
+        return float(np.clip((x - mu) / sd, 0.0, self.cap) / self.cap)
+
+    def fit(self, states, frames: Sequence[Sequence],
+            trajectory_ids: Optional[Sequence] = None) -> "Calibrator":
+        """states/frames are per-step and aligned. `trajectory_ids` groups steps into trajectories so
+        the threshold can be a per-trajectory bound; without it every step is its own trajectory,
+        which reproduces the looser per-step behaviour."""
         states = np.asarray(states, float)
         self.smd = SMD.fit(states)
         self.embed = self.embed or load_embedder()
@@ -122,15 +143,18 @@ class Calibrator:
         self.rnd = RND(d_in=embs.shape[1]).fit(embs)
         s = np.array([self.smd.score(x) for x in states])
         r = np.array([self.rnd.score(e) for e in embs])
-        self._sm, self._ss = s.mean(), s.std() + 1e-6           # z-norm on successes -> comparable scales
+        self._sm, self._ss = s.mean(), s.std() + 1e-6
         self._rm, self._rs = r.mean(), r.std() + 1e-6
-        comb = np.maximum((s - self._sm) / self._ss, (r - self._rm) / self._rs)
-        self.threshold = float(np.percentile(comb, self.pctl))
+        comb = np.array([(self._cz(a, self._sm, self._ss) + self._cz(b, self._rm, self._rs)) / 2.0
+                         for a, b in zip(s, r)])
+        ids = list(trajectory_ids) if trajectory_ids is not None else list(range(len(comb)))
+        peaks = [comb[[i for i, t in enumerate(ids) if t == u]].max() for u in dict.fromkeys(ids)]
+        self.threshold = float(np.percentile(peaks, self.pctl))
         return self
 
     def score(self, state, frames) -> dict:
-        s = (self.smd.score(state) - self._sm) / self._ss
-        r = (self.rnd.score(self.embed(*frames)) - self._rm) / self._rs
-        comb = float(max(s, r))
-        return {"smd": float(s), "rnd": float(r), "combined": comb,
+        s = self._cz(self.smd.score(state), self._sm, self._ss)
+        r = self._cz(self.rnd.score(self.embed(*frames)), self._rm, self._rs)
+        comb = (s + r) / 2.0
+        return {"smd": s, "rnd": r, "combined": comb,
                 "threshold": self.threshold, "spike": comb > self.threshold}
