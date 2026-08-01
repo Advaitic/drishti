@@ -5,6 +5,12 @@ The positive record: milestones hit, with the numbers and where the raw proof li
 
 ---
 
+> **Checkpoint availability.** Every `aryanmadhavverma/*` model referenced below was pushed to the
+> HuggingFace Hub as a **private** repo, and they are still private (checked: the API returns 401).
+> Treat the HF ids as a record of what was trained, not as something you can pull today. The
+> reproducible artifacts that *are* public live in `results/` here, and the CPU stub server
+> (`drishti.sim.stub_server`) lets you exercise the loop without any checkpoint.
+
 ## Which number belongs to which model (read this first)
 
 Several success rates appear below and in the other docs. They come from **different models, different

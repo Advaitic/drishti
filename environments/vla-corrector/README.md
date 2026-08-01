@@ -27,12 +27,11 @@ The env is a thin HTTP client — no torch, no sim, no GPU. To run the flow with
    over vision embeddings, both fit on your successful rollouts; vision via a HuggingFace SigLIP encoder).
 3. **Point the env at your server** via the `rollout_url` arg.
 
-**Starter policy:** a finetuned `MolmoAct2-SO100_101` (SO-101 pick-place, **11/16 = 68.75% task success**
-over a 16-episode recording with buffered execution, `n_action_steps=4`) plus its calibration are on HF
-(`aryanmadhavverma/molmoact2-so101-ft`) — use it to try the loop before wiring your own policy.
-> **TODO — repo visibility is unconfirmed.** Earlier revisions of this README called that repo public;
-> drishti's `docs/rl-corrector/DEBUG_LOG.md` records it as pushed to a *private* HF repo. Neither claim can
-> be checked from here. Confirm on HF and state it, before anyone relies on being able to pull it.
+**Starter policy:** the checkpoint these results came from is a finetuned `MolmoAct2-SO100_101`
+(SO-101 pick-place, **11/16 = 68.75% task success** over a 16-episode recording with buffered
+execution, `n_action_steps=4`), pushed to HF as `aryanmadhavverma/molmoact2-so101-ft` along with its
+calibration. **It is currently a private repo** — verified, it returns 401 — so you cannot pull it
+today. Use the CPU stub below to exercise the loop, or bring your own policy.
 
 **No checkpoint? Run the loop CPU-only.** drishti ships a stub rollout server that speaks the same contract
 with a deterministic stand-in policy instead of a VLA:
