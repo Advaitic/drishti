@@ -6,13 +6,14 @@ from . import schema
 from .sdk import Run, Step, current_step, start_run
 from .store import Store
 
-__all__ = ["start_run", "Run", "Step", "current_step", "schema", "Store", "instrument"]
+__all__ = ["start_run", "Run", "Step", "current_step", "schema", "Store",
+           "instrument", "uninstrument"]
 
 
 def __getattr__(name: str):
     # Lazy so `import drishti` doesn't pull torch/lerobot for the telemetry path.
-    if name == "instrument":
-        from .hooks import instrument
+    if name in ("instrument", "uninstrument"):
+        from . import hooks
 
-        return instrument
+        return getattr(hooks, name)
     raise AttributeError(f"module 'drishti' has no attribute {name!r}")

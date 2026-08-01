@@ -14,26 +14,38 @@
   body{margin:0;background:var(--bg);color:var(--ink);
     font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;}
   a{color:inherit}
-  .app{display:grid;grid-template-columns:260px 1fr;height:100vh}
-  .side{border-right:1px solid var(--line);background:var(--bg1);overflow-y:auto}
+  .app{display:grid;grid-template-columns:280px 1fr;height:100vh}
+  .side{border-right:1px solid var(--line);background:var(--bg1);overflow-y:auto;display:flex;flex-direction:column}
   .brand{padding:14px 16px;border-bottom:1px solid var(--line);letter-spacing:.18em;
     text-transform:uppercase;font-size:11px;color:var(--dim)}
   .brand b{color:var(--ink)}
-  .runs{padding:6px}
-  .run{padding:9px 10px;border:1px solid transparent;border-radius:7px;cursor:pointer;margin-bottom:3px}
+  .tabs{display:flex;flex-direction:column;border-bottom:1px solid var(--line);padding:6px}
+  .tab{padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--dim);display:flex;justify-content:space-between;align-items:center}
+  .tab:hover{background:var(--bg2)}
+  .tab.on{background:var(--bg2);color:var(--ink)}
+  .tab .n{color:var(--mute);font-size:10px}
+  .runs{padding:6px;overflow-y:auto;flex:1}
+  .run{padding:8px 9px;border:1px solid transparent;border-radius:7px;cursor:pointer;margin-bottom:3px;display:flex;gap:8px;align-items:flex-start}
   .run:hover{background:var(--bg2)}
   .run.sel{background:var(--bg2);border-color:var(--line)}
-  .run .m{color:var(--ink)}
+  .run .chk{margin-top:2px;cursor:pointer;accent-color:var(--info)}
+  .run .body{flex:1;min-width:0}
+  .run .m{color:var(--ink);display:flex;justify-content:space-between;gap:6px;align-items:center}
   .run .s{color:var(--mute);font-size:10px;display:flex;justify-content:space-between;margin-top:3px}
+  .badge{font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:999px;font-weight:600;flex:0 0 auto}
+  .badge.ok{background:rgba(56,211,159,.16);color:var(--ok)}
+  .badge.bad{background:rgba(255,107,107,.16);color:var(--bad)}
+  .badge.run{background:rgba(245,181,74,.16);color:var(--warn)}
   .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
   .running{background:var(--warn)} .done{background:var(--ok)}
   .main{overflow-y:auto;padding:18px 22px}
   .head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
   .head h1{font-size:15px;margin:0;font-weight:600}
   .head .k{color:var(--mute)} .head .v{color:var(--dim)}
-  .sub{color:var(--mute);margin-bottom:18px}
+  .sub{color:var(--mute);margin-bottom:14px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   .card{background:var(--bg1);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .card.alert{border-color:var(--bad)}
   .card h3{margin:0 0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
     display:flex;justify-content:space-between}
   .card h3 .now{color:var(--ink);font-weight:600}
@@ -44,85 +56,204 @@
   .film img:hover{border-color:var(--info)}
   .camrow{margin-top:12px}
   .camlabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
-  .toolbar{display:flex;gap:10px;align-items:center;margin:14px 0 8px}
-  .btn{background:var(--bg2);border:1px solid var(--line);color:var(--dim);padding:5px 11px;
+  .calibbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--bg1);border:1px solid var(--line);
+    border-radius:10px;padding:10px 14px;margin-bottom:16px}
+  .btn{background:var(--bg2);border:1px solid var(--line);color:var(--dim);padding:6px 12px;
     border-radius:7px;cursor:pointer;font:inherit}
+  .btn:hover{color:var(--ink)}
+  .btn.primary{color:var(--bg);background:var(--info);border-color:var(--info)}
   .btn.on{color:var(--bg);background:var(--ok);border-color:var(--ok)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .metric{display:flex;flex-direction:column;gap:1px}
+  .metric .l{color:var(--mute);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+  .metric .v{color:var(--ink);font-weight:600}
+  .metric .v.good{color:var(--ok)} .metric .v.warn{color:var(--warn)}
   .empty{color:var(--mute);padding:40px;text-align:center}
   .legend{font-size:10px;color:var(--mute)}
+  .spacer{flex:1}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="side">
-    <div class="brand">drishti · <b>observability</b></div>
+    <div class="brand"><b>drishti</b></div>
+    <div class="tabs" id="tabs">
+      <div class="tab on" data-sec="logs" onclick="switchSection('logs')"><span>Logs</span><span class="n" id="tabN"></span></div>
+      <div class="tab" data-sec="fleet" onclick="switchSection('fleet')"><span>Current Fleet</span><span class="n">live</span></div>
+      <div class="tab" data-sec="monitor" onclick="switchSection('monitor')"><span>Monitor</span><span class="n">detect</span></div>
+    </div>
     <div class="runs" id="runs"></div>
   </div>
-  <div class="main" id="main">
-    <div class="empty">select a run</div>
-  </div>
+  <div class="main" id="main"></div>
 </div>
 <script>
 const API = "";                       // same origin (served by ingest)
-const C = {smd:"--info", rnd:"--warn", ace:"--bad", latency_ms:"--viol", "action[0]":"--ok"};
-let sel = null, following = false, timer = null;
+const C = {smd:"--info", rnd:"--warn", ace:"--bad", latency_ms:"--viol"};
+const JOINTS = ["shoulder_pan","shoulder_lift","elbow_flex","wrist_flex","wrist_roll","gripper"];
+const JCOLORS = ["#5b9cf6","#38d39f","#f5b54a","#ff6b6b","#b083f0","#e07bb0"];
+const TASK_DEFAULT = "Pick up the cube and place it in the box";   // must match drishti/sim/task.py
+
+let section = "logs";
+let runsCache = [];
+let sel = null;                       // run being replayed
+let selected = new Set();             // run_ids checked for calibration
+let calib = null;                     // loaded calibration (norm + threshold)
+let live = {run_id:null, steps:[], frames:[], status:"idle", success:null};  // live fleet run
+let liveThreshold = null, ws = null;  // tunable monitor threshold + WebSocket
+let liveTask = TASK_DEFAULT;          // language instruction for the next live rollout (editable)
+let sweepRuns = [];                   // per-run peak combined score, for the threshold-sweep readout
+let following = false, timer = null;
 
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const fmt = (x,n=2) => x==null?"–":(+x).toFixed(n);
+const isSuccess = r => (r.success_rate||0) >= 0.5;
 
-async function getRuns(){
-  const r = await fetch(`${API}/v1/runs`).then(r=>r.json()).catch(()=>({runs:[]}));
-  const el = document.getElementById("runs");
-  el.innerHTML = (r.runs||[]).map(run=>`
-    <div class="run ${run.run_id===sel?'sel':''}" onclick="select('${run.run_id}')">
-      <div class="m">${run.task||'–'}</div>
-      <div class="s"><span><span class="dot ${run.status}"></span>${run.model_id||''}</span>
-        <span>${run.n_steps||0} steps</span></div>
-    </div>`).join("") || `<div class="empty">no runs yet</div>`;
+// ---------- chart hover: crosshair + per-frame value tooltip ----------
+const chartReg = {}; let CHART_N = 0;
+const tip = document.createElement("div");
+tip.style.cssText = "position:fixed;pointer-events:none;background:#0f1318;border:1px solid #2a3441;"
+  + "border-radius:6px;padding:5px 9px;font:11px ui-monospace;color:#e6edf3;z-index:99;display:none;white-space:nowrap";
+document.body.appendChild(tip);
+function reg(series, labels, colors){
+  const id = "ch"+(CHART_N++);
+  chartReg[id] = {series, labels, colors, n: Math.max(0, ...series.map(s=>s.length))};
+  return id;
+}
+function xhairSVG(id, H){ return `<line class="xh" x1="-9" y1="0" x2="-9" y2="${H}" stroke="${css('--dim')}" stroke-width="0.7" style="visibility:hidden"/>`; }
+function wireHovers(){
+  document.querySelectorAll("svg[data-cid]").forEach(svg=>{
+    const r = chartReg[svg.dataset.cid]; if(!r || r.n<1) return;
+    svg.style.cursor = "crosshair";
+    const xh = svg.querySelector(".xh");
+    svg.onmousemove = (e)=>{
+      const bb = svg.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX-bb.left)/bb.width));
+      const idx = Math.round(frac*(r.n-1));
+      if(xh){ const x = 4 + 292*(r.n<2?0:idx/(r.n-1)); xh.setAttribute("x1",x); xh.setAttribute("x2",x); xh.style.visibility="visible"; }
+      const rows = r.series.map((s,si)=>{ const v=s[idx];
+        return v==null?null:`<span style="color:${r.colors[si]}">●</span> ${r.labels[si]} <b>${(+v).toFixed(2)}</b>`; }).filter(Boolean);
+      tip.innerHTML = `<div style="color:#5a636e;margin-bottom:2px">frame ${idx}</div>${rows.join("<br>")}`;
+      tip.style.display="block"; tip.style.left=(e.clientX+13)+"px"; tip.style.top=(e.clientY+13)+"px";
+    };
+    svg.onmouseleave = ()=>{ tip.style.display="none"; if(xh) xh.style.visibility="hidden"; };
+  });
 }
 
-function spark(vals, color){
-  const xs = vals.map((_,i)=>i), ys = vals.filter(v=>v!=null);
+// ---------- data ----------
+async function refresh(){
+  const r = await fetch(`${API}/v1/runs`).then(r=>r.json()).catch(()=>({runs:[]}));
+  runsCache = r.runs || [];
+  document.getElementById("tabN").textContent = runsCache.length ? `${runsCache.length}` : "";
+  renderRuns();
+}
+async function loadCalib(){
+  calib = await fetch(`${API}/v1/calib`).then(r=>r.json()).then(j=>j.report?j:null).catch(()=>null);
+  sweepRuns = await fetch(`${API}/v1/sweep`).then(r=>r.json()).then(j=>j.runs||[]).catch(()=>[]);
+}
+
+// ---------- sidebar: the log ----------
+function renderRuns(){
+  const el = document.getElementById("runs");
+  if(section !== "logs"){ el.innerHTML = `<div class="empty">live · use the panel →</div>`; return; }
+  // every rollout — recorded AND live tests — is a log entry; successes feed re-calibration (the flywheel)
+  el.innerHTML = runsCache.map(run=>{
+    const done = run.status==="done";
+    const m = run.meta||{};
+    const badge = !done ? `<span class="badge run">running</span>`
+      : isSuccess(run) ? `<span class="badge ok">success</span>` : `<span class="badge bad">fail</span>`;
+    const cube = m.cube_xy?`(${m.cube_xy[0]},${m.cube_xy[1]})`:'';
+    // Label off fields every run is guaranteed to have. meta.rollout/lane/fleet are set by some
+    // recorders and not others, and a list full of "rollout ?" is worse than no label at all.
+    const kind = m.live ? "live" : "recorded";
+    const where = m.lane ? `${m.lane} lane` : "";
+    const label = `${kind} · ${run.run_id.replace("run_","").slice(0,6)}`
+      + (where ? ` <span style="color:var(--mute)">· ${where}</span>` : "");
+    return `<div class="run ${run.run_id===sel?'sel':''}" onclick="replay('${run.run_id}')">
+      <input type="checkbox" class="chk" ${selected.has(run.run_id)?'checked':''}
+        ${done&&isSuccess(run)?'':'disabled'} onclick="event.stopPropagation();toggleSel('${run.run_id}')"/>
+      <div class="body">
+        <div class="m"><span>${label}</span>${badge}</div>
+        <div class="s"><span>${run.n_steps||0} steps</span><span>cube ${cube}</span></div>
+      </div></div>`;
+  }).join("") || `<div class="empty">no rollouts yet</div>`;
+}
+
+window.toggleSel = (id)=>{ selected.has(id)?selected.delete(id):selected.add(id); renderMain(); };
+window.selectAllSuccess = ()=>{ runsCache.forEach(r=>{ if(r.status==="done"&&isSuccess(r)) selected.add(r.run_id); }); renderRuns(); renderMain(); };
+window.clearSel = ()=>{ selected.clear(); renderRuns(); renderMain(); };
+
+// ---------- calibration ----------
+window.runCalibrate = async ()=>{
+  const ids = [...selected];
+  if(!ids.length) return;
+  const btn = document.getElementById("calibBtn");
+  if(btn){ btn.disabled=true; btn.textContent="calibrating…"; }
+  try{
+    await fetch(`${API}/v1/calibrate`, {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({run_ids: ids})}).then(r=>r.json());
+    await loadCalib();
+    await refresh();
+  }catch(e){ alert("calibrate failed: "+e); }
+  renderMain();
+};
+
+// ---------- charts ----------
+function spark(vals, color, id){
+  const ys = vals.filter(v=>v!=null);
   if(!ys.length) return `<svg></svg><div class="rng"><span>–</span></div>`;
   const lo=Math.min(...ys), hi=Math.max(...ys), W=300,H=72,pad=4;
   const sx=i=>pad+(W-2*pad)*(vals.length<2?0:i/(vals.length-1));
   const sy=v=>{const d=hi-lo||1;return H-pad-(H-2*pad)*((v-lo)/d);};
   let d="",started=false;
   vals.forEach((v,i)=>{ if(v==null)return; d+=(started?"L":"M")+sx(i).toFixed(1)+" "+sy(v).toFixed(1)+" "; started=true;});
-  const last = ys[ys.length-1];
-  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-      <path d="${d}" fill="none" stroke="${css(color)}" stroke-width="1.6"/>
-    </svg>
+  return `<svg ${id?`data-cid="${id}"`:''} viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <path d="${d}" fill="none" stroke="${css(color)}" stroke-width="1.6"/>${id?xhairSVG(id,H):''}</svg>
     <div class="rng"><span>min ${fmt(lo,2)}</span><span>max ${fmt(hi,2)}</span></div>`;
 }
-
 function chartCard(title, vals, color){
   const last = [...vals].reverse().find(v=>v!=null);
-  return `<div class="card"><h3>${title}<span class="now">${fmt(last)}</span></h3>${spark(vals,color)}</div>`;
+  const id = reg([vals],[title],[css(color)]);
+  return `<div class="card"><h3>${title}<span class="now">${fmt(last)}</span></h3>${spark(vals,color,id)}</div>`;
 }
 
-// one labelled filmstrip per camera (up / side / wrist), in a sensible order
-function filmstrips(frames){
-  if(!frames.length) return "";
-  const ORDER = ["up","side","wrist"];
-  const byCam = {};
-  frames.forEach(f => { (byCam[f.camera] ||= []).push(f); });
-  const cams = Object.keys(byCam).sort((a,b)=>{
-    const ia=ORDER.indexOf(a), ib=ORDER.indexOf(b);
-    return (ia<0?99:ia) - (ib<0?99:ib);
+// combined uncertainty vs the calibrated threshold (the aha chart)
+function combinedVals(steps){
+  if(!calib) return null;
+  const N = calib.norm, cap = calib.cap || 8;
+  // capped-z per signal in [0,1] (bounded → no single detector dominates); null counts as 0
+  const cz = (raw,k)=>{ if(raw==null) return 0; const [mu,sd]=N[k]; return Math.min(Math.max((raw-mu)/sd,0),cap)/cap; };
+  return steps.map(s=>{
+    if(s.smd==null && s.rnd==null && s.ace==null) return null;   // unscored step
+    return (cz(s.smd,"smd")+cz(s.rnd,"rnd")+cz(s.ace,"act"))/3;  // mean of capped-z, in [0,1]
   });
-  return cams.map(cam=>`
-    <div class="camrow">
-      <div class="camlabel">${cam} camera</div>
-      <div class="film">${byCam[cam].sort((x,y)=>x.step_idx-y.step_idx).map(f=>
-        `<img src="${API}/blobs/${f.blob_path}" title="${cam} · step ${f.step_idx}"/>`).join("")}</div>
-    </div>`).join("");
 }
-
-const JOINTS = ["shoulder_pan","shoulder_lift","elbow_flex","wrist_flex","wrist_roll","gripper"];
-const JCOLORS = ["#5b9cf6","#38d39f","#f5b54a","#ff6b6b","#b083f0","#e07bb0"];
-
-// multi-line chart: several series on one set of axes (e.g. all joint actions)
+// each detector's capped-z CONTRIBUTION in [0,1] — same scale as the combined (which is their mean)
+function cappedZSeries(steps, normKey, stepKey){
+  if(!calib) return steps.map(()=>null);
+  const [mu,sd] = calib.norm[normKey], cap = calib.cap || 8;
+  return steps.map(s=>{ const raw=s[stepKey]; return raw==null?null:Math.min(Math.max((raw-mu)/sd,0),cap)/cap; });
+}
+function combinedCard(vals, thr){
+  const ys=vals.filter(v=>v!=null);
+  if(!ys.length) return `<div class="card"><h3>combined uncertainty</h3><svg></svg></div>`;
+  const id = reg([vals],["uncertainty"],[css('--viol')]);
+  const peak = Math.max(...ys);
+  let peakIdx=0; ys.forEach((v,i)=>{}); for(let i=0;i<vals.length;i++){ if(vals[i]===peak){ peakIdx=i; break; } }
+  const crossed = peak>thr;
+  const ratio = thr ? (peak/thr) : 0;            // peak relative to the line · 1.0× = exactly at the threshold
+  const lo=0, hi=Math.max(...ys,thr), W=300,H=72,pad=4;
+  const sx=i=>pad+(W-2*pad)*(vals.length<2?0:i/(vals.length-1));
+  const sy=v=>{const d=hi-lo||1;return H-pad-(H-2*pad)*((v-lo)/d);};
+  let d="",started=false;
+  vals.forEach((v,i)=>{ if(v==null)return; d+=(started?"L":"M")+sx(i).toFixed(1)+" "+sy(v).toFixed(1)+" "; started=true;});
+  const ty=sy(thr).toFixed(1);
+  return `<div class="card ${crossed?'alert':''}"><h3>combined uncertainty
+      <span class="now" style="color:${crossed?css('--bad'):css('--ok')}">peak ${ratio.toFixed(1)}× threshold ${crossed?'· OVER ⚠':'· under'}</span></h3>
+    <svg data-cid="${id}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <line x1="0" y1="${ty}" x2="${W}" y2="${ty}" stroke="${css('--bad')}" stroke-width="1" stroke-dasharray="4 3" opacity=".8"/>
+      <path d="${d}" fill="none" stroke="${css('--viol')}" stroke-width="1.7"/>${xhairSVG(id,H)}</svg>
+    <div class="rng"><span>threshold ${fmt(thr,1)}</span><span>${crossed?'crossed @ step '+peakIdx:'stayed under'}</span></div></div>`;
+}
 function multiLineCard(title, series, labels, colors){
   const all = series.flat().filter(v=>v!=null);
   if(!all.length) return `<div class="card"><h3>${title}</h3><svg></svg></div>`;
@@ -130,58 +261,225 @@ function multiLineCard(title, series, labels, colors){
   const n=Math.max(...series.map(s=>s.length));
   const sx=i=>pad+(W-2*pad)*(n<2?0:i/(n-1));
   const sy=v=>{const d=hi-lo||1; return H-pad-(H-2*pad)*((v-lo)/d);};
-  const paths = series.map((vals,si)=>{
-    let d="",started=false;
-    vals.forEach((v,i)=>{ if(v==null)return; d+=(started?"L":"M")+sx(i).toFixed(1)+" "+sy(v).toFixed(1)+" "; started=true;});
-    return `<path d="${d}" fill="none" stroke="${colors[si%colors.length]}" stroke-width="1.3"/>`;
-  }).join("");
+  const id = reg(series, labels, labels.map((_,i)=>colors[i%colors.length]));
+  const paths = series.map((vals,si)=>{ let d="",st=false;
+    vals.forEach((v,i)=>{ if(v==null)return; d+=(st?"L":"M")+sx(i).toFixed(1)+" "+sy(v).toFixed(1)+" "; st=true;});
+    return `<path d="${d}" fill="none" stroke="${colors[si%colors.length]}" stroke-width="1.3"/>`;}).join("");
   const legend = labels.map((l,i)=>`<span style="color:${colors[i%colors.length]}">●</span>${l}`).join("&nbsp;&nbsp;");
-  return `<div class="card"><h3>${title}<span class="now"></span></h3>
-    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${paths}</svg>
+  return `<div class="card"><h3>${title}<span class="now" style="font-size:9px;color:var(--mute)">hover to trace</span></h3>
+    <svg data-cid="${id}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${paths}${xhairSVG(id,H)}</svg>
     <div class="rng"><span>min ${fmt(lo,1)}</span><span>max ${fmt(hi,1)}</span></div>
     <div class="legend" style="margin-top:5px">${legend}</div></div>`;
 }
+function filmstrips(frames){
+  if(!frames.length) return "";
+  const ORDER=["up","side","wrist"], byCam={};
+  frames.filter(f=>ORDER.includes(f.camera)).forEach(f=>{(byCam[f.camera]||=[]).push(f);});
+  return Object.keys(byCam).sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b)).map(cam=>`
+    <div class="camrow"><div class="camlabel">${cam} camera</div>
+      <div class="film">${byCam[cam].sort((x,y)=>x.step_idx-y.step_idx).map(f=>
+        `<img src="${API}/blobs/${f.blob_path}" title="${cam} · step ${f.step_idx}"/>`).join("")}</div></div>`).join("");
+}
 
-async function render(){
-  if(!sel) return;
+// ---------- main: calib bar + replay ----------
+function calibBar(){
+  const nSel = selected.size, nSucc = runsCache.filter(r=>r.status==="done"&&isSuccess(r)).length;
+  let result = `<span class="metric"><span class="l">calibration</span><span class="v" style="color:var(--mute)">not calibrated</span></span>`;
+  if(calib){ const r=calib.report;
+    const auc=r.auc_fail_vs_success, caught=r.fail_caught_frac, fa=r.false_alarm_frac;
+    result = `
+      <span class="metric"><span class="l">threshold</span><span class="v">${fmt(r.threshold,2)}</span></span>
+      <span class="metric"><span class="l">AUC fail/ok</span><span class="v ${auc>=0.7?'good':'warn'}">${fmt(auc,2)}</span></span>
+      <span class="metric"><span class="l">failures caught</span><span class="v ${caught>=0.7?'good':'warn'}">${caught==null?'–':Math.round(caught*100)+'%'}</span></span>
+      <span class="metric"><span class="l">false alarms</span><span class="v">${fa==null?'–':Math.round(fa*100)+'%'}</span></span>
+      <span class="metric"><span class="l">on</span><span class="v">${r.n_success_runs_calib} ok · ${r.n_calib_steps} steps</span></span>`;
+  }
+  return `<div class="calibbar">
+    <button class="btn" onclick="selectAllSuccess()">select all successes (${nSucc})</button>
+    <button class="btn" onclick="clearSel()">clear</button>
+    <button class="btn primary" id="calibBtn" ${nSel?'':'disabled'} onclick="runCalibrate()">calibrate (${nSel})</button>
+    <div class="spacer"></div>${result}</div>`;
+}
+
+async function renderReplay(){
+  if(!sel) return `<div class="empty">select a rollout to replay</div>`;
   const [detail, stepsR] = await Promise.all([
     fetch(`${API}/v1/runs/${sel}`).then(r=>r.json()),
     fetch(`${API}/v1/runs/${sel}/steps`).then(r=>r.json()),
   ]);
-  const run = detail.run, steps = stepsR.steps||[], frames = detail.frames||[];
-  if(!run){ document.getElementById("main").innerHTML=`<div class="empty">run not found</div>`; return; }
-  const col = k => steps.map(s=> s[k]);
-  const baseCharts = ["smd","rnd","ace","latency_ms"].map(k=>chartCard(k, col(k), C[k])).join("");
-  const actSeries = JOINTS.map((_,j)=> steps.map(s=> (s.action && s.action.length>j) ? s.action[j] : null));
-  const charts = baseCharts + multiLineCard("action · joints (deg)", actSeries, JOINTS, JCOLORS);
-  const film = filmstrips(frames);
-  document.getElementById("main").innerHTML = `
-    <div class="head">
-      <h1>${run.task||'run'}</h1>
+  const run=detail.run, steps=stepsR.steps||[], frames=detail.frames||[];
+  if(!run) return `<div class="empty">run not found</div>`;
+  const done=run.status==="done";
+  const badge = !done?`<span class="badge run">running</span>`
+    : isSuccess(run)?`<span class="badge ok">success</span>`:`<span class="badge bad">fail</span>`;
+  const col = k => steps.map(s=>s[k]);
+  // ACE = action-head spread; intrinsic to each forward → available without calibration
+  const aceVals = steps.map(s => Array.isArray(s.action_head_std)&&s.action_head_std.length
+    ? s.action_head_std.reduce((a,b)=>a+Math.abs(b),0)/s.action_head_std.length
+    : (s.ace!=null?s.ace:null));
+  // calibrated → show each detector's 0–1 capped-z (same scale as combined); else raw (no normalization yet)
+  let charts = chartCard("smd · state", calib?cappedZSeries(steps,"smd","smd"):col("smd"), C.smd)
+    + chartCard("rnd · vision", calib?cappedZSeries(steps,"rnd","rnd"):col("rnd"), C.rnd)
+    + chartCard("ace · action spread", calib?cappedZSeries(steps,"act","ace"):aceVals, C.ace);
+  const cv = combinedVals(steps);
+  if(cv) charts += combinedCard(cv, calib.report.threshold);
+  const actSeries = JOINTS.map((_,j)=> steps.map(s=>(s.action&&s.action.length>j)?s.action[j]:null));
+  charts += multiLineCard("action · joints (deg)", actSeries, JOINTS, JCOLORS);
+  return `<div class="head"><h1>${run.task||'rollout'}</h1> ${badge}
       <span><span class="k">model</span> <span class="v">${run.model_id||'–'}</span></span>
-      <span><span class="k">backend</span> <span class="v">${run.backend||'–'}</span></span>
       <span><span class="k">steps</span> <span class="v">${run.n_steps||steps.length}</span></span>
-      <span><span class="k">success</span> <span class="v">${fmt(run.success_rate,2)}</span></span>
-      <span class="dot ${run.status}"></span><span class="v">${run.status||''}</span>
-    </div>
-    <div class="sub">${run.run_id} &middot; <span class="legend">uncertainty: smd (state) · rnd (vision embedding) · ace (action head)</span></div>
-    <div class="toolbar">
-      <button class="btn ${following?'on':''}" onclick="toggleFollow()">${following?'● following':'follow live'}</button>
-    </div>
-    <div class="grid">${charts}</div>
-    ${film}`;
+      <span><span class="k">success (oracle)</span> <span class="v">${isSuccess(run)?'cube in tray':'no'}</span></span></div>
+    <div class="sub">${run.run_id} &middot; <span class="legend">uncertainty: smd (state) · rnd (vision) · ace (action spread) · combined vs threshold</span>
+    ${!calib?`<div style="color:var(--warn);margin-top:6px">ⓘ ACE (action spread) is intrinsic and shows live. SMD &amp; RND are <i>relative-to-normal</i> detectors — they exist only once you <b>calibrate</b> on the successful rollouts, which also sets the combined threshold.</div>`:''}</div>
+    <div class="grid">${charts}</div>${filmstrips(frames)}`;
 }
 
-function toggleFollow(){
-  following = !following;
-  if(following){ timer = setInterval(()=>{render();getRuns();}, 1000); }
-  else { clearInterval(timer); }
-  render();
+async function renderMain(){
+  const el = document.getElementById("main");
+  Object.keys(chartReg).forEach(k=>delete chartReg[k]); CHART_N = 0;   // fresh chart registry each render
+  if(section==="logs"){
+    el.innerHTML = calibBar() + `<div id="replay"><div class="empty">select a rollout to replay</div></div>`;
+    document.getElementById("replay").innerHTML = await renderReplay();
+  } else if(section==="fleet"){
+    el.innerHTML = renderFleet(); autoscrollFilms();
+  } else {
+    el.innerHTML = renderMonitor();
+  }
+  wireHovers();
 }
 
-window.select = async (id)=>{ sel=id; following=false; clearInterval(timer); await getRuns(); render(); };
+// ---------- Stage 2: live fleet + monitor ----------
+function liveOutcome(){ return live.success>=0.5 ? "success" : "fail"; }   // actual ground-truth outcome
+function statusBadge(st){
+  return ({running:`<span class="badge run">running</span>`, starting:`<span class="badge run">starting…</span>`,
+    halted:`<span class="badge bad">⛔ halted</span>`, success:`<span class="badge ok">✓ placed</span>`,
+    fail:`<span class="badge bad">✗ failed</span>`}[st]) || `<span class="badge">idle</span>`;
+}
+function autoscrollFilms(){ setTimeout(()=>document.querySelectorAll(".film").forEach(el=>el.scrollLeft=el.scrollWidth), 30); }
 
-getRuns(); setInterval(()=>{ if(!following) getRuns(); }, 3000);
+window.runFleet = async ()=>{
+  if(!calib) return;
+  live = {run_id:null, steps:[], frames:[], status:"starting", success:null};
+  renderMain();
+  await fetch(`${API}/v1/fleet/run`, {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({threshold: liveThreshold, task: liveTask})}).then(r=>r.json()).catch(e=>alert("run failed: "+e));
+};
+window.setThreshold = (v)=>{ liveThreshold = +v; renderMain(); };
+window.setTask = (v)=>{ liveTask = v; };   // no re-render — keep input focus
+
+// confusion across ALL logged rollouts at a given threshold (the "tune against the whole set" readout)
+function sweepStats(thr){
+  let fails=0, succs=0, caught=0, fa=0;
+  for(const r of sweepRuns){
+    const over = r.max_combined > thr;
+    if(r.success){ succs++; if(over) fa++; } else { fails++; if(over) caught++; }
+  }
+  return {fails, succs, caught, fa, missed: fails-caught, n: sweepRuns.length};
+}
+function sweepReadout(thr){
+  if(!sweepRuns.length) return `<span class="legend">no scored rollouts yet — calibrate to populate the sweep</span>`;
+  const s = sweepStats(thr);
+  const pill = (c,txt)=>`<span style="color:${c};font-weight:700">${txt}</span>`;
+  return `<span class="legend">across ${s.n} logged rollouts at this threshold: `
+    + pill(css('--ok'), `✓ ${s.caught}/${s.fails} failures caught`) + ` · `
+    + pill(css('--warn'), `⚠ ${s.fa}/${s.succs} false alarms`) + ` · `
+    + pill(css('--bad'), `✗ ${s.missed} missed`) + `</span>`;
+}
+
+function renderFleet(){
+  if(!calib) return `<div class="empty">Calibrate first (in <b>Logs</b>) — the live Fleet needs the calibrated detectors.</div>`;
+  const n = live.steps.length;
+  const actSeries = JOINTS.map((_,j)=> live.steps.map(s=>(s.action&&s.action.length>j)?s.action[j]:null));
+  return `<div class="head"><h1>Fleet 1 · SO-101 pick-place</h1> ${statusBadge(live.status)}
+      <span><span class="k">model</span> <span class="v">smolvla_ft@4500</span></span>
+      <span><span class="k">step</span> <span class="v">${n}</span></span>
+      <span><span class="k">calibration value</span> <span class="v">${fmt(liveThreshold,2)}</span></span></div>
+    <div class="sub">${live.run_id||'—'} &middot; <span class="legend">the robot running live — its cameras + joint commands. switch to <b>Monitor</b> to watch the uncertainty + failure detection</span></div>
+    <div class="calibbar">
+      <button class="btn primary" ${live.status==='running'||live.status==='starting'?'disabled':''} onclick="runFleet()">${live.status==='running'||live.status==='starting'?'running…':'▶ run live rollout'}</button>
+      <span class="legend">${live.status==='starting'?'loading policy (~20s) then streaming live…':'one fresh rollout, streamed frame-by-frame'}</span></div>
+    <div class="calibbar">
+      <span class="metric"><span class="l">instruction</span></span>
+      <input id="taskInput" value="${liveTask.replace(/"/g,'&quot;')}" oninput="setTask(this.value)"
+        style="flex:1;max-width:520px;background:#0f1318;border:1px solid #2a3441;border-radius:6px;color:#e6edf3;padding:6px 9px;font:12px ui-monospace"/>
+      <span class="legend">the language prompt sent to the policy — editable, but it was finetuned on “${TASK_DEFAULT}”, so straying from that may change behavior</span></div>
+    <div class="grid">${multiLineCard("action · joints (deg)", actSeries, JOINTS, JCOLORS)}</div>
+    ${filmstrips(live.frames)}`;
+}
+
+function renderMonitor(){
+  if(!calib) return `<div class="empty">Calibrate first (in <b>Logs</b>).</div>`;
+  const cv = combinedVals(live.steps) || [];
+  const last = [...cv].reverse().find(v=>v!=null);
+  let firstCross = -1;
+  for(let i=0;i<cv.length;i++){ if(cv[i]!=null && cv[i]>liveThreshold){ firstCross=i; break; } }
+  const predicted = firstCross>=0;
+  const ended = live.status==='success'||live.status==='fail';
+  const actualFail = live.status==='fail';
+  const box = (border,color,h,body) => `<div class="card" style="grid-column:1/-1;border-color:${color}">
+    <h3>monitor · ${h}</h3><div style="font-size:16px;color:${color};font-weight:700">${body}</div></div>`;
+  let banner;
+  if(!ended){
+    banner = predicted
+      ? box('','var(--warn)','prediction', `⚠ FAILURE DETECTED @ step ${firstCross} — uncertainty OVER the threshold, running to confirm`)
+      : box('','var(--ok)','nominal', `● nominal — uncertainty under the threshold`);
+  } else if(predicted && actualFail){
+    banner = box('','var(--ok)','✓ correct catch', `✓ CORRECT CATCH — flagged @ step ${firstCross}, and it actually FAILED (true positive)`);
+  } else if(predicted && !actualFail){
+    banner = box('','var(--warn)','false alarm', `⚠ FALSE ALARM — flagged @ step ${firstCross}, but the cube was placed (false positive)`);
+  } else if(!predicted && actualFail){
+    banner = box('','var(--bad)','missed', `✗ MISSED — it failed with no warning (false negative) · try lowering the threshold`);
+  } else {
+    banner = box('','var(--ok)','✓ nominal', `✓ NOMINAL — no flag and the cube was placed (true negative)`);
+  }
+  return `<div class="head"><h1>Monitor</h1> <span class="badge">live failure detection</span></div>
+    <div class="sub">watches the live rollout's uncertainty, <b>flags</b> an impending failure (it doesn't halt — it runs to the real end so you can see whether the call was right), and lets you tune the detection threshold.</div>
+    <div class="calibbar">
+      <span class="metric"><span class="l">calibration threshold</span><span class="v">${fmt(liveThreshold,2)}</span></span>
+      <input type="range" min="0" max="1" step="0.01" value="${liveThreshold}" oninput="setThreshold(this.value)" style="flex:1;max-width:360px;accent-color:var(--info)"/>
+      <button class="btn primary" ${live.status==='running'||live.status==='starting'?'disabled':''} onclick="runFleet()">▶ run live rollout</button>
+      <span class="legend">combined uncertainty is 0–1 (mean of capped-z) · calibrated default ${fmt(calib.report.threshold,2)} · higher = fewer false alarms</span></div>
+    <div class="sub" style="margin-top:-4px">${sweepReadout(liveThreshold)}</div>
+    <div class="grid">${banner}<div style="grid-column:1/-1">${combinedCard(cv, liveThreshold)}</div></div>
+    <div class="camlabel" style="margin:16px 0 7px">contributing detectors — each on the same 0–1 capped-z scale; the combined above is their <b>average</b></div>
+    <div class="grid">
+      ${chartCard("smd · joint state", cappedZSeries(live.steps,"smd","smd"), C.smd)}
+      ${chartCard("rnd · vision novelty", cappedZSeries(live.steps,"rnd","rnd"), C.rnd)}
+      ${chartCard("ace · action spread", cappedZSeries(live.steps,"act","ace"), C.ace)}</div>`;
+}
+
+function connectWS(){
+  try{ ws = new WebSocket(`ws://${location.host}/v1/tail`); }catch(e){ return; }
+  ws.onmessage = (m)=>{
+    let ev; try{ ev = JSON.parse(m.data); }catch(e){ return; }
+    let changed = false;
+    for(const e of (ev.events||[])){
+      const p = e.payload||{};
+      if(e.type==="run_start" && p.meta && p.meta.live){
+        live = {run_id:p.run_id, steps:[], frames:[], status:"running", success:null};
+        liveThreshold = (p.meta.threshold!=null) ? p.meta.threshold : liveThreshold;
+        changed = true;
+      } else if(live.run_id && p.run_id===live.run_id){
+        if(e.type==="step"){ live.steps.push(p); changed=true; }
+        else if(e.type==="frame"){ live.frames.push(p); changed=true; }
+        else if(e.type==="run_end"){ live.success = p.success_rate; live.status = liveOutcome(); changed=true; }
+      }
+    }
+    if(changed && (section==="fleet"||section==="monitor")){ renderMain(); }
+  };
+  ws.onclose = ()=> setTimeout(connectWS, 2000);
+  ws.onerror = ()=>{ try{ws.close();}catch(e){} };
+}
+
+window.switchSection = (s)=>{ section=s;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t.dataset.sec===s));
+  renderRuns(); renderMain();
+};
+window.replay = (id)=>{ sel=id; renderRuns(); renderMain(); };
+
+(async ()=>{ await loadCalib(); if(calib) liveThreshold = calib.report.threshold;
+  await refresh(); renderMain(); connectWS();
+  setInterval(async ()=>{ if(section==="logs"){ await refresh(); } }, 3000); })();
 </script>
 </body>
 </html>

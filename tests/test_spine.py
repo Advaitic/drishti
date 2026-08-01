@@ -61,7 +61,7 @@ def test_ingest_endpoints():
 
     d = tempfile.mkdtemp()
     os.environ["DRISHTI_OBS_DB_URL"] = f"sqlite:///{d}/i.db"
-    import ingest.app as A
+    import drishti.server.app as A
     importlib.reload(A)
     c = TestClient(A.app)
 
