@@ -10,19 +10,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      # The runner is headless and has no GPU, so MuJoCo cannot open a GL context and aborts with
-      # SIGABRT — a core dump, not a Python exception — the first time a test renders a camera.
-      # osmesa is the software rasteriser; EGL would be faster but needs a GPU driver that is not
-      # here. On a real GPU box use MUJOCO_GL=egl (and apt install libegl1).
-      MUJOCO_GL: osmesa
-      PYOPENGL_PLATFORM: osmesa
+      # The runner is headless, so MuJoCo cannot open a GL context and aborts with SIGABRT — a core
+      # dump, not a Python exception — the first time a test renders a camera. We give it a real
+      # (virtual) X display via xvfb rather than the osmesa software rasteriser: pulling
+      # libosmesa6-dev into the same process as torch segfaults it inside torch._dynamo, because
+      # both load conflicting LLVM/libstdc++ symbols. On a GPU box, MUJOCO_GL=egl is the fast path.
+      MUJOCO_GL: glx
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install headless GL
+      - name: Install a virtual display
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libosmesa6-dev libgl1 libglx-mesa0
+          sudo apt-get install -y --no-install-recommends xvfb libgl1 libglx-mesa0
 
       - uses: actions/setup-python@v5
         with:
@@ -35,7 +35,7 @@ jobs:
         run: pip install -e '.[all]'
 
       - name: Test
-        run: pytest -q
+        run: xvfb-run -a pytest -q
 
       - name: Calibration reproduces the published report
         # The headline number in the README is only trustworthy if a stranger can regenerate it.
