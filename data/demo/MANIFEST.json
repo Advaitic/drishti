@@ -1,0 +1,19 @@
+{
+  "source_db": "data/obs.db",
+  "n_runs": 63,
+  "n_success": 35,
+  "n_failure": 28,
+  "runs_with_frames": [
+    "run_08f2c692f841",
+    "run_31cb67dfe914",
+    "run_43e428009015",
+    "run_45f73590175b",
+    "run_6eb89251c8aa",
+    "run_93096da04a70"
+  ],
+  "frame_stride": 3,
+  "n_embeddings": 756,
+  "n_frames": 546,
+  "embedding_dtype": "float16",
+  "frame_rows_dropped": 13275
+}
