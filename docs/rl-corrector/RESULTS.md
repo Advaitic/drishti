@@ -29,7 +29,7 @@ episodes were run, not a config change. Nothing here is a *grasp* rate: grasp an
 
 | Stage | What | Result | Proof |
 |---|---|---|---|
-| Stage 0 | `verifiers` env + rollout server + UQ, built local | 15 pytest green (CPU/Mac) | `tests/`, `environments/vla-corrector/` |
+| Stage 0 | `verifiers` env + rollout server + UQ, built local | pytest green on CPU/Mac (15 tests at the time; 22 now) | `tests/`, `environments/vla-corrector/` |
 | Stage 1 (R4) | MolmoAct2 joint convention on real hardware | ✅ correct (arm moves toward cube) | memory `project_rl_corrector` |
 | Stage 1 (R9) | Zero-shot grasp on sim frames | ❌ approaches (2 cm) but never grasps | — |
 | Finetune | LeRobot action-expert finetune, 50 demos | loss **0.881 → 0.019** (1500 steps, ~1 h A100) | `results/logs/ft_full.log` |
@@ -334,7 +334,7 @@ eval), not our sim. Raw: `results/steerability_tests/base_probe.log`.
 spikes, SMD already gives the direction back onto the success-manifold, so the corrector emits a corrective
 *action/state* instead of words. This sidesteps "is the VLA steerable by language" entirely (it doesn't need
 to hear language). That's the more defensible direction now. (Also on the table for Prime: **continuous-space
-policy RL** in prime-rl — see PRIME_HOSTED_VLM_LIMITATION.md — which would let the VLA itself be RL-explored
+policy RL** in prime-rl — see PRIME_RL_CONSTRAINTS.md — which would let the VLA itself be RL-explored
 directly in the sim, no language corrector needed.)
 
 ## Language-diversity finetune (2026-07-21/22) — tested the root-cause fix, honest negative

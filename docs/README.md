@@ -48,6 +48,43 @@ failures. Different arm, different simulator, different failure process.
 | [aha/GENERATE.md](aha/GENERATE.md) | How to regenerate the dataset from NVlabs/AHA yourself |
 | [aha/BREADTH_PLAN.md](aha/BREADTH_PLAN.md) | The plan for the multi-task campaign, kept for provenance |
 
+## Everything that is runnable
+
+`drishti demo` / `serve` / `calibrate` / `record` / `figures` are the maintained entry points. The
+rest are the experiments themselves — kept because they are what produced the results above, not
+because they are polished. Each is a `python -m` away and each explains itself in its docstring.
+
+| Runs the system | |
+|---|---|
+| `drishti.sim.so101_env` | load the SO-101 scene, render up/side/wrist |
+| `drishti.sim.scripted_pick` | one scripted top-down pick-and-place, prints success |
+| `drishti.sim.record` | record scripted demos to `data/demos/` (`drishti record`) |
+| `drishti.drivers.rollout_record` | drive a finetuned policy and log rollouts into the store |
+| `drishti.drivers.live_fleet` | one live rollout, scored by the calibrated Monitor as it runs |
+| `drishti.drivers.replay` | open-loop replay of a LeRobot episode through an instrumented policy |
+
+| The rl-corrector experiments | |
+|---|---|
+| `drishti.sim.stub_server` | CPU-only rollout server — try the RL loop with no checkpoint |
+| `drishti.drivers.rollout_record_molmoact2` | the MolmoAct2 recorder, with the R4/R9 smoke gates |
+| `drishti.drivers.steerability_probe` | *is the VLA language-steerable?* — the test that settled it |
+| `drishti.drivers.phase_caption_probe` | the follow-up: does it respond to its **own** trained vocabulary? |
+| `drishti.drivers.eval_prompt_sweep` | does a corrective instruction change task success? |
+| `drishti.drivers.correction_ab` | does a *good* correction, injected mid-trajectory, help? |
+| `drishti.drivers.rl_env_smoke` | the full corrector loop on a live VLA, minus GRPO |
+| `drishti.drivers.success_eval` | closed-loop task success for a phase-captioned checkpoint |
+| `drishti.drivers.frontier_profile` | find the cube positions where the VLA sometimes succeeds |
+
+| Research tooling (`scripts/`) | |
+|---|---|
+| `gen_aha.py` → `ingest_aha.py` → `eval_aha.py` / `eval_aha_seeds.py` | the AHA benchmark pipeline |
+| `embed_offline.py` | re-embed stored frames with a different encoder |
+| `build_lerobot_dataset.py` | scripted demos → `LeRobotDataset` for finetuning |
+| `eval_policy.py` | checkpoint shootout on the sim task |
+| `export_demo_bundle.py` | regenerate `data/demo/` from a full local store |
+| `make_gif.py`, `watch_demos.py` | look at what the arm actually did |
+| `finetune.sh`, `pod_*.sh` | the GPU-pod recipes, kept as the record of what we ran |
+
 ## A note on the numbers
 
 Every quantitative claim in these documents should either point at an artifact in the repo or say

@@ -272,7 +272,13 @@ function multiLineCard(title, series, labels, colors){
     <div class="legend" style="margin-top:5px">${legend}</div></div>`;
 }
 function filmstrips(frames){
-  if(!frames.length) return "";
+  // No frames is normal, not an error: the bundled demo dataset keeps camera images for only a few
+  // representative rollouts (they are ~90% of its bytes). Say so, rather than rendering nothing and
+  // leaving the reader wondering whether something is broken.
+  if(!frames.length) return `<div class="camrow"><div class="camlabel">cameras</div>
+    <div class="legend">no frames stored for this rollout — the detectors run on the vision
+    <i>embedding</i>, which is kept for every rollout; the JPEGs are kept for a representative few.
+    See data/README.md.</div></div>`;
   const ORDER=["up","side","wrist"], byCam={};
   frames.filter(f=>ORDER.includes(f.camera)).forEach(f=>{(byCam[f.camera]||=[]).push(f);});
   return Object.keys(byCam).sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b)).map(cam=>`

@@ -322,11 +322,13 @@ finetuned SmolVLA is nearly constant. The principled version — sample N action
 observation and measure their disagreement — is implemented in
 [`drishti/uq/ace.py`](drishti/uq/ace.py), but it costs N× inference, so it is not the default.
 
-**RND may be detecting difficulty, not impending failure.** In the MolmoAct2 study it flagged from
-roughly frame 0, with ~127 steps of "lead time" — suspiciously early. The likely reading is that it
-keys on the initial cube position, and failures cluster on hard placements that look
-out-of-distribution immediately. Useful either way, but it is not the same claim as "we watched the
-failure develop."
+**The "99 steps of warning" is early, not prescient.** Every failure in this set runs to the
+110-step cap, so a 99-step mean lead means the score is over threshold within roughly the first ten
+frames. These are rollouts that go wrong at the *approach* — a doomed trajectory caught early, not a
+late subtle slip called in advance. The same pattern showed up harder in the MolmoAct2 study, where
+RND flagged from about frame 0; the likely reading there is that it keys on the initial cube
+position and failures cluster on hard placements that look out-of-distribution immediately. Useful
+either way, but it is not the same claim as "we watched the failure develop."
 
 **One study is a clean negative** and is reported as one, twice over. If your plan depends on
 steering a VLA with language, read [§3](#3-the-negative-result-vlas-are-not-steerable-by-language)
