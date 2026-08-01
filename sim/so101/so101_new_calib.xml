@@ -107,6 +107,14 @@
                 <!-- Part wrist_roll_follower_so101_v1 -->
                 <geom type="mesh" class="visual" pos="8.32667e-17 -0.000218214 0.000949706" quat="0 1 0 0" mesh="wrist_roll_follower_so101_v1" material="wrist_roll_follower_so101_v1_material"/>
                 <geom type="mesh" class="collision" pos="8.32667e-17 -0.000218214 0.000949706" quat="0 1 0 0" mesh="wrist_roll_follower_so101_v1" material="wrist_roll_follower_so101_v1_material"/>
+                <!-- graspframe: midpoint BETWEEN the fingers (IK target for grasping — aiming
+                     the TCP/fingertips at the object overshoots it). From ggand0/pick-101. -->
+                <site group="3" name="graspframe" pos="0.002338 0.000055 -0.037843" quat="0.707107 -0 0.707107 -2.37788e-17"/>
+                <site group="3" name="static_fingertip" pos="-0.012 0.0 -0.104" rgba="1 0 0 1" size="0.004"/>
+                <!-- static finger pad: tiny box for STABLE multi-point contact (mesh-mesh
+                     collisions are unstable for grasping — MuJoCo issue #239). -->
+                <geom name="static_finger_pad" type="box" size="0.00125 0.00125 0.00125" pos="-0.008875 0.0 -0.100"
+                      rgba="1 0.5 0.5 0.8" friction="1 0.05 0.001"/>
                 <!-- Frame gripperframe -->
                 <site group="3" name="gripperframe" pos="-0.0079 -0.000218121 -0.0981274" quat="0.707107 -0 0.707107 -2.37788e-17"/>
                 <!-- wrist camera: pulled back + wider so the gripper FINGERTIPS + grasp are in frame -->
@@ -119,6 +127,10 @@
                   <!-- Part moving_jaw_so101_v1 -->
                   <geom type="mesh" class="visual" pos="-5.55112e-17 -5.55112e-17 0.0189" quat="1 -0 3.00524e-16 -2.00834e-17" mesh="moving_jaw_so101_v1" material="moving_jaw_so101_v1_material"/>
                   <geom type="mesh" class="collision" pos="-5.55112e-17 -5.55112e-17 0.0189" quat="1 -0 3.00524e-16 -2.00834e-17" mesh="moving_jaw_so101_v1" material="moving_jaw_so101_v1_material"/>
+                  <site group="3" name="moving_fingertip" pos="-0.011 -0.076 0.019" rgba="0 0 1 1" size="0.004"/>
+                  <!-- moving finger pad: opposes static_finger_pad for a stable two-sided pinch -->
+                  <geom name="moving_finger_pad" type="box" size="0.00125 0.00125 0.00125" pos="-0.01136 -0.076 0.019"
+                        rgba="0.5 0.5 1 0.8" friction="1 0.05 0.001"/>
                 </body>
               </body>
             </body>

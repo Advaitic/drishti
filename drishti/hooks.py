@@ -83,9 +83,18 @@ def _record_vision(output: Any) -> None:
             e = emb.detach().float()
             s.internals["vision_embed_norm"] = float(e.norm(dim=-1).mean().item())
             s.internals["vision_embed_std"] = float(e.std().item())
-            # pooled (D,) over all but the feature axis — consumed by RND-OE scoring
-            pooled = e.reshape(-1, e.shape[-1]).mean(0)
-            s._vision_embed = pooled.cpu()  # type: ignore[attr-defined]
+            # pooled (D,) over all but the feature axis — ONE vector per camera.
+            # embed_image fires once per camera within a forward pass; accumulate EVERY
+            # camera and concat, so RND-OE scoring sees the whole scene (up + side + wrist).
+            # An overwrite would keep only the last camera (the wrist close-up) and leave
+            # RND blind to the workspace views that actually show the cube/tray.
+            pooled = e.reshape(-1, e.shape[-1]).mean(0).cpu()
+            parts = getattr(s, "_vision_embed_parts", None)
+            if parts is None:
+                parts = []
+                s._vision_embed_parts = parts  # type: ignore[attr-defined]
+            parts.append(pooled)
+            s._vision_embed = torch.cat(parts)  # type: ignore[attr-defined]
     except Exception:
         pass
 

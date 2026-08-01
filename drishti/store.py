@@ -31,7 +31,9 @@ class Store:
             Path(url[len("sqlite:///"):]).parent.mkdir(parents=True, exist_ok=True)
         # check_same_thread=False: the async emitter thread and the request
         # thread both touch this engine; sqlite serializes writes anyway.
-        connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
+        # timeout = busy-wait up to 30s for a lock instead of failing immediately (the live ingest
+        # server and a calibrate run touch the same sqlite file concurrently).
+        connect_args = {"check_same_thread": False, "timeout": 30} if url.startswith("sqlite") else {}
         self.engine = sa.create_engine(url, future=True, connect_args=connect_args)
         self.md = sa.MetaData()
         self._define()

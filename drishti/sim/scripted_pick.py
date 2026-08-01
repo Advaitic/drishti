@@ -1,133 +1,164 @@
-"""Scripted pick-and-place controller for the SO-101 (ground-truth poses + mink IK).
+"""Scripted top-down pick-and-place for the SO-101 (locked-wrist IK + finger pads).
 
-Pure MuJoCo + IK, no policy. Drives the arm through a state machine
-(approach -> descend -> grasp -> lift -> over-tray -> release), using mink
-differential IK on a robot-only model to turn end-effector waypoints into joint
-targets, then commands them through the env's position actuators.
+A real, physical grasp — no weld. Adapted from ggand0/pick-101 (which adapts the
+ECE4560 SO-101 assignment): the SO-101 can't reach a table object with a freely-solved
+top-down orientation, so instead we LOCK the wrist into a top-down, fingers-horizontal
+pose (wrist_flex = wrist_roll = 90deg) and position the gripper with the three proximal
+joints (pan/shoulder/elbow) via damped-least-squares IK on the `gripperframe` (fingertip)
+site. The cube is a 3cm block; tiny finger pads + an elliptic-cone/noslip contact solver
+give a stable pinch (mesh-mesh contact alone is unstable — MuJoCo issue #239).
 
-Used to (a) generate successful demos for finetuning and (b) be watched live in
-the mjpython viewer. Success = brick ends up inside the tray (geometric check).
+Sequence: above cube -> descend -> close (until both pads contact, then tighten) -> lift
+-> carry over tray -> lower -> release. Success = cube ends inside the tray.
+
+Used to (a) generate successful demos for finetuning and (b) be watched live in the viewer.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 
 import mujoco
-import mink
 
-from drishti.sim.so101_env import ARM_JOINTS, SO101Env
+from drishti.sim.so101_env import SO101Env
+from drishti.sim.ik_controller import IKController
 
-ROBOT_XML = Path(__file__).resolve().parents[2] / "sim" / "so101" / "so101_new_calib.xml"
+# Top-down grasp configuration (radians). Wrist joints are held here and excluded from IK.
+WRIST_FLEX_DOWN = np.pi / 2     # joint 3: gripper points straight down
+WRIST_ROLL_HORIZ = np.pi / 2    # joint 4: fingers spread horizontally (straddle the cube)
+LOCKED_JOINTS = [3, 4]
 
-GRIP_OPEN = 1.5     # radians (within ctrlrange [-0.17, 1.745])
-GRIP_CLOSED = 0.05
+# Gripper action (IKController maps [-1,1] -> ctrlrange). open = jaws wide, closed = squeeze.
+GRIP_OPEN = 0.3
+GRIP_CLOSED = -0.8
+
+# Grasp framing: the static finger is offset from the gripperframe, so shift the target in Y
+# to centre the pinch on the cube; grasp slightly above the cube centre (grip its top half).
+Y_GRIP_OFFSET = -0.015
+Z_GRASP = 0.005
+
+TRAY_XY = np.array([0.34, 0.02], float)   # placement target (matches task_scene.xml)
 
 
 class IK:
-    """mink IK on a robot-only model (no cube freejoint to corrupt the solve)."""
+    """Backward-compatible thin wrapper: binds a DLS IKController to an env on first use."""
 
-    def __init__(self):
-        self.model = mujoco.MjModel.from_xml_path(str(ROBOT_XML))
-        self.cfg = mink.Configuration(self.model)
-        self._adr = [int(self.model.joint(j).qposadr[0]) for j in ARM_JOINTS]
-        # at home (qpos=0) the gripper points down — use that as the grasp orientation
-        self.cfg.update(np.zeros(self.model.nq))
-        self.down_rot = mink.SO3.from_matrix(
-            self.cfg.data.site("gripperframe").xmat.reshape(3, 3).copy())
+    def __init__(self, env: SO101Env | None = None):
+        self.env = env
+        self._ctrl = None
 
-    def solve(self, q_arm6, target_pos, ori_cost=0.0, iters=400, dt=0.02):
-        q = np.zeros(self.model.nq)
-        for a, val in zip(self._adr, q_arm6):
-            q[a] = val
-        self.cfg.update(q)
-        # fresh task each call (mutating orientation_cost on a reused task doesn't take)
-        task = mink.FrameTask("gripperframe", "site", position_cost=1.0,
-                              orientation_cost=ori_cost, lm_damping=1e-2)
-        if ori_cost > 0:
-            task.set_target(mink.SE3.from_rotation_and_translation(
-                self.down_rot, np.asarray(target_pos, float)))
-        else:
-            task.set_target(mink.SE3.from_translation(np.asarray(target_pos, float)))
-        for _ in range(iters):
-            v = mink.solve_ik(self.cfg, [task], dt, solver="quadprog", damping=1e-3)
-            self.cfg.integrate_inplace(v, dt)
-        return np.array([self.cfg.q[a] for a in self._adr])
-
-    def ee_pos(self):
-        return self.cfg.data.site("gripperframe").xpos.copy()
+    def bind(self, env: SO101Env) -> IKController:
+        if self._ctrl is None or self.env is not env:
+            self.env = env
+            self._ctrl = IKController(env.model, env.data, end_effector_site="gripperframe")
+        return self._ctrl
 
 
-def run_episode(env: SO101Env, ik: IK, record=True, render_cams=("up", "side", "wrist"),
-                steps_per_phase=14, on_step=None):
-    """Run one scripted pick-place. Returns (traj, success).
+def _grasp_config(env: SO101Env, cube_xy):
+    """Reset, place the cube, lock the wrist into the top-down pose, and let it settle."""
+    m, d = env.model, env.data
+    mujoco.mj_resetData(m, d)
+    cx, cy = (cube_xy if cube_xy is not None else (0.27, 0.0))
+    d.qpos[env._cube_qadr:env._cube_qadr + 7] = [cx, cy, 0.015, 1, 0, 0, 0]
+    d.qpos[3] = WRIST_FLEX_DOWN
+    d.qpos[4] = WRIST_ROLL_HORIZ
+    d.ctrl[3] = WRIST_FLEX_DOWN
+    d.ctrl[4] = WRIST_ROLL_HORIZ
+    mujoco.mj_forward(m, d)
+    for _ in range(40):
+        mujoco.mj_step(m, d)
+    return d.qpos[env._cube_qadr:env._cube_qadr + 3].copy()
 
-    Position-only IK (reliable on the 5-DoF arm). The grasp is kinematic: while the
-    gripper is closed the cube tracks the grasp point, and is released (falls) on open.
-    `on_step(env)` is called after each control step (for the live viewer / sub-step feed).
+
+def _is_grasping(env: SO101Env) -> bool:
+    m, d = env.model, env.data
+    cg = m.geom("cube").id
+    sp = m.geom("static_finger_pad").id
+    mp = m.geom("moving_finger_pad").id
+    hs = hm = False
+    for i in range(d.ncon):
+        c = d.contact[i]
+        pair = {c.geom1, c.geom2}
+        if cg not in pair:
+            continue
+        other = (pair - {cg}).pop()
+        hs |= (other == sp)
+        hm |= (other == mp)
+    return hs and hm
+
+
+def run_episode(env: SO101Env, ik: IK | None = None, record=True,
+                render_cams=("up", "side", "wrist"), on_step=None, cube_xy=None,
+                rec_every=18, render_size=(640, 480)):
+    """Run one scripted top-down pick-place. Returns (traj, success).
+
+    `on_step(env)` is called after each control tick (for the live viewer). `cube_xy`
+    randomizes the cube start (defaults to the scene pose). `rec_every` subsamples frames;
+    `render_size` is (width, height) for the recorded camera frames.
     """
-    env.reset()
-    cube = env.cube_pos()
-    tray = np.array([0.13, -0.14], float)  # tray centre (matches task_scene.xml)
-
-    waypoints = [
-        (cube + [0, 0, 0.10], GRIP_OPEN),                 # approach above brick
-        (cube + [0, 0, 0.01], GRIP_OPEN),                 # descend onto brick
-        (cube + [0, 0, 0.01], GRIP_CLOSED),               # grasp
-        (cube + [0, 0, 0.14], GRIP_CLOSED),               # lift
-        ([tray[0], tray[1], 0.16], GRIP_CLOSED),          # over tray
-        ([tray[0], tray[1], 0.10], GRIP_OPEN),            # release over tray
-    ]
+    rw, rh = render_size
+    ik = ik or IK()
+    ctrl_ik = ik.bind(env)
+    m, d = env.model, env.data
+    cube = _grasp_config(env, cube_xy)
+    tray = TRAY_XY
 
     traj = {"state": [], "action": [], "images": {c: [] for c in render_cams}}
-    q_arm = env.state()[:6].astype(float)
 
-    def _do(target):
-        if record:
-            traj["state"].append(env.state().tolist())
-            traj["action"].append(target.tolist())
-            for c in render_cams:
-                traj["images"][c].append(env.render(c, 640, 480))
-        env.step(target)
-        if target[5] == GRIP_CLOSED:          # kinematic grasp: cube follows the gripper
-            env.set_cube(env.gripper_tcp())
-        if on_step is not None:
-            on_step(env)
+    def drive(target, grip, steps):
+        """IK feedback loop toward `target` (gripperframe), wrist locked down, recording."""
+        for k in range(steps):
+            ctrl = ctrl_ik.step_toward_target(
+                np.asarray(target, float), gripper_action=grip, gain=0.5,
+                locked_joints=LOCKED_JOINTS)
+            ctrl[3] = WRIST_FLEX_DOWN
+            ctrl[4] = WRIST_ROLL_HORIZ
+            d.ctrl[:] = ctrl
+            mujoco.mj_step(m, d)
+            if record and k % rec_every == 0:
+                traj["state"].append(env.state().tolist())
+                traj["action"].append(np.asarray(ctrl[:6], float).tolist())
+                for c in render_cams:
+                    traj["images"][c].append(env.render(c, rw, rh))
+            if on_step is not None:
+                on_step(env)
 
-    for (pos, grip) in waypoints:
-        arm = ik.solve(q_arm[:6], pos, ori_cost=0.0)
-        target = np.concatenate([arm[:5], [grip]])
-        for _ in range(steps_per_phase):
-            _do(target)
-        q_arm = env.state()[:6].astype(float)
+    above = cube + [0, Y_GRIP_OFFSET, Z_GRASP + 0.04]
+    grasp = cube + [0, Y_GRIP_OFFSET, Z_GRASP]
+    lift = cube + [0, Y_GRIP_OFFSET, 0.12]
+    over = [tray[0], tray[1] + Y_GRIP_OFFSET, 0.12]
+    place = [tray[0], tray[1] + Y_GRIP_OFFSET, 0.055]
 
-    for _ in range(20):  # settle: the released brick drops into the tray
-        _do(target)
+    drive(above, GRIP_OPEN, 200)     # 1. move above the cube
+    drive(grasp, GRIP_OPEN, 120)     # 2. descend onto it
+    drive(grasp, GRIP_CLOSED, 150)   # 3. close + squeeze
+    drive(lift, GRIP_CLOSED, 150)    # 4. lift straight up
+    drive(over, GRIP_CLOSED, 160)    # 5. carry over the tray
+    drive(place, GRIP_CLOSED, 120)   # 6. lower into the tray
+    drive(place, GRIP_OPEN, 80)      # 7. release
+    drive(over, GRIP_OPEN, 80)       # 8. retreat up
 
-    success = _cube_in_tray(env.cube_pos(), np.array([tray[0], tray[1], 0.0]))
+    success = _cube_in_tray(env.cube_pos(), tray)
     return traj, success
 
 
-def _cube_in_tray(cube_pos, box) -> bool:
-    dx, dy = cube_pos[0] - box[0], cube_pos[1] - box[1]
-    return abs(dx) < 0.045 and abs(dy) < 0.03 and cube_pos[2] < 0.05
+def _cube_in_tray(cube_pos, tray) -> bool:
+    dx, dy = cube_pos[0] - tray[0], cube_pos[1] - tray[1]
+    return abs(dx) < 0.045 and abs(dy) < 0.03 and cube_pos[2] < 0.06
 
 
 def _smoke():
-    """Run one episode headless, render a frame per phase to inspect the grasp."""
+    """Run one episode headless, render a frame per phase to inspect the pick-place."""
+    from pathlib import Path
     from PIL import Image
-    env = SO101Env(n_substeps=20)
-    ik = IK()
-    traj, success = run_episode(env, ik, render_cams=("up",), steps_per_phase=12)
+    env = SO101Env()
+    traj, success = run_episode(env, render_cams=("up", "side", "wrist"), cube_xy=(0.27, 0.0))
     out = Path("data/scripted_smoke"); out.mkdir(parents=True, exist_ok=True)
     ups = traj["images"]["up"]
-    # one frame at the end of each phase (every steps_per_phase)
-    for ph in range(6):
-        idx = min((ph + 1) * 12 - 1, len(ups) - 1)
-        Image.fromarray(ups[idx]).save(out / f"phase{ph}.png")
-    print(f"episode done | success={success} | frames={len(ups)} | final cube={np.round(env.cube_pos(),3)}")
+    n = len(ups)
+    for i, idx in enumerate(np.linspace(0, n - 1, 8).astype(int)):
+        Image.fromarray(ups[idx]).save(out / f"f{i}.png")
+    print(f"episode done | success={success} | frames={n} | final cube={np.round(env.cube_pos(),3)}")
 
 
 if __name__ == "__main__":
