@@ -6,6 +6,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Advaitic/drishti/actions/workflows/ci.yml"><img alt="tests" src="https://github.com/Advaitic/drishti/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.12+-blue.svg">
   <a href="docs/results/calibration/report.json"><img alt="Combined AUC" src="https://img.shields.io/badge/failure%20detection%20AUC-0.995-brightgreen.svg"></a>
