@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        # The full extras set. torch lands as the CPU wheel on this runner, which is what we want —
+        # nothing in the test suite needs a GPU, network access, or downloaded model weights.
+        run: pip install -e '.[all]'
+
+      - name: Test
+        run: pytest -q
+
+      - name: Calibration reproduces the published report
+        # The headline number in the README is only trustworthy if a stranger can regenerate it.
+        # This runs the exact command the quickstart gives them, on the bundled rollouts.
+        run: |
+          drishti calibrate --demo --auto
+          python - <<'PY'
+          import json, pathlib
+          published = json.loads(pathlib.Path("docs/results/calibration/report.json").read_text())
+          fresh = json.loads(pathlib.Path("data/demo/calib/report.json").read_text())
+          for key in ("auc_fail_vs_success", "fail_caught_frac", "false_alarm_frac", "threshold"):
+              assert abs(fresh[key] - published[key]) < 1e-6, (
+                  f"{key}: regenerated {fresh[key]} != published {published[key]}")
+          print("calibration matches the published report")
+          PY

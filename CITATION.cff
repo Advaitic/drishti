@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+message: "If you use drishti or reference its findings, please cite it as below."
+title: "drishti: runtime failure detection and uncertainty quantification for robot policies"
+abstract: >-
+  drishti instruments a vision-language-action policy with forward hooks and scores three
+  uncertainty signals at runtime — Mahalanobis distance on the proprioceptive state, random network
+  distillation on the vision embedding, and the spread of the action head — then calibrates them
+  against successful rollouts into a single conformal threshold. On an SO-101 pick-place task in
+  MuJoCo it separates failed from successful rollouts at AUC 0.995 (n=60), catching every failure at
+  a 17.6% false-alarm rate. The same detectors transfer to a Franka Panda in RLBench with per-task
+  AUC 0.68-0.92. The repository also reports a negative result: a corrective VLM trained by GRPO
+  over a VLA does not raise task success, because the VLA is effectively unsteerable by language
+  (roughly 0.02 degrees of action change per joint under contradictory instructions).
+type: software
+authors:
+  - name: "Advaitic"
+repository-code: "https://github.com/Advaitic/drishti"
+url: "https://github.com/Advaitic/drishti"
+license: Apache-2.0
+version: "0.1.0"
+date-released: "2026-08-01"
+keywords:
+  - robotics
+  - vision-language-action
+  - failure detection
+  - uncertainty quantification
+  - out-of-distribution detection
+  - conformal prediction
+  - runtime monitoring
+references:
+  - type: article
+    title: "Failure Prediction at Runtime for Generative Robot Policies"
+    authors:
+      - family-names: "Römer"
+        given-names: "Ralf"
+    year: 2025
+    notes: "FIPER — the architecture drishti's detector cascade follows. arXiv:2510.09459"
+  - type: article
+    title: "Exploration by Random Network Distillation"
+    authors:
+      - family-names: "Burda"
+        given-names: "Yuri"
+    year: 2018
+    notes: "The novelty estimator behind the RND detector. arXiv:1810.12894"
+  - type: article
+    title: "Can We Detect Failures Without Failure Data? Uncertainty-Aware Runtime Failure Detection for Imitation Learning Policies"
+    authors:
+      - family-names: "Xu"
+        given-names: "Chen"
+    year: 2025
+    notes: "FAIL-Detect — the conformal framing. arXiv:2503.08558"
