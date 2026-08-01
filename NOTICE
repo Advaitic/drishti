@@ -1,0 +1,50 @@
+drishti
+Copyright 2026 Advaitic
+
+This product includes software and assets developed by third parties, listed below with
+their upstream project, license, and what (if anything) was modified. Everything else in
+this repository is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+--------------------------------------------------------------------------------
+SO-101 robot geometry — sim/so101/assets/*.stl, sim/so101/so101_new_calib.xml,
+sim/so101/joints_properties.xml, sim/so101/scene.xml
+--------------------------------------------------------------------------------
+Source:   TheRobotStudio / SO-ARM100  (https://github.com/TheRobotStudio/SO-ARM100)
+License:  Apache License 2.0
+Toolchain: the MJCF was generated from the upstream Onshape CAD by onshape-to-robot
+          (https://github.com/Rhoban/onshape-to-robot, MIT), which is why the generator
+          banner and the Onshape document URL are retained at the top of the XML.
+
+Modified: the 13 STL meshes, joints_properties.xml and scene.xml are unmodified copies.
+          so101_new_calib.xml IS modified — we added the `up`, `side` and `wrist` cameras
+          and retuned the sts3215 position gains for the sim task.
+
+--------------------------------------------------------------------------------
+Contact-solver settings — sim/so101/task_scene.xml
+--------------------------------------------------------------------------------
+Source:   ggand0 / pick-101  (https://github.com/ggand0/pick-101)
+License:  MIT
+Used:     the grasp-stability recipe only — elliptic friction cone, noslip iterations,
+          high impratio, stiff contact solref/solimp, and small finger-pad collision
+          boxes. No code was copied; the scene itself is ours. Credited because getting
+          a small parallel-jaw gripper to hold a cube in MuJoCo is entirely a matter of
+          these settings, and we did not derive them.
+
+--------------------------------------------------------------------------------
+Reference camera frames — assets/real/so101_up.png, assets/real/so101_side.png
+--------------------------------------------------------------------------------
+Source:   lerobot / svla_so101_pickplace  (https://huggingface.co/datasets/lerobot/svla_so101_pickplace)
+License:  Apache License 2.0
+Used:     two frames from the public dataset, kept as the visual target the sim cameras
+          were matched against. See assets/real/README.md.
+
+--------------------------------------------------------------------------------
+Not vendored, but required at runtime for parts of this repository
+--------------------------------------------------------------------------------
+LeRobot (huggingface/lerobot, Apache-2.0) — policy loading, datasets, SmolVLA.
+MuJoCo (google-deepmind/mujoco, Apache-2.0) — the physics engine.
+MolmoAct2 (allenai, see the model card) — the VLA used in the rl-corrector study.
+verifiers (willccbb/verifiers) and prime-rl (PrimeIntellect-ai/prime-rl) — the RL stack.
+NVlabs / AHA and RLBench + FailGen — used in the AHA study by cloning them yourself and
+  running scripts/gen_aha.py against them. No AHA or RLBench code or data is redistributed
+  here; see docs/aha/GENERATE.md.
