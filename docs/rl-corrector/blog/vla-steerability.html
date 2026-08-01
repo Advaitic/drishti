@@ -1,0 +1,1015 @@
+<title>The robot wasn't listening — RL-tuning a corrector VLM over a VLA</title>
+
+<style>
+  /* ─────────────────────────────  tokens  ───────────────────────────── */
+  :root {
+    --ground:      #F3F5F4;
+    --surface:     #FFFFFF;
+    --surface-2:   #E8EDEB;
+    --ink:         #13191C;
+    --ink-2:       #37454B;
+    --muted:       #66757B;
+    --rule:        #D2D9D7;
+    --rule-strong: #B9C4C1;
+    --accent:      #147A74;
+    --accent-ink:  #0E5D58;
+    --accent-soft: #D6E9E6;
+    --neg:         #A94A2A;
+    --neg-soft:    #F5E2DA;
+    --warn:        #8A6716;
+    --warn-soft:   #F3E9CF;
+    --code-bg:     #ECF1EF;
+    --code-ink:    #1E2A2E;
+    --shadow:      0 1px 2px rgba(19,25,28,.05), 0 8px 24px -12px rgba(19,25,28,.18);
+
+    --f-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-body:    ui-serif, "Iowan Old Style", Charter, "Source Serif Pro", Georgia, Cambria, serif;
+    --f-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --measure: 68ch;
+    --step--1: clamp(.78rem, .76rem + .1vw, .84rem);
+    --step-0:  clamp(1.05rem, 1.01rem + .18vw, 1.15rem);
+    --step-1:  clamp(1.22rem, 1.15rem + .3vw, 1.4rem);
+    --step-2:  clamp(1.5rem, 1.36rem + .6vw, 1.9rem);
+    --step-3:  clamp(1.95rem, 1.68rem + 1.2vw, 2.7rem);
+    --step-4:  clamp(2.6rem, 2rem + 2.7vw, 4.4rem);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:      #11161A;
+      --surface:     #171E23;
+      --surface-2:   #1F292F;
+      --ink:         #E7EDEB;
+      --ink-2:       #BAC7C5;
+      --muted:       #83938F;
+      --rule:        #29343A;
+      --rule-strong: #3A484F;
+      --accent:      #4FBDB2;
+      --accent-ink:  #7FD6CD;
+      --accent-soft: #15302E;
+      --neg:         #E08560;
+      --neg-soft:    #33201A;
+      --warn:        #D6AC55;
+      --warn-soft:   #2E2716;
+      --code-bg:     #0C1114;
+      --code-ink:    #D3DEDB;
+      --shadow:      0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground:#F3F5F4; --surface:#FFFFFF; --surface-2:#E8EDEB; --ink:#13191C; --ink-2:#37454B;
+    --muted:#66757B; --rule:#D2D9D7; --rule-strong:#B9C4C1; --accent:#147A74; --accent-ink:#0E5D58;
+    --accent-soft:#D6E9E6; --neg:#A94A2A; --neg-soft:#F5E2DA; --warn:#8A6716; --warn-soft:#F3E9CF;
+    --code-bg:#ECF1EF; --code-ink:#1E2A2E;
+    --shadow:0 1px 2px rgba(19,25,28,.05), 0 8px 24px -12px rgba(19,25,28,.18);
+  }
+  :root[data-theme="dark"] {
+    --ground:#11161A; --surface:#171E23; --surface-2:#1F292F; --ink:#E7EDEB; --ink-2:#BAC7C5;
+    --muted:#83938F; --rule:#29343A; --rule-strong:#3A484F; --accent:#4FBDB2; --accent-ink:#7FD6CD;
+    --accent-soft:#15302E; --neg:#E08560; --neg-soft:#33201A; --warn:#D6AC55; --warn-soft:#2E2716;
+    --code-bg:#0C1114; --code-ink:#D3DEDB;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  }
+
+  /* ─────────────────────────────  base  ───────────────────────────── */
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: var(--step-0);
+    line-height: 1.68;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 78ch; margin-inline: auto; padding: 0 clamp(1.1rem, 4vw, 2.2rem); }
+  .flow > * + * { margin-block-start: var(--flow, 1.1em); }
+
+  h1, h2, h3, .eyebrow, .stat-n, .lede { font-family: var(--f-display); }
+  h2, h3 { text-wrap: balance; letter-spacing: -.018em; line-height: 1.18; }
+  h2 { font-size: var(--step-2); font-weight: 700; margin-block-start: 0; }
+  h3 { font-size: var(--step-1); font-weight: 650; margin-block: 2.4rem 0; }
+  p { max-width: var(--measure); }
+  a { color: var(--accent-ink); text-underline-offset: .18em; text-decoration-thickness: .07em; }
+  a:hover { text-decoration-thickness: .14em; }
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+  strong { font-weight: 650; color: var(--ink); }
+  code { font-family: var(--f-mono); font-size: .87em; }
+  p code, li code, td code {
+    background: var(--code-bg); color: var(--code-ink);
+    padding: .1em .34em; border-radius: 3px; border: 1px solid var(--rule);
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono); font-size: var(--step--1);
+    letter-spacing: .13em; text-transform: uppercase; color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ─────────────────────────────  hero  ───────────────────────────── */
+  .hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(1.5rem, 4vw, 2.5rem); }
+  .hero h1 {
+    font-size: var(--step-4); font-weight: 700; letter-spacing: -.035em;
+    line-height: .98; text-wrap: balance; margin-block: .5rem 0;
+  }
+  .hero h1 .quiet { color: var(--muted); font-weight: 400; letter-spacing: -.02em; display: block; font-size: .44em; line-height: 1.3; margin-block-start: .9rem; max-width: 34ch; }
+  .lede {
+    font-size: var(--step-1); line-height: 1.5; color: var(--ink-2);
+    font-weight: 400; max-width: 60ch; margin-block-start: 1.6rem;
+  }
+  .byline {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: baseline;
+    font-family: var(--f-mono); font-size: var(--step--1); color: var(--muted);
+    margin-block-start: 1.8rem; padding-block-start: 1.1rem; border-block-start: 1px solid var(--rule);
+  }
+  .byline b { color: var(--ink-2); font-weight: 500; }
+
+  /* ─────────────────────────────  chart  ───────────────────────────── */
+  .figure {
+    margin-block: clamp(2rem, 5vw, 3rem);
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  .figure-head { padding: 1.1rem 1.3rem .2rem; }
+  .figure-head .t { font-family: var(--f-display); font-weight: 650; font-size: var(--step-0); letter-spacing: -.01em; }
+  .figure-body { padding: .4rem .6rem 0; }
+  .figure svg { display: block; width: 100%; height: auto; }
+  .figure figcaption {
+    padding: .5rem 1.3rem 1.2rem; font-size: var(--step--1); color: var(--muted);
+    font-family: var(--f-mono); line-height: 1.6;
+  }
+  .ax { stroke: var(--rule); stroke-width: 1; }
+  .ax-t { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+  .ceil { stroke: var(--rule-strong); stroke-width: 1.5; stroke-dasharray: 5 5; fill: none; }
+  .ceil-t { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+  .rline { stroke: var(--neg); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+  .rdot { fill: var(--neg); }
+  .rlabel { fill: var(--neg); font-family: var(--f-mono); font-size: 11.5px; font-weight: 600; }
+  .tbar { fill: var(--accent); opacity: .85; }
+  .tbar-t { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 10.5px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .rline { stroke-dasharray: 700; stroke-dashoffset: 700; animation: draw 1.9s .35s cubic-bezier(.6,.02,.2,1) forwards; }
+    .rdot, .rlabel { opacity: 0; animation: fade .5s 2.05s ease forwards; }
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: 1; } }
+
+  /* ─────────────────────────────  stats  ───────────────────────────── */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 4px; overflow: hidden; margin-block: 2rem;
+  }
+  .stat { background: var(--surface); padding: 1rem 1.1rem; }
+  .stat-n {
+    font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2rem); font-weight: 680; letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums; line-height: 1.05; color: var(--ink);
+  }
+  .stat-n.is-neg { color: var(--neg); }
+  .stat-n.is-pos { color: var(--accent); }
+  .stat-l {
+    font-family: var(--f-mono); font-size: var(--step--1); color: var(--muted);
+    margin-block-start: .4rem; line-height: 1.45;
+  }
+
+  /* ─────────────────────────────  sections  ───────────────────────────── */
+  section { padding-block: clamp(2.2rem, 5vw, 3.4rem); border-block-start: 1px solid var(--rule); }
+  section > .eyebrow { display: block; margin-block-end: .7rem; }
+  .sec-intro { max-width: var(--measure); color: var(--ink-2); }
+
+  /* ─────────────────────────────  verdict cards  ───────────────────────────── */
+  .verdicts { display: grid; gap: 1rem; margin-block: 1.8rem; }
+  @media (min-width: 46rem) { .verdicts { grid-template-columns: 1fr 1fr; } }
+  .v {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 1.1rem 1.2rem;
+  }
+  .v-h {
+    font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: .09em;
+    text-transform: uppercase; display: flex; align-items: center; gap: .5rem; font-weight: 600;
+  }
+  .v-h::before {
+    content: ""; width: .62rem; height: .62rem; border-radius: 50%; flex: none;
+  }
+  .v.works .v-h { color: var(--accent-ink); }
+  .v.works .v-h::before { background: var(--accent); }
+  .v.fails .v-h { color: var(--neg); }
+  .v.fails .v-h::before { background: var(--neg); }
+  .v p { margin-block-start: .6rem; font-size: .96em; color: var(--ink-2); max-width: none; }
+
+  /* ─────────────────────────────  callout  ───────────────────────────── */
+  .call {
+    border-inline-start: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 1rem 1.2rem; border-radius: 0 4px 4px 0; margin-block: 1.6rem;
+  }
+  .call.neg { border-inline-start-color: var(--neg); background: var(--neg-soft); }
+  .call.warn { border-inline-start-color: var(--warn); background: var(--warn-soft); }
+  .call p { max-width: none; }
+  .call .k {
+    font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: .09em;
+    text-transform: uppercase; font-weight: 600; color: var(--ink-2); display: block; margin-block-end: .35rem;
+  }
+
+  /* ─────────────────────────────  code  ───────────────────────────── */
+  .code {
+    margin-block: 1.5rem; background: var(--code-bg); border: 1px solid var(--rule);
+    border-radius: 4px; overflow: hidden;
+  }
+  .code-h {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: .55rem .9rem; border-block-end: 1px solid var(--rule);
+    font-family: var(--f-mono); font-size: var(--step--1); color: var(--muted);
+    background: var(--surface-2);
+  }
+  .code-h .f { color: var(--ink-2); font-weight: 600; }
+  .code pre { overflow-x: auto; padding: .95rem 1.1rem; }
+  .code code {
+    font-size: .84rem; line-height: 1.62; color: var(--code-ink);
+    display: block; white-space: pre; background: none; border: 0; padding: 0;
+  }
+  .cm { color: var(--muted); font-style: italic; }
+  .ck { color: var(--accent-ink); font-weight: 600; }
+  .cs { color: var(--neg); }
+
+  /* ─────────────────────────────  tables  ───────────────────────────── */
+  .tw { overflow-x: auto; margin-block: 1.6rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td { text-align: left; padding: .62rem .85rem; border-block-end: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: var(--f-mono); font-size: var(--step--1); letter-spacing: .07em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+    background: var(--surface-2); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-block-end: 0; }
+  td.num, th.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill {
+    font-family: var(--f-mono); font-size: .76rem; padding: .12em .5em; border-radius: 3px;
+    white-space: nowrap; font-weight: 600; border: 1px solid transparent;
+  }
+  .pill.ok { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent); }
+  .pill.no { background: var(--neg-soft); color: var(--neg); border-color: var(--neg); }
+  .pill.mid { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+
+  /* ─────────────────────────────  lists  ───────────────────────────── */
+  ul, ol { padding-inline-start: 1.3rem; max-width: var(--measure); }
+  li + li { margin-block-start: .5rem; }
+  li::marker { color: var(--muted); }
+  .tight li + li { margin-block-start: .3rem; }
+
+  .diagram {
+    background: var(--code-bg); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 1.1rem; overflow-x: auto; margin-block: 1.6rem;
+  }
+  .diagram pre { font-family: var(--f-mono); font-size: .78rem; line-height: 1.55; color: var(--code-ink); white-space: pre; }
+
+  footer {
+    border-block-start: 1px solid var(--rule); padding-block: 2.5rem 4rem;
+    font-family: var(--f-mono); font-size: var(--step--1); color: var(--muted); line-height: 1.7;
+  }
+  footer a { color: var(--accent-ink); }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">Experiment log · corrective VLM over a VLA worker</span>
+    <h1>
+      The robot wasn't&nbsp;listening
+      <span class="quiet">We trained a VLM to talk a failing robot back on track. It trained perfectly. The robot ignored every word.</span>
+    </h1>
+
+    <p class="lede">
+      A frozen vision-language-action policy does pick-and-place in sim. When its calibrated uncertainty
+      spikes, a Qwen3-VL corrector sees the failure and issues one corrective instruction. Reward =
+      did the cube land in the tray. Trained with GRPO on self-hosted <b>prime-rl</b>.
+      Every part of that sentence worked except the one that mattered.
+    </p>
+
+    <div class="byline">
+      <span><b>Stack</b> MolmoAct2 · Qwen3-VL-4B · MuJoCo · verifiers · prime-rl</span>
+      <span><b>Compute</b> Prime Intellect</span>
+      <span><b>Result</b> negative, and useful</span>
+    </div>
+  </header>
+
+  <figure class="figure">
+    <div class="figure-head">
+      <div class="t">Mean reward per GRPO step — against the reward it was reaching for</div>
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 720 250" role="img" aria-label="Chart showing mean reward flat at negative 0.149 across the logged GRPO steps of the 20-step shaping run, far below the task-success reward of positive 1.0.">
+        <!-- success ceiling -->
+        <line class="ceil" x1="70" y1="30" x2="690" y2="30"></line>
+        <text class="ceil-t" x="70" y="23">+1.00 — task success (the reward it never approached)</text>
+
+        <!-- zero line -->
+        <line class="ax" x1="70" y1="143" x2="690" y2="143"></line>
+        <text class="ax-t" x="42" y="147">0.0</text>
+        <text class="ax-t" x="42" y="34">+1.0</text>
+        <text class="ax-t" x="42" y="204">-0.5</text>
+
+        <!-- axes -->
+        <line class="ax" x1="70" y1="200" x2="690" y2="200"></line>
+        <line class="ax" x1="70" y1="30" x2="70" y2="200"></line>
+
+        <!-- flat reward line -->
+        <path class="rline" d="M70,160.2 L243,160.2 L417,160.0 L590,160.3 L660,160.2"></path>
+        <circle class="rdot" cx="70" cy="160.2" r="4"></circle>
+        <circle class="rdot" cx="243" cy="160.2" r="4"></circle>
+        <circle class="rdot" cx="417" cy="160.0" r="4"></circle>
+        <circle class="rdot" cx="590" cy="160.3" r="4"></circle>
+        <text class="rlabel" x="70" y="180">-0.1490</text>
+        <text class="rlabel" x="213" y="180">-0.1490</text>
+        <text class="rlabel" x="387" y="180">-0.1486</text>
+        <text class="rlabel" x="560" y="180">-0.1494</text>
+
+        <!-- x labels -->
+        <text class="ax-t" x="60" y="216">step 0</text>
+        <text class="ax-t" x="233" y="216">step 1</text>
+        <text class="ax-t" x="407" y="216">step 2</text>
+        <text class="ax-t" x="580" y="216">step 3</text>
+        <text class="ax-t" x="640" y="216">→ 13</text>
+
+        <!-- trainable strip -->
+        <text class="tbar-t" x="70" y="238">trainable rollouts (LoRA actually updating):</text>
+        <rect class="tbar" x="330" y="230" width="27" height="9"></rect>
+        <text class="tbar-t" x="361" y="238">89%</text>
+        <rect class="tbar" x="392" y="230" width="26" height="9"></rect>
+        <text class="tbar-t" x="422" y="238">87%</text>
+        <rect class="tbar" x="453" y="230" width="20" height="9"></rect>
+        <text class="tbar-t" x="477" y="238">67%</text>
+        <rect class="tbar" x="508" y="230" width="30" height="9"></rect>
+        <text class="tbar-t" x="542" y="238">100%</text>
+      </svg>
+    </div>
+    <figcaption>
+      Reward values are the real logged means from the 20-step shaping run
+      (<code>results/logs/modest.log</code>), whose retained log covers steps 0–13. A separate, longer
+      40-step vision run with dense reward and curriculum was equally flat on its own scale: −0.0594 at
+      step 1, −0.0577 at step 40 (<code>results/a100_vision_run/training_curve.txt</code>). The teal strip
+      is the share of rollouts producing non-zero advantages — i.e. the trainer <em>was</em> computing
+      gradients and updating the corrector's LoRA the entire time. Weights moved. Behaviour didn't. That
+      gap is the whole finding.
+    </figcaption>
+  </figure>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-n is-neg">0</div>
+      <div class="stat-l">failures the trained corrector converted into successes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n is-neg">0.02°</div>
+      <div class="stat-l">per-joint action change under opposite instructions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n is-pos">1.00</div>
+      <div class="stat-l">AUC of the vision-based failure detector (in-sample)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n">33M</div>
+      <div class="stat-l">LoRA params trained on Qwen3-VL-4B via prime-rl</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n">&lt;$20</div>
+      <div class="stat-l">rented GPU spend on this experiment, dead ends included — three unaudited
+        per-round figures, itemised in <code>RESULTS.md</code></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ 1. WHAT WE TESTED ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">01 — The question</span>
+    <h2>What we tested, and why we thought it would work</h2>
+
+    <p class="sec-intro">
+      Robot policies fail, and mostly they fail silently — the arm does something confidently wrong and
+      nobody finds out until the episode ends. We already had the first half of the fix: a calibrated
+      uncertainty cascade that reliably flags "this episode is going bad." The obvious next question is
+      what to <em>do</em> with that flag.
+    </p>
+
+    <p>
+      The premise was almost too clean. These are vision-<strong>language</strong>-action models. Language
+      is a first-class input. So when the detector fires, hand the failure to a VLM that can actually see
+      the scene, let it write one corrective instruction, feed that back to the policy, and score the
+      result on whether the cube ended up in the tray. That last part is what makes it a real RL problem
+      rather than a prompt-engineering exercise: <strong>the reward is verifiable</strong>. No judge model,
+      no preference data — physics decides.
+    </p>
+
+    <p>The three bets, stated plainly so they can be judged:</p>
+    <ol>
+      <li><strong>The detector can find failures early enough to matter.</strong> Otherwise you are correcting a lost cause.</li>
+      <li><strong>Language moves the policy.</strong> If instructions don't change actions, there is nothing to optimise.</li>
+      <li><strong>A trained per-state corrector beats any fixed prompt.</strong> This is the part RL is for.</li>
+    </ol>
+
+    <p>
+      Bet 1 landed. Bet 3 never got a fair test, because <strong>bet 2 failed</strong> — and it failed in a
+      way that turned out to be more interesting than success would have been.
+    </p>
+  </section>
+
+  <!-- ══════════════════ 2. WHAT WE FOUND ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">02 — The short version</span>
+    <h2>What we found</h2>
+
+    <p class="sec-intro">
+      The entire apparatus works. A custom <code>verifiers</code> environment, a sim rollout server, a
+      calibrated failure detector, and self-hosted vision GRPO on prime-rl all ran end to end and produced
+      real weight updates on a real VLM. And the policy underneath was completely unmoved by anything the
+      corrector said.
+    </p>
+
+    <div class="verdicts">
+      <div class="v works">
+        <div class="v-h">Confirmed working</div>
+        <p>
+          The full loop: spike → failure report with frames → corrector emits an instruction → policy
+          resumes → sim returns a verifiable reward → GRPO forms group-relative advantages → LoRA update.
+          66–100% of rollouts per step produced non-zero advantages.
+        </p>
+      </div>
+      <div class="v fails">
+        <div class="v-h">Did not work</div>
+        <p>
+          Learning. Reward sat at ≈ −0.149 across the 20-step shaping run and ≈ −0.058 across the 40-step
+          vision run, and never climbed in either. The corrector converted <strong>zero</strong> failures.
+          Probe the policy directly with contradictory instructions and its actions move by roughly
+          <strong>0.02° per joint</strong> — statistically indistinguishable from sending nothing at all.
+        </p>
+      </div>
+    </div>
+
+    <div class="call neg">
+      <span class="k">The honest claim</span>
+      <p>
+        It is tempting to write "VLAs aren't language-steerable." That over-claims, and we don't believe it.
+        The defensible version is narrower and more useful: <strong>this VLA was trained in a regime where
+        language was never load-bearing, so it learned to ignore language.</strong> One task, one embodiment,
+        one fixed instruction string — vision alone fully determined the correct action at every single frame.
+        There was never any gradient pressure to read the words.
+      </p>
+    </div>
+
+    <p>
+      We then did the thing you're supposed to do with a diagnosis: we tested it. We rebuilt the training
+      data so the instruction changed <em>within</em> each episode (three sub-goal captions tracking the phase
+      of the motion), tripled the dataset, and ran two finetunes — one with the language backbone frozen, one
+      with LoRA on the VLM itself so the language layers could actually adapt. <strong>Both were negative.</strong>
+      That failure is what sharpened the mechanism from a hunch into something specific, and it is covered in
+      detail below.
+    </p>
+  </section>
+
+  <!-- ══════════════════ 3. HOW WE DID IT ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">03 — The build</span>
+    <h2>How it actually works</h2>
+
+    <p class="sec-intro">
+      Four moving parts. Three of them want a GPU; the one in the middle is deliberately weightless.
+    </p>
+
+    <div class="diagram">
+<pre>   prime-rl  (the RL framework)                    rollout server (the environment worker)
+  ┌────────────────────────────┐                  ┌───────────────────────────────────┐
+  │  vLLM: Qwen3-VL-4B   (GPU) │  instruction     │  MolmoAct2 VLA            (GPU)   │
+  │  LoRA trainer        (GPU) │◄────┐      ┌────►│  MuJoCo SO-101 sim                │
+  │  orchestrator ─┐           │     │ HTTP │     │  SMD / RND / ACE detectors        │
+  │   runs the ────┼── verifiers env │:8100 │     │  FastAPI /episode/{start,run,...} │
+  └────────────────┼───────────┘     └──────┘     └───────────────────────────────────┘
+                   └──── reward → group advantages → LoRA update</pre>
+    </div>
+
+    <p>
+      The <code>vla-corrector</code> environment carries no torch and no mujoco — it is a thin
+      <code>httpx</code> client. That separation is the single best structural decision in the project: the
+      heavy, fragile half (an 11 GB policy, a physics sim, EGL rendering) lives behind an HTTP boundary, so
+      the RL side can be developed, tested and swapped without ever loading a robot model.
+    </p>
+
+    <h3>The corrector's job, as it sees it</h3>
+    <p>The system prompt is deliberately blunt — we want a control signal, not an essay:</p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">environments/vla-corrector/vla_corrector.py</span><span>system prompt</span></div>
+<pre><code>SYSTEM = (
+    <span class="cs">"You supervise a robot arm's vision-language policy performing a pick-and-place. "</span>
+    <span class="cs">"When the policy's uncertainty spikes you receive a failure report (and, if available, "</span>
+    <span class="cs">"what it sees). Reply with ONE short corrective instruction (&lt;= 20 words) telling the "</span>
+    <span class="cs">"policy what to do next. No preamble, no explanation — just the instruction."</span>
+)</code></pre>
+    </div>
+
+    <p>
+      At every uncertainty spike the pod composes a report and ships it as a multimodal turn — text plus the
+      actual spike frames as base64 <code>image_url</code> parts. A real one looks like this:
+    </p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">drishti/sim/rollout_server.py → _compose_report()</span><span>one turn of context</span></div>
+<pre><code>[UNCERTAINTY SPIKE @ frame 47 | phase=descend]
+Detectors (0..1, threshold 0.09): combined=0.34  SMD=0.12  RND=0.34  ACE=0.02  -&gt; dominant: RND
+Meaning: the camera view is unfamiliar to the policy.
+Geometry: gripper at [0.26, 0.01, 0.05]; cube at [0.27, -0.02, 0.02]; tray at [0.0, -0.2].
+  gripper-&gt;cube = 4.1 cm ; cube-&gt;tray = 27.0, 18.0 cm ; grasping = no.
+VLA sees / intends: "(no trace)"
+Task so far: "pick up the cube and place it in the box"  | interventions so far: 0
+Emit ONE short corrective instruction to the VLA (&lt;= 20 words). No preamble.
+<span class="cm">+ [image_url: data:image/jpeg;base64,...]   ← the spike frames, both cameras</span></code></pre>
+    </div>
+
+    <h3>The reward</h3>
+    <p>
+      Success is the only term that means anything; the other two are shaping. Worth stating clearly, because
+      it becomes important later: <strong>this is how the reward was designed, not an account of what drove
+      learning.</strong> Nothing drove learning.
+    </p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">vla_corrector.py</span><span>the rubric</span></div>
+<pre><code><span class="ck">async def</span> reward_success(*, state=<span class="ck">None</span>, **kwargs) -&gt; <span class="ck">float</span>:
+    <span class="cm">"""Verifiable reward: did the VLA place the cube in the tray?"""</span>
+    <span class="ck">return</span> 1.0 <span class="ck">if</span> (state <span class="ck">and</span> state.get(<span class="cs">"success"</span>)) <span class="ck">else</span> 0.0
+
+<span class="ck">async def</span> reward_uq_reduction(*, state=<span class="ck">None</span>, **kwargs) -&gt; <span class="ck">float</span>:
+    <span class="cm">"""Shaping: did the corrections calm the uncertainty over the episode?"""</span>
+    tr = (state <span class="ck">or</span> {}).get(<span class="cs">"uq_trace"</span>, [])
+    <span class="ck">if</span> len(tr) &lt; 2: <span class="ck">return</span> 0.0
+    <span class="ck">return</span> max(0.0, <span class="ck">float</span>(tr[0][<span class="cs">"combined"</span>]) - <span class="ck">float</span>(tr[-1][<span class="cs">"combined"</span>]))
+
+funcs   = [reward_success, penalty_interventions]   <span class="cm"># discourage over-correcting</span>
+weights = [1.0,            -0.05]
+<span class="ck">if</span> shaping:
+    funcs.append(reward_uq_reduction); weights.append(0.1)
+rubric = vf.Rubric(funcs=funcs, weights=weights)</code></pre>
+    </div>
+
+    <p>
+      That −0.149 in the hero chart decodes exactly: success is 0, so reward ≈ −0.05 × 3 interventions +
+      0.1 × (an uncertainty drop of roughly nothing). The corrector was being scored almost entirely on the
+      penalty for trying.
+    </p>
+
+    <h3>Turn structure</h3>
+    <p>
+      One turn equals one intervention. The environment always shows the model a failure <em>before</em> it
+      is asked to act, so there is no wasted turn:
+    </p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">vla_corrector.py</span><span>MultiTurnEnv</span></div>
+<pre><code><span class="ck">async def</span> setup_state(<span class="ck">self</span>, state):
+    ep = <span class="ck">await</span> to_thread(<span class="ck">self</span>.client.start, info[<span class="cs">"seed"</span>], info[<span class="cs">"cube_xy"</span>], info[<span class="cs">"vla_task"</span>])
+    report = <span class="ck">await</span> to_thread(<span class="ck">self</span>.client.run, ep[<span class="cs">"episode_id"</span>], <span class="ck">self</span>.max_frames)
+    <span class="ck">if</span> report[<span class="cs">"status"</span>] == <span class="cs">"spike"</span>:                  <span class="cm"># seed the failure into the prompt</span>
+        state[<span class="cs">"prompt"</span>] += [_report_message(report, <span class="ck">self</span>.include_image)]
+    <span class="ck">else</span>:
+        state[<span class="cs">"final_env_response"</span>] = _terminal_message(report)
+
+<span class="ck">async def</span> env_response(<span class="ck">self</span>, messages, state, **kwargs):
+    correction = _last_assistant_text(messages)
+    <span class="ck">await</span> to_thread(<span class="ck">self</span>.client.correct, state[<span class="cs">"episode_id"</span>], correction)
+    report = <span class="ck">await</span> to_thread(<span class="ck">self</span>.client.run, state[<span class="cs">"episode_id"</span>], <span class="ck">self</span>.max_frames)
+    <span class="ck">if</span> report[<span class="cs">"status"</span>] == <span class="cs">"spike"</span>:
+        <span class="ck">return</span> [_report_message(report, <span class="ck">self</span>.include_image)]   <span class="cm"># another intervention</span>
+    state[<span class="cs">"final_env_response"</span>] = _terminal_message(report)      <span class="cm"># terminal → rollout ends</span>
+    <span class="ck">return</span> []</code></pre>
+    </div>
+
+    <h3>Training config</h3>
+    <p>
+      GRPO has no critic — the group mean <em>is</em> the baseline, which is why reward variance inside a
+      group is life or death. Two settings below were hard-won and are called out in the debug notes:
+      <code>Qwen3-VL-4B</code> (the 2B is absent from prime-rl's renderer map and would silently drop the
+      images) and disabling enforced zero-advantage filtering (uniform all-fail groups otherwise crash the
+      run outright).
+    </p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">configs/rl/grpo_qwen3vl_4b.toml</span><span>prime-rl</span></div>
+<pre><code>max_steps = 20
+
+[model]
+name = <span class="cs">"Qwen/Qwen3-VL-4B-Instruct"</span>   <span class="cm"># in MODEL_RENDERER_MAP → images survive</span>
+
+[deployment]
+num_infer_gpus = 1     <span class="cm"># vLLM</span>
+num_train_gpus = 1     <span class="cm"># FSDP/LoRA trainer</span>
+gpus_per_node  = 2
+
+[orchestrator]
+batch_size = 8
+group_size = 8         <span class="cm"># GRPO group — the baseline is this group's mean</span>
+
+[[orchestrator.post_batch_filters]]
+type = <span class="cs">"zero_advantage"</span>
+enforce = <span class="ck">false</span>       <span class="cm"># else uniform-reward groups → "10 consecutive empty train batches"</span>
+
+[[orchestrator.train.env]]
+id = <span class="cs">"vla-corrector"</span>
+args = { rollout_url = <span class="cs">"http://localhost:8100"</span>, n_episodes = 64, max_turns = 4,
+         shaping = <span class="ck">true</span>, include_image = <span class="ck">true</span> }
+
+[trainer.model.lora]   <span class="cm"># NOTE: not [model.lora] — that silently does nothing</span>
+rank = 16
+alpha = 32
+
+[inference.model]
+enforce_eager = <span class="ck">true</span>    <span class="cm"># vLLM Qwen3-VL deepstack buffer workaround</span></code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 4. RESULTS ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">04 — Results</span>
+    <h2>Every step, with the numbers</h2>
+
+    <p class="sec-intro">
+      Before the corrector could be tested, the worker had to be worth correcting. That took most of the
+      project, and produced the one genuinely reusable lesson.
+    </p>
+
+    <h3>Getting a policy that can grasp at all</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Stage</th><th class="num">Success</th><th>What changed</th></tr></thead>
+        <tbody>
+          <tr><td>MolmoAct2, zero-shot</td><td class="num">0 grasps</td><td>Approaches to ~2 cm, never closes the gripper</td></tr>
+          <tr><td>Finetuned, as served</td><td class="num">1 / 8</td><td>Loss 0.881 → 0.019, yet the arm wanders</td></tr>
+          <tr><td>Finetuned, frame-corrected</td><td class="num">3 / 8</td><td>Joint-frame bug fixed — 2 real grasps</td></tr>
+          <tr><td>+ buffered execution</td><td class="num"><strong>11 / 16 (69%)</strong></td><td><code>n_action_steps=4</code> — commits to the descent</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="call">
+      <span class="k">The most portable lesson in the whole project</span>
+      <p>
+        The finetune looked broken for two hours. Loss had converged beautifully; eval was 1/8 with zero
+        grasps. We chased sim cadence, then execution horizon, then the image pipeline. The actual bug was
+        found in two minutes by a teacher-forced check — feed a training frame back in and compare the
+        predicted action to the known-correct one:
+      </p>
+      <div class="code" style="margin-block:.9rem 0;">
+        <div class="code-h"><span class="f">teacher-forced diagnostic</span><span>the smoking gun</span></div>
+<pre><code>MEAN ABS ERR per joint (deg): [ 0.73  38.19  91.98  0.00  0.00  5.50 ]
+                                pan   lift   elbow  wristF wristR grip</code></pre>
+      </div>
+      <p>
+        Four joints near-perfect, two catastrophically wrong — and those two are exactly the joints carrying
+        a sign flip and a +90° offset. The model was fine; the serving code was reading its output in the
+        wrong frame. <strong>A converged loss only proves the model fits in <em>its</em> frame. Validate the
+        action round-trip before you ever run closed-loop eval.</strong>
+      </p>
+    </div>
+
+    <h3>The failure detector</h3>
+    <p>
+      Three detectors, calibrated on successful runs: <strong>SMD</strong> (Mahalanobis distance on joint
+      state), <strong>RND</strong> (vision novelty over SigLIP embeddings), <strong>ACE</strong> (spread across
+      sampled action chunks). One of them does all the work.
+    </p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Detector</th><th class="num">AUC</th><th>Read</th></tr></thead>
+        <tbody>
+          <tr><td>RND — vision novelty</td><td class="num">1.00</td><td><span class="pill ok">carries it</span> and cheap: a SigLIP embed, not a VLM forward</td></tr>
+          <tr><td>SMD — proprioceptive</td><td class="num">0.52 – 0.78</td><td><span class="pill mid">sample-dependent</span> our failures look wrong, they don't <em>pose</em> wrong</td></tr>
+          <tr><td>ACE — action spread</td><td class="num">0.17 – 0.43</td><td><span class="pill no">below chance</span> tracks decisiveness, not failure</td></tr>
+          <tr><td><strong>Combined</strong></td><td class="num"><strong>1.00</strong></td><td>threshold ≈ 0.09, 100% caught, 10% false alarms</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Dropping ACE's sampling removed roughly 75% of per-frame compute at zero cost to separation. But note
+      the number that should have worried us more at the time: <strong>mean lead time ~127 steps out of a
+      130-step episode.</strong> The detector fires at frame zero.
+    </p>
+
+    <h3>Does prompting move anything? (the gate)</h3>
+    <p>
+      Six instruction variants, each run as the full-episode task across the same eight cube positions:
+    </p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Instruction</th><th class="num">Success</th><th class="num">Δ vs base</th></tr></thead>
+        <tbody>
+          <tr><td><code>procedural</code> — "lower onto the cube, close, lift, place"</td><td class="num">4 / 8</td><td class="num"><span class="pill ok">+0.12</span></td></tr>
+          <tr><td><code>base</code> / <code>red</code> / <code>firm</code> / <code>descend</code></td><td class="num">3 / 8</td><td class="num">0.00</td></tr>
+          <tr><td><code>locate</code> — "find the cube first"</td><td class="num">2 / 8</td><td class="num"><span class="pill no">−0.12</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      We read this as a pass. Prompts flipped individual positions in both directions — position 3 failed on
+      base and succeeded under every correction; position 0 succeeded on base and broke under corrections. No
+      fixed prompt won everywhere, which is precisely the gap a trained per-state corrector should fill.
+      <strong>In hindsight this was the weakest link in our reasoning</strong>, and we return to it below.
+    </p>
+
+    <h3>GRPO on prime-rl</h3>
+    <p>
+      On 2× A100-80GB: vLLM serving the Qwen3-VL-4B corrector on one card, the FSDP/LoRA trainer plus the
+      MolmoAct2 rollout server on the other, orchestrator running our verifiers environment. Two runs on
+      that setup: a 20-step shaping run, and later a 40-step vision run with dense reward and a curriculum.
+      Both ran clean. Neither climbed.
+    </p>
+
+    <div class="code">
+      <div class="code-h"><span class="f">results/logs/modest.log</span><span>20-step shaping run</span></div>
+<pre><code>Step 0 | Reward -0.1490 | Trainable  8/9  (88.9%)
+Step 1 | Reward -0.1490 | Trainable 13/15 (86.7%)
+Step 2 | Reward -0.1486 | Trainable  6/9  (66.7%)
+Step 3 | Reward -0.1494 | Trainable  7/7  (100%)
+<span class="cm">... reward flat through step 13, where the retained log ends. Failures converted: 0.</span></code></pre>
+    </div>
+
+    <div class="code">
+      <div class="code-h"><span class="f">results/a100_vision_run/training_curve.txt</span><span>40-step vision run — longer, same result</span></div>
+<pre><code>Step  1 | Reward -0.0594 | Trainable 8/8 (100.0%)
+Step 20 | Reward -0.0594 | Trainable 8/8 (100.0%)
+Step 40 | Reward -0.0577 | Trainable 7/8 (87.5%)
+<span class="cm">... different reward scale (dense + curriculum), same flat line across all 40 steps.</span></code></pre>
+    </div>
+
+    <p>
+      <strong>The signal path is genuinely proven</strong> — sim reward flowed into group-relative advantages
+      into a 33,030,144-parameter LoRA update on a real VLM, driven by a physics-verifiable outcome. It just
+      had nothing to learn, because the reward variance producing those advantages came from the shaping
+      term, not from corrections changing outcomes. GRPO was optimising a proxy.
+    </p>
+
+    <h3>Probing the policy directly</h3>
+    <p>
+      So we stopped measuring the loop and measured the channel. Give the policy the same observation under
+      contradictory instructions and see how far the action moves:
+    </p>
+
+    <div class="call neg">
+      <span class="k">Steerability probe</span>
+      <p>
+        <strong>≈ 0.02° of change per joint</strong> on the finetuned model (grand mean over four opposite
+        pairs × four cube positions), <strong>≈ 0.01°</strong> on base MolmoAct2 — for whole-task swaps as
+        well as fine corrections — and 0.00–0.01° on the later caption-trained checkpoints, even on the
+        model's own training captions. Not a weak signal — no signal. The corrector had nothing to steer
+        with. Whatever it emitted, the arm did the same thing.
+      </p>
+    </div>
+
+    <h3>Testing the diagnosis: make language matter</h3>
+    <p>
+      If language went dead because the training instruction never varied, then varying it should revive it.
+      We rebuilt the dataset with three sub-goal captions changing across each episode, grew it from 50 to
+      150 demos (fixing a data bug where the cube spawned inside the tray in about a third of demos), and ran
+      two finetunes: action-expert-only, and LoRA-on-the-VLM so language layers could genuinely adapt. We
+      audited the LoRA regex to confirm it really trains the language attention and MLP layers — a valid
+      test, not an accidental no-op.
+    </p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Measurement</th><th>Result</th><th class="num">Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>Steerability, both variants</td><td>0.00–0.01°/joint, including on trained captions</td><td class="num"><span class="pill no">null</span></td></tr>
+          <tr><td>Success with captions, n=20</td><td>+15–20 pts — looked like a real effect</td><td class="num"><span class="pill mid">2σ hint</span></td></tr>
+          <tr><td>Success with captions, pooled n=60</td><td>collapsed to +5 pts at ~0.8σ (LoRA ≈ 0)</td><td class="num"><span class="pill no">noise</span></td></tr>
+          <tr><td>150-demo vs 50-demo models</td><td>49% vs 30% success</td><td class="num"><span class="pill ok">3× data</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The n=20 result is the one we're most glad we didn't publish. It looked like a win. Tripling the
+      evaluation dissolved it. The only real improvement came from having three times the data — nothing to
+      do with captioning. <strong>Chase a 2σ hint to significance before you believe it.</strong>
+    </p>
+  </section>
+
+  <!-- ══════════════════ 5. LIMITATIONS ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">05 — The audit</span>
+    <h2>What we got wrong, and what we'd defend</h2>
+
+    <p class="sec-intro">
+      A negative result is only worth anything if you've been hard on it. Here is the case against our own
+      conclusion, as completely as we can make it.
+    </p>
+
+    <h3>Design flaws that could have masked a real effect</h3>
+    <ul>
+      <li>
+        <strong>The detector fires at frame zero.</strong> A 127-step lead on a 130-step episode means RND
+        was almost certainly keying on the <em>initial cube position</em> — flagging hard episodes as OOD
+        immediately, not detecting in-progress deterioration. For a system premised on "correct the failing
+        trajectory," we were largely predicting difficulty and correcting from the start. That is a different
+        experiment from the one we thought we were running.
+      </li>
+      <li>
+        <strong>Zero-variance groups by construction.</strong> GRPO's baseline is the group mean. Cube
+        positions were sampled uniformly, so most groups were all-fail or all-succeed — either way, zero
+        advantage. The frontier band where corrections could actually flip an outcome was barely sampled. A
+        later profile found the policy was near-binary, with essentially <strong>one flippable cube
+        position</strong> in the whole workspace.
+      </li>
+      <li>
+        <strong>The reward's variance was fake.</strong> What made 66–100% of rollouts "trainable" was the
+        uncertainty-reduction shaping term, not success. We proved gradients flowed; we did not prove they
+        pointed anywhere useful.
+      </li>
+      <li>
+        <strong>Spike timing.</strong> Corrections landed at the moment RND crossed threshold, which given
+        the above was often before the policy had committed to anything correctable.
+      </li>
+      <li>
+        <strong>The Stage-2 prompt sweep over-persuaded us.</strong> Eight positions, differences of a single
+        episode — <code>procedural</code>'s "+12%" is one flipped rollout. We treated a one-episode swing at
+        n=8 as evidence the channel was live. The later, more careful probe (~0.02°) suggests those flips
+        were execution noise, not language. This is the same error the n=20 caption result nearly repeated.
+      </li>
+    </ul>
+
+    <h3>Confounds we can't fully rule out</h3>
+    <ul>
+      <li>
+        <strong>The base-model comparison is contaminated.</strong> Base MolmoAct2 is visually out of
+        distribution on synthetic MuJoCo frames, so its flat steerability can't cleanly be blamed on the
+        language channel — it may simply be lost. We cannot cleanly separate "finetuning killed language
+        sensitivity" from "this model never had much on these pixels."
+      </li>
+      <li>
+        <strong>Label noise in the caption experiment.</strong> Roughly 22–48% of chunk boundaries carried
+        mismatched caption/action labels — enough to blunt a real effect if one existed.
+      </li>
+      <li>
+        <strong>Unequal training.</strong> The comparison models saw 2.5 vs 7.6 epochs. Not apples to apples.
+      </li>
+      <li>
+        <strong>The joint-frame fix is empirical.</strong> We patch <code>j1</code> and <code>j2</code> at
+        serving time rather than rebuilding the dataset in the model's own frame. It works, but it's a
+        correction layered on a convention mismatch, and it makes us less certain than we'd like about
+        everything downstream.
+      </li>
+      <li>
+        <strong>Everything is one task, one embodiment, one simulator.</strong> Whether this generalises past
+        SO-101 pick-and-place in MuJoCo is genuinely unknown.
+      </li>
+      <li>
+        <strong>Calibration AUC of 1.00 is in-sample and small-N</strong> (10 successes, 6 failures). It will
+        soften on held-out data. We report it because it's what we measured, not because we think the
+        detector is perfect.
+      </li>
+    </ul>
+
+    <h3>What we'd do the same way again</h3>
+    <ul class="tight">
+      <li>The teacher-forced round-trip check — it turned a two-hour mystery into a two-minute diagnosis.</li>
+      <li>Putting the sim and policy behind an HTTP boundary, so the RL environment stayed testable on a laptop.</li>
+      <li>Auditing the LoRA target regex before trusting a negative result from it.</li>
+      <li>Killing the n=20 result by running it to n=60 instead of writing it up.</li>
+      <li>Keeping a running log of every dead end — most of this post came directly out of it.</li>
+      <li>Doing the whole thing for under $20 of rented GPU by renting per-hour and terminating
+        aggressively. That covers the rl-corrector pods only — the finetunes, calibration recordings,
+        probes, GRPO runs and the phase-caption follow-up — recorded per round from the provider dashboard.
+        No billing export was retained, so these are readings, not receipts; the itemisation is in
+        <code>RESULTS.md</code>, which is the single accounting for this work.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════════ 6. CONCLUSIONS ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">06 — Conclusions</span>
+    <h2>What we think is actually going on</h2>
+
+    <p class="sec-intro">
+      The best explanation we've found comes from Tedrake et al.'s Large Behavior Models work, and it
+      predicts our result almost exactly.
+    </p>
+
+    <p>
+      They report that filtering out low-motion frames <em>helps</em> task-specific finetuning but
+      <em>hurts</em> language conditioning. Their proposed reason: low-motion frames cluster at episode
+      starts, and the start is precisely where the scene is most ambiguous — where several tasks share a
+      similar opening image and the model is <strong>forced</strong> to read the instruction to choose a first
+      action. Delete those frames and what remains are mid-trajectory frames where vision and proprioception
+      already reveal intent. Language becomes redundant, and the model learns to ignore it.
+    </p>
+
+    <div class="call">
+      <span class="k">Our case is a stronger version of the same thing</span>
+      <p>
+        We finetuned on one task, one embodiment, one instruction string. Vision fully determined the correct
+        action at <em>every</em> frame, not just the middle ones. There was no point in the training
+        distribution where reading the instruction reduced loss. <strong>Language conditioning is learned only
+        where vision is ambiguous — and we removed all the ambiguity.</strong> The corrector was speaking into
+        a channel with no gradient behind it.
+      </p>
+    </div>
+
+    <p>
+      This also explains why the caption fix failed. Varying instructions <em>over time</em> doesn't help,
+      because each caption's time window still maps to a unique, fully vision-determined state — the caption
+      is redundant with what the camera already shows. Temporal variation isn't ambiguity.
+    </p>
+
+    <h3>The hypothesis we'd test next</h3>
+    <p>
+      To make language load-bearing you need states where <strong>the same observation implies different
+      correct actions depending on the words</strong>. The cleanest version we've designed but not yet run:
+      two placement targets. Identical cube position, identical scene — but the instruction names which tray.
+      Vision cannot resolve it. The model must read the instruction or it cannot exceed chance. Alongside
+      that: keep the low-motion episode-start frames, and only then add phrasing diversity for generalisation.
+    </p>
+
+    <h3>The pivot: steer the channel the policy already attends to</h3>
+    <p>
+      Making language load-bearing means an expensive multi-task retrain. There's a more direct route,
+      suggested by someone who reported measurable success with it: <strong>Q-guidance</strong>. Train
+      <code>Q(vision_tokens, action)</code> offline on labelled rollouts, then at inference sample actions
+      from the VLA and bias toward high Q — best-of-N re-ranking, or gradient guidance, the flow-policy analog
+      of classifier guidance. It intervenes in <strong>action space</strong>, reading the same vision tokens
+      the policy actually uses, and sidesteps the language bottleneck entirely.
+    </p>
+
+    <p>Most of what we built survives that pivot:</p>
+    <ul class="tight">
+      <li><strong>Carries over:</strong> the sim, the rollout server, reward labelling, and the uncertainty detector — which becomes the <em>gate</em> deciding when guidance is applied at all.</li>
+      <li><strong>Carries over:</strong> Prime Intellect pods. A Q-network is ordinary PyTorch.</li>
+      <li><strong>Does not carry over:</strong> prime-rl itself. It's GRPO over token log-probs for token-emitting policies; Q-guidance is value-based RL on a continuous action head. That's a trainer we'd write ourselves on Prime's compute.</li>
+    </ul>
+
+    <p>
+      Which leaves the open question we'd most like answered: <strong>is value-based or continuous-control RL
+      in scope for the Prime stack?</strong> Everything else about the platform fit this experiment well —
+      per-hour pods across providers, prime-rl handling vision GRPO with LoRA on a 4B VLM without complaint,
+      and <code>verifiers</code> being flexible enough that our environment was a thin HTTP client over a
+      physics sim. The gap is policies whose actions are numbers rather than tokens, which is most of robotics.
+    </p>
+
+    <div class="call warn">
+      <span class="k">If you take one thing</span>
+      <p>
+        Before building a correction loop on top of a VLA, spend an afternoon measuring whether the policy
+        responds to language <em>at all</em>. Feed it opposite instructions on identical observations and
+        measure the action delta. If it's ~0°, no amount of RL machinery above it will help — and we'd have
+        learned that in an afternoon instead of at the end of a full GRPO run.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 7. STACK ══════════════════ -->
+  <section class="flow">
+    <span class="eyebrow">07 — Reproducing it</span>
+    <h2>The stack</h2>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Piece</th><th>What we used</th></tr></thead>
+        <tbody>
+          <tr><td>VLA worker</td><td><code>allenai/MolmoAct2-SO100_101</code>, action-expert finetuned on sim demos</td></tr>
+          <tr><td>Corrector</td><td><code>Qwen/Qwen3-VL-4B-Instruct</code> + LoRA (rank 16, α 32, lr 3e-6)</td></tr>
+          <tr><td>RL framework</td><td><strong>prime-rl</strong>, self-hosted, vision GRPO — <code>uv run rl @ config.toml</code></td></tr>
+          <tr><td>Environment</td><td><code>verifiers</code> <code>MultiTurnEnv</code>, thin httpx client over the sim</td></tr>
+          <tr><td>Compute</td><td>Prime Intellect pods — 2× A100-80GB for the training runs</td></tr>
+          <tr><td>Sim</td><td>MuJoCo SO-101 pick-and-place, headless EGL</td></tr>
+          <tr><td>Detectors</td><td>SigLIP embeddings → RND, plus Mahalanobis on joint state</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="call">
+      <span class="k">Two infrastructure notes that cost us real time</span>
+      <p>
+        <strong>Use two disjoint GPUs and the combined <code>rl</code> entrypoint.</strong> We tried hand-splitting
+        orchestrator and trainer onto one card. The trainer starts, loads the model, reports its LoRA
+        parameter count — then hangs forever waiting for a run registration that only the combined launcher
+        performs. Meanwhile the orchestrator keeps logging plausible <code>Step N | Trainable 4/4</code> lines,
+        because those are computed orchestrator-side. It looks like it's training. The weights directory stays
+        empty. Verify a real training step, not the step counter.
+      </p>
+      <p style="margin-block-start:.7rem;">
+        <strong>Calibration artifacts are pipeline-specific.</strong> Our stored detector was fit on 2880-dim
+        embeddings; a transformers upgrade changed the pipeline to 1536-dim. Every rollout 500'd. Re-fit
+        calibration whenever the embedding pipeline moves.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Corrective-VLM-over-VLA experiment · MolmoAct2 + Qwen3-VL-4B · GRPO on self-hosted prime-rl ·
+      compute on Prime Intellect.
+    </p>
+    <p style="margin-block-start:.6rem;">
+      Result: negative and reported as such. The machinery is proven; the channel was the problem.
+      Next: action-space steering.
+    </p>
+  </footer>
+
+</div>

@@ -1,0 +1,14 @@
+[slide_block_to_target] success: 10/10
+[slide_block_to_target] grasp: 3/10
+[slide_block_to_target] slip: 1/10
+[slide_block_to_target] translation_z: 3/10
+[slide_block_to_target] wrong_sequence: 3/10
+WARNING: QApplication was not created in the main() thread.
+[take_lid_off_saucepan] success: 10/10
+[take_lid_off_saucepan] grasp: 3/10
+[take_lid_off_saucepan] slip: 3/10
+[take_lid_off_saucepan] translation_z: 3/10
+[take_lid_off_saucepan] wrong_sequence: not available for this task, skipping
+WARNING: QApplication was not created in the main() thread.
+[put_money_in_safe] success: 10/10
+[put_money_in_safe] grasp: 0/10

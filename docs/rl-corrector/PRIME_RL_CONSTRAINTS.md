@@ -1,8 +1,8 @@
-# Training a vision corrector on Prime Intellect — the VLM gap, our workaround, and a request
+# Training a vision corrector on prime-rl — the constraints we hit and how we worked around them
 
-*Audience: the Prime Intellect team (Hosted Training + Environments Hub) and our own record.*
 *Verified against the docs 2026-07-09: `docs.primeintellect.ai/hosted-training/models-and-pricing`,
-`/tutorials-environments/create`, `/prime-rl/configuration`.*
+`/tutorials-environments/create`, `/prime-rl/configuration`. These are the limits as they stood then;
+they may have moved since.*
 
 ## What we're building
 
@@ -39,34 +39,34 @@ to a corrector than raw pixels — vision could be redundant. So running the cor
 on Hosted Training, fed the text report with images off, is a genuinely useful experiment:
 
 - **If it works** → vision isn't required here; we get a fully-managed, cheap, dashboard-tracked training loop.
-- **If it doesn't** → concrete evidence that the corrector needs to *see*, which is exactly the case for the
-  request below.
+- **If it doesn't** → concrete evidence that the corrector needs to *see*, i.e. that limitation 1 below is
+  load-bearing and not a nice-to-have.
 
-## The request to Prime Intellect
+## Open limitation 1 — no VL/multimodal models on Hosted Training
 
-**Please enable VL / multimodal models (e.g. Qwen3-VL) on Hosted Training.** It would let vision correctors —
-and more generally any "VLM-supervises-a-VLA" or image-in RL loop — be trained fully-managed, without
-self-hosting a 2-GPU prime-rl deployment. Our `vla-corrector` env is a ready-made, non-trivial multimodal
-use case to validate it against.
+There is no hosted path to train a VL model (e.g. Qwen3-VL), so a vision corrector — and more generally any
+"VLM-supervises-a-VLA" or image-in RL loop — has to be self-hosted on a 2-GPU prime-rl deployment. That
+self-hosting is where most of the infra time in `DEBUG_LOG.md` Phases 6–7 went. If the hosted path ever
+covers VL models, `vla-corrector` is a ready-made, non-trivial multimodal case to check it against.
 
-## The bigger request: continuous-space (robot) policy RL in prime-rl
+## Open limitation 2 — prime-rl trains token policies, not continuous-action policies
 
 Everything above trains a **token/language policy** (an LLM) — prime-rl + verifiers + GRPO are built for
 discrete token sequences. Our whole "corrector" detour exists *because* the thing we can RL-train is a
-language model, not the robot. But our steerability tests show the language channel to the VLA is dead (both
-base and finetuned MolmoAct2 ignore instructions in our setup) — which points at the real want:
+language model, not the robot. And our steerability tests show the language channel to the VLA is dead (both
+base and finetuned MolmoAct2 ignore instructions in our setup), so the detour dead-ends there: no reward can
+steer a deaf actuator.
 
-**Let prime-rl RL-train continuous-action policies directly** — a VLA / robot policy that outputs continuous
-actions, RL-explored *inside* a verifiers-style environment (the sim), with verifiable reward = task success.
-Then you don't need a language corrector at all: **the environment becomes a simulation space where the VLA
-itself keeps exploring and improving** — the natural home for embodied RL.
+Closing that gap needs **RL over continuous-action policies** — a VLA/robot policy that outputs continuous
+actions, explored *inside* a verifiers-style environment (the sim), with verifiable reward = task success.
+Then no language corrector is needed at all: the environment becomes the space where the VLA itself keeps
+exploring and improving.
 
-We understand this is a significant overhaul, not a config flag — it means continuous-control RL (PPO/SAC-style
-over an action distribution), not GRPO-over-tokens; a different rollout/advantage structure; and the policy
-being the *actor in the sim* rather than an LLM scoring text. But it would open Prime Intellect's RL stack to
-**robotics / embodied agents**, a domain the current token-only design can't reach. Our SO-101 sim + reward +
-detectors are a concrete, ready testbed to prototype it against. Worth the team's thought — happy to help
-prototype.
+That is an overhaul, not a config flag — continuous-control RL (PPO/SAC-style over an action distribution)
+instead of GRPO-over-tokens; a different rollout/advantage structure; and the policy being the *actor in the
+sim* rather than an LLM scoring text. We did not attempt it. It is recorded here as the actual blocker
+between this stack and embodied RL, with our SO-101 sim + reward + detectors as a concrete testbed for
+anyone who takes it on.
 
 ## The env as a reusable Hub abstraction (and its one documented limitation)
 

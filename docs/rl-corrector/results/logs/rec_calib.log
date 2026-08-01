@@ -1,0 +1,30 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 12108.66it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 301/1295 [00:00<00:00, 2996.86it/s]Loading weights:  46%|████▋     | 601/1295 [00:00<00:00, 2294.83it/s]Loading weights:  65%|██████▍   | 841/1295 [00:00<00:00, 795.77it/s] Loading weights:  76%|███████▋  | 990/1295 [00:01<00:00, 782.00it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1133.92it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 8703.88it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4699.26it/s]
+[1/16] run_33396fc71c2c success=True rate=1/1
+[2/16] run_493a3bd1f1a2 success=False rate=1/2
+[3/16] run_12dfeb7a7d01 success=True rate=2/3
+[4/16] run_df0f4412d3f5 success=True rate=3/4
+[5/16] run_a47431845bba success=True rate=4/5
+[6/16] run_0b8370dbf08e success=False rate=4/6
+[7/16] run_2cd9f2982ab2 success=False rate=4/7
+[8/16] run_8953f257b810 success=False rate=4/8
+[9/16] run_2f48f7cd0ddc success=True rate=5/9
+[10/16] run_ea8b5b2e1488 success=True rate=6/10
+[11/16] run_21d0b7d830a0 success=False rate=6/11
+[12/16] run_5d6c7e920580 success=True rate=7/12
+[13/16] run_5eb6ed5cb2a5 success=True rate=8/13
+[14/16] run_a48684118132 success=True rate=9/14
+[15/16] run_be38e3dff7a0 success=True rate=10/15
+[16/16] run_da494a358701 success=True rate=11/16
+done: 11/16 success. Next: python -m drishti.calibrate --auto
+
+real	18m21.991s
+user	41m25.500s
+sys	0m51.878s

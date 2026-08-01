@@ -1,0 +1,90 @@
+/home/ubuntu/prime-rl/.venv/lib/python3.12/site-packages/huggingface_hub/constants.py:277: FutureWarning: The `HF_HUB_ENABLE_HF_TRANSFER` environment variable is deprecated as 'hf_transfer' is not used anymore. Please use `HF_XET_HIGH_PERFORMANCE` instead to enable high performance transfer with Xet. Visit https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables#hfxethighperformance for more details.
+  warnings.warn(
+[2m22:35:34[0m [1m   INFO[0m [1m[22mStarting orchestrator (algorithm: grpo)[0m[0m
+[2m22:35:34[0m [1m   INFO[0m [1m[22mSetting default executor to ThreadPoolExecutor(max_workers=64)[0m[0m
+[2m22:35:34[0m [1m   INFO[0m [1m[22mInitializing tokenizer (name='Qwen/Qwen3-VL-4B-Instruct' trust_remote_code=False chat_template=None)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mInitializing policy inference pool (base_url=http://localhost:8000/v1, model=Qwen/Qwen3-VL-4B-Instruct)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mInitialized Qwen3VLRenderer for Qwen/Qwen3-VL-4B-Instruct[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mUsing direct renderer rollout client[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mInitializing monitor (wandb=None, prime_monitor=None)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mConfigured 3 pre-batch rollout filter(s):[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22m  Monitoring gibberish filter (type=gibberish, enforce=False, token_id_threshold=100000, logprob_offset=2.0)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22m  Monitoring repetition filter (type=repetition, enforce=False, window=3000, prob_threshold=0.99)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mConfigured 1 post-batch rollout filter(s):[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m22:35:35[0m [1m   INFO[0m [1m[22mLoading training environments[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mEnv vla-corrector ready: num_tasks=64 group_scoring=False[0m[0m
+[2m22:35:42[0m [32m[1mSUCCESS[0m [32m[1m[22mTrain environment(s) ready[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mWaiting for policy inference pool to be ready[0m[0m
+[2m22:35:42[0m [32m[1mSUCCESS[0m [32m[1m[22mPolicy inference pool ready[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mInitializing weight broadcast (type='filesystem')[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mInitializing training batch sender (type='filesystem')[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mTraining from scratch[0m[0m
+[2m22:35:42[0m [1m   INFO[0m [1m[22mStarting orchestrator loop (max_steps=40)[0m[0m
+[2m22:35:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%) (+2 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:36:42[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 1 |   1m 0s | Reward -0.0375 | Trainable 4/4 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m22:36:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:37:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%) (+2 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:37:04[0m [1m   INFO[0m [1m[22mPausing dispatcher to prevent orchestrator from racing from trainer. Waiting for new policy...[0m[0m
+[2m22:37:04[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 2 |   22.1s | Reward -0.0596 | Trainable 4/4 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m22:37:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:37:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:37:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m22:37:39[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 3 |   34.4s | Reward -0.0584 | Trainable 4/4 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m22:37:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:37:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:38:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:39:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:40:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:41:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:42:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:43:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:44:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:12[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:22[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:32[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:42[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:45:52[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m
+[2m22:46:02[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 0 inflight rollouts (train=0, eval=0)[0m[0m

@@ -1,0 +1,26 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 16728.89it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 298/1295 [00:00<00:00, 2942.10it/s]Loading weights:  46%|████▌     | 593/1295 [00:00<00:00, 2469.52it/s]Loading weights:  65%|██████▌   | 845/1295 [00:00<00:00, 857.17it/s] Loading weights:  77%|███████▋  | 1003/1295 [00:01<00:00, 831.56it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1176.50it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 42920.68it/s]
+pos0 [ 0.265 -0.014]  base=S  red=.  procedural=.  locate=.  firm=.  descend_close=.
+pos1 [ 0.242 -0.029]  base=.  red=.  procedural=.  locate=.  firm=.  descend_close=.
+pos2 [0.273 0.025]  base=S  red=S  procedural=S  locate=.  firm=S  descend_close=S
+pos3 [0.264 0.014]  base=.  red=S  procedural=S  locate=S  firm=S  descend_close=S
+pos4 [0.262 0.026]  base=S  red=S  procedural=S  locate=S  firm=S  descend_close=S
+pos5 [ 0.273 -0.03 ]  base=.  red=.  procedural=.  locate=.  firm=.  descend_close=.
+pos6 [ 0.274 -0.028]  base=.  red=.  procedural=.  locate=.  firm=.  descend_close=.
+pos7 [ 0.269 -0.019]  base=.  red=.  procedural=S  locate=.  firm=.  descend_close=.
+
+=== PROMPT SWEEP (success / 8 positions) ===
+  base           3/8  (0.38)  <-- base
+  red            3/8  (0.38)  (=base)
+  procedural     4/8  (0.50)  Δ=+0.12
+  locate         2/8  (0.25)  Δ=-0.12
+  firm           3/8  (0.38)  (=base)
+  descend_close  3/8  (0.38)  (=base)
+
+real	12m11.022s
+user	61m43.404s
+sys	0m49.744s

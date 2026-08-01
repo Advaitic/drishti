@@ -1,0 +1,16 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 153138.89it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 289/1295 [00:00<00:00, 2879.64it/s]Loading weights:  45%|████▍     | 577/1295 [00:00<00:00, 2764.53it/s]Loading weights:  66%|██████▌   | 854/1295 [00:00<00:00, 710.07it/s] Loading weights:  79%|███████▉  | 1022/1295 [00:01<00:00, 759.27it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1062.17it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 14298.76it/s]
+policy loaded
+[1/8] cube=[ 0.265 -0.014] grasped=False success=False steps=160
+[2/8] cube=[ 0.242 -0.029] grasped=False success=False steps=160
+[3/8] cube=[0.273 0.025] grasped=False success=True steps=56
+[4/8] cube=[0.264 0.014] grasped=True success=True steps=68
+[5/8] cube=[0.262 0.026] grasped=True success=True steps=34
+[6/8] cube=[ 0.273 -0.03 ] grasped=False success=False steps=160
+[7/8] cube=[ 0.274 -0.028] grasped=False success=False steps=160
+[8/8] cube=[ 0.269 -0.019] grasped=False success=False steps=160
+=== FINETUNED EVAL: success 3/8 | grasped 2/8 ===

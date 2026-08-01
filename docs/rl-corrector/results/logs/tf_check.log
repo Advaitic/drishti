@@ -1,0 +1,22 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 16355.60it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 293/1295 [00:00<00:00, 2901.15it/s]Loading weights:  45%|████▌     | 584/1295 [00:00<00:00, 2793.46it/s]Loading weights:  67%|██████▋   | 864/1295 [00:00<00:00, 751.85it/s] Loading weights:  80%|███████▉  | 1034/1295 [00:01<00:00, 832.74it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1120.30it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 77116.93it/s]
+=== dataset sample format ===
+  observation.images.up: shape=(3, 240, 320) dtype=torch.float32 range=[0.00,1.00]
+  observation.state: shape=(6,) dtype=torch.float32 range=[-0.02,90.00]
+  action: shape=(6,) dtype=torch.float32 range=[-5.63,90.00]
+  task: Pick up the cube and place it in the box
+=== teacher-forced predictions (fresh chunk each frame) ===
+  frame 0 pred=[  -2.2   75.9 -110.3   90.    90.    59. ] true=[-2.6  4.4 -5.6 90.  90.  61.5]
+  frame 3 pred=[  -4.    70.6 -112.2   90.    90.    58.7] true=[ -4.9  21.2 -21.4  90.   90.   61.5]
+  frame 6 pred=[  -4.    64.5 -117.9   90.    90.    59. ] true=[ -5.   24.7 -27.6  90.   90.   61.5]
+  frame 9 pred=[  -4.    64.7 -117.6   90.    90.    59. ] true=[ -5.   24.8 -27.6  90.   90.   61.5]
+  frame12 pred=[  -4.    62.4 -117.    90.    90.    59. ] true=[ -5.   28.9 -27.5  90.   90.   61.5]
+  frame18 pred=[  -4.    49.8 -125.7   90.    90.     0.8] true=[ -4.6  39.5 -35.   90.   90.   61.5]
+  frame27 pred=[  -4.    50.  -126.2   90.    90.     1.2] true=[ -4.9  39.5 -35.1  90.   90.    1. ]
+  frame36 pred=[  -3.9   75.8 -118.2   90.    90.     1.2] true=[ -5.    2.5 -24.1  90.   90.    1. ]
+MEAN ABS ERR per joint (deg): [ 0.73 38.19 91.98  0.    0.    5.5 ]
+TF_DONE

@@ -1,0 +1,64 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 39840.35it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 314/1295 [00:00<00:00, 3139.25it/s]Loading weights:  48%|████▊     | 628/1295 [00:00<00:00, 2173.09it/s]Loading weights:  67%|██████▋   | 863/1295 [00:00<00:00, 879.22it/s] Loading weights:  78%|███████▊  | 1012/1295 [00:00<00:00, 910.58it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1257.64it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 6366.26it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4815.49it/s]
+[1/16] run_0bdecc90e79d success=False rate=0/1
+[2/16] run_8d4850cd488a success=False rate=0/2
+[3/16] run_9dd6071ca3df success=True rate=1/3
+[4/16] run_1b8c0dfe2005 success=True rate=2/4
+[5/16] run_678ec65d01a5 success=True rate=3/5
+[6/16] run_b1710a29b840 success=False rate=3/6
+[7/16] run_80bd29847538 success=False rate=3/7
+[8/16] run_3d19547432df success=False rate=3/8
+[9/16] run_5d9b548a5506 success=True rate=4/9
+[10/16] run_4cc120d8d623 success=True rate=5/10
+[11/16] run_7ebb8f5567fe success=False rate=5/11
+[12/16] run_873f00f8c665 success=True rate=6/12
+[13/16] run_65ec08cd73f9 success=True rate=7/13
+[14/16] run_a301571e2820 success=True rate=8/14
+[15/16] run_617683744124 success=True rate=9/15
+[16/16] run_1f4d386847fc success=True rate=10/16
+done: 10/16 success. Next: python -m drishti.calibrate --auto
+===CALIBRATE===
+calibrating on 10 successful runs · 589 state-frames · 589 embed-frames · embed_dim 1536
+{
+  "threshold": 0.10909872971771535,
+  "pctl": 90.0,
+  "n_success_runs_calib": 10,
+  "n_calib_steps": 589,
+  "embed_dim": 1536,
+  "combine": "mean_capped_z(smd,rnd,act)",
+  "cap": 32.0,
+  "norm": {
+    "smd": [
+      2.1936804113709325,
+      1.0103169252463544
+    ],
+    "rnd": [
+      0.00654138425714534,
+      0.0019982564974624748
+    ],
+    "act": [
+      0.03160350979766162,
+      0.030018539913305275
+    ]
+  },
+  "n_runs_scored": 16,
+  "n_fail_runs": 6,
+  "n_succ_runs": 10,
+  "auc_fail_vs_success": 1.0,
+  "auc_per_signal": {
+    "smd": 0.7833333333333333,
+    "rnd": 1.0,
+    "act": 0.16666666666666666
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 0.1,
+  "mean_lead_steps_on_caught_fails": 126.5
+}
+===END===

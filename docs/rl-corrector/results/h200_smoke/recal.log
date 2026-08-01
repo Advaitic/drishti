@@ -1,0 +1,61 @@
+===== free GPU: stop rollout server =====
+===== record 16 episodes (current finetuned VLA) =====
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:   0%|          | 1/1295 [00:05<1:57:31,  5.45s/it]Loading weights:  28%|██▊       | 363/1295 [00:05<00:10, 92.39it/s]Loading weights:  43%|████▎     | 554/1295 [00:07<00:07, 99.44it/s]Loading weights:  51%|█████     | 663/1295 [00:16<00:18, 34.25it/s]Loading weights:  56%|█████▋    | 730/1295 [00:24<00:26, 21.43it/s]Loading weights:  60%|█████▉    | 773/1295 [00:29<00:28, 18.03it/s]Loading weights:  62%|██████▏   | 802/1295 [00:32<00:31, 15.60it/s]Loading weights:  63%|██████▎   | 822/1295 [00:34<00:31, 14.89it/s]Loading weights:  65%|██████▍   | 836/1295 [00:36<00:33, 13.63it/s]Loading weights:  65%|██████▌   | 846/1295 [00:37<00:33, 13.31it/s]Loading weights:  66%|██████▌   | 853/1295 [00:38<00:35, 12.52it/s]Loading weights:  66%|██████▋   | 859/1295 [00:39<00:37, 11.56it/s]Loading weights:  67%|██████▋   | 865/1295 [00:40<00:40, 10.61it/s]Loading weights:  67%|██████▋   | 873/1295 [00:41<00:40, 10.42it/s]Loading weights:  68%|██████▊   | 880/1295 [00:48<01:51,  3.73it/s]Loading weights: 100%|██████████| 1295/1295 [00:48<00:00, 26.79it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 13012.32it/s]
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 9860.99it/s]
+libEGL warning: failed to open /dev/dri/renderD128: Permission denied
+
+libEGL warning: egl: failed to create dri2 screen
+[1/16] run_1d7225c4f360 success=False rate=0/1
+[2/16] run_37092ea2994e success=False rate=0/2
+[3/16] run_e5bc3f265286 success=True rate=1/3
+[4/16] run_503220aa14c3 success=True rate=2/4
+[5/16] run_6443a9e3cc09 success=True rate=3/5
+[6/16] run_a9f9663ec93f success=False rate=3/6
+[7/16] run_299b18b2d304 success=False rate=3/7
+[8/16] run_591dff2d5122 success=False rate=3/8
+[9/16] run_59967084115b success=True rate=4/9
+[10/16] run_3784fc0609e9 success=True rate=5/10
+[11/16] run_4ca581edfabd success=False rate=5/11
+[12/16] run_61e8ede6e0b1 success=False rate=5/12
+[13/16] run_c2d5a1110408 success=True rate=6/13
+[14/16] run_58f486696a60 success=True rate=7/14
+[15/16] run_c14f74ee9a8d success=True rate=8/15
+[16/16] run_d6a62100fc32 success=True rate=9/16
+done: 9/16 success. Next: python -m drishti.calibrate --auto
+===== Store runs recorded =====
+runs in store: 16
+===== calibrate (fit RND 1536-dim + SMD + threshold -> data/calib) =====
+      0.002407386474791264
+    ],
+    "act": [
+      0.028246649709513034,
+      0.027671222467361107
+    ]
+  },
+  "n_runs_scored": 16,
+  "n_fail_runs": 7,
+  "n_succ_runs": 9,
+  "auc_fail_vs_success": 1.0,
+  "auc_per_signal": {
+    "smd": 0.746031746031746,
+    "rnd": 1.0,
+    "act": 0.015873015873015872
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 0.1111111111111111,
+  "mean_lead_steps_on_caught_fails": 104.0
+}
+===== new calib artifacts =====
+total 1644
+drwxrwx--- 2 ubuntu ubuntu   4096 Jul  8 13:54 .
+drwxrwx--- 4 ubuntu ubuntu   4096 Jul  8 13:54 ..
+-rw-r----- 1 ubuntu ubuntu    405 Jul  8 13:54 calib.json
+-rw-r----- 1 ubuntu ubuntu    730 Jul  8 13:54 report.json
+-rw-r----- 1 ubuntu ubuntu  12788 Jul  8 13:54 rnd_innorm.npz
+-rw------- 1 ubuntu ubuntu 820280 Jul  8 13:54 rnd_predictor.safetensors
+-rw------- 1 ubuntu ubuntu 820280 Jul  8 13:54 rnd_target.safetensors
+-rw-r----- 1 ubuntu ubuntu    836 Jul  8 13:54 smd.npz
+RECAL_DONE

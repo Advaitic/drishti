@@ -1,0 +1,49 @@
+/home/ubuntu/prime-rl/.venv/lib/python3.12/site-packages/huggingface_hub/constants.py:277: FutureWarning: The `HF_HUB_ENABLE_HF_TRANSFER` environment variable is deprecated as 'hf_transfer' is not used anymore. Please use `HF_XET_HIGH_PERFORMANCE` instead to enable high performance transfer with Xet. Visit https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables#hfxethighperformance for more details.
+  warnings.warn(
+[2m13:58:43[0m [1m   INFO[0m [1m[22mStarting orchestrator (algorithm: grpo)[0m[0m
+[2m13:58:43[0m [1m   INFO[0m [1m[22mSetting default executor to ThreadPoolExecutor(max_workers=64)[0m[0m
+[2m13:58:43[0m [1m   INFO[0m [1m[22mInitializing tokenizer (name='Qwen/Qwen3-VL-4B-Instruct' trust_remote_code=False chat_template=None)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mInitializing policy inference pool (base_url=http://localhost:8000/v1, model=Qwen/Qwen3-VL-4B-Instruct)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mInitialized Qwen3VLRenderer for Qwen/Qwen3-VL-4B-Instruct[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mUsing direct renderer rollout client[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mInitializing monitor (wandb=None, prime_monitor=None)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mConfigured 3 pre-batch rollout filter(s):[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22m  Monitoring gibberish filter (type=gibberish, enforce=False, token_id_threshold=100000, logprob_offset=2.0)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22m  Monitoring repetition filter (type=repetition, enforce=False, window=3000, prob_threshold=0.99)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mConfigured 1 post-batch rollout filter(s):[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m13:58:44[0m [1m   INFO[0m [1m[22mLoading training environments[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mEnv vla-corrector ready: num_tasks=64 group_scoring=False[0m[0m
+[2m13:58:51[0m [32m[1mSUCCESS[0m [32m[1m[22mTrain environment(s) ready[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mWaiting for policy inference pool to be ready[0m[0m
+[2m13:58:51[0m [32m[1mSUCCESS[0m [32m[1m[22mPolicy inference pool ready[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mInitializing weight broadcast (type='filesystem')[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mInitializing training batch sender (type='filesystem')[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mTraining from scratch[0m[0m
+[2m13:58:51[0m [1m   INFO[0m [1m[22mStarting orchestrator loop (max_steps=2)[0m[0m
+[2m13:59:01[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m13:59:11[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m13:59:19[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group cc59988e-f4c4-4a63-987b-335902d9cc51 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m13:59:21[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m13:59:31[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m13:59:41[0m [1m   INFO[0m [1m[22mTrain batch 0/4 (0.0%) (+3 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m13:59:51[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:01[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:11[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:21[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:31[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+2 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:32[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 97ec13ce-b885-46d6-b40b-9f139c8629b8 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m14:00:41[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+4 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:00:44[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 1 |  1m 52s | Reward -0.0457 | Trainable 7/9 (77.8%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 22.2% | Truncation 0.0%[0m[0m
+[2m14:00:51[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:01:01[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+1 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:01:11[0m [1m   INFO[0m [1m[22mTrain batch 3/4 (75.0%) (+3 buffered); 4 inflight rollouts (train=4, eval=0)[0m[0m
+[2m14:01:14[0m [1m   INFO[0m [1m[22mPausing dispatcher to prevent orchestrator from racing from trainer. Waiting for new policy...[0m[0m
+[2m14:01:14[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 2 |   30.3s | Reward -0.0592 | Trainable 3/3 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m14:01:21[0m [1m   INFO[0m [1m[22mTrain batch 2/4 (50.0%) (+1 buffered); 3 inflight rollouts (train=3, eval=0)[0m[0m
+[2m14:01:31[0m [1m   INFO[0m [1m[22mTrain batch 2/4 (50.0%) (+1 buffered); 3 inflight rollouts (train=3, eval=0)[0m[0m
+[2m14:01:37[0m [1m   INFO[0m [1m[22mDraining pipeline (cancelled 0 in-flight train rollout(s); any in-flight evals will complete)[0m[0m
+[2m14:01:37[0m [1m   INFO[0m [1m[22mPipeline drained, exiting main loop[0m[0m
+[2m14:01:37[0m [32m[1mSUCCESS[0m [32m[1m[22mOrchestrator step loop done in 2m 45s[0m[0m
+[2m14:01:39[0m [32m[1mSUCCESS[0m [32m[1m[22mOrchestrator finished.[0m[0m

@@ -1,0 +1,146 @@
+[2m16:17:02[0m [1m   INFO[0m [1m[22mTraining from scratch, cleaning any stale rollouts and broadcasts[0m[0m
+[2m16:17:02[0m [1m   INFO[0m [1m[22mDeleting 3 step directories in outputs/rollouts (0,1,2)[0m[0m
+[2m16:17:02[0m [1m   INFO[0m [1m[22mDeleting 3 step directories in outputs/run_default/rollouts (0,1,2)[0m[0m
+[2m16:17:02[0m [1m   INFO[0m [1m[22mDeleting 2 step directories in outputs/run_default/broadcasts (2,3)[0m[0m
+[transformers] kernels hub usage is disabled through the environment USE_HUB_KERNELS=NO
+[2m16:17:11[0m [1m   INFO[0m [1m[22mPre-downloading model Qwen/Qwen3-VL-4B-Instruct[0m[0m
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files: 100%|██████████| 14/14 [00:00<00:00, 169222.64it/s]
+[2m16:17:11[0m [1m   INFO[0m [1m[22mWrote subconfigs to outputs/configs[0m[0m
+[2m16:17:11[0m [1m   INFO[0m [1m[22mUsing local->physical GPU mapping: {0: 0, 1: 1}[0m[0m
+[2m16:17:11[0m [1m   INFO[0m [1m[22mStarting RL run[0m[0m
+[2m16:17:11[0m [1m   INFO[0m [1m[22mStarting inference on GPU(s) 0[0m[0m
+[2m16:17:11[0m [1m   INFO[0m [1m[22mStarting orchestrator process[0m[0m
+[2m16:17:11[0m [1m   INFO[0m [1m[22mStarting trainer on GPU(s) 1[0m[0m
+[2m16:17:11[0m [32m[1mSUCCESS[0m [32m[1m[22mStartup complete. Showing orchestrator logs...[0m[0m
+[transformers] kernels hub usage is disabled through the environment USE_HUB_KERNELS=NO
+[2m16:17:20[0m [1m   INFO[0m [1m[22mStarting orchestrator (algorithm: grpo)[0m[0m
+[2m16:17:20[0m [1m   INFO[0m [1m[22mSetting default executor to ThreadPoolExecutor(max_workers=64)[0m[0m
+[2m16:17:20[0m [1m   INFO[0m [1m[22mInitializing tokenizer (name='Qwen/Qwen3-VL-4B-Instruct' trust_remote_code=False chat_template=None)[0m[0m
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[2m16:17:22[0m [1m   INFO[0m [1m[22mInitializing policy inference pool (base_url=http://localhost:8000/v1, model=Qwen/Qwen3-VL-4B-Instruct)[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22mInitialized Qwen3VLRenderer for Qwen/Qwen3-VL-4B-Instruct[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22mUsing direct renderer rollout client[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22mInitializing monitor (wandb=project='drishti-vla-corrector' entity=None name='grpo-qwen3vl-4b' group=None tags=None offline=False log_extras=LogExtrasConfig(samples=True, distributions=True, interval=10, sample_ratio=None), prime_monitor=None)[0m[0m
+wandb: Tracking run with wandb version 0.27.0
+wandb: W&B syncing is set to `offline` in this directory. Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Run data is saved locally in outputs/run_default/wandb/offline-run-20260703_161722-yrrvze36
+wandb: Detected [anthropic, openai, verifiers] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+[2m16:17:22[0m [1m   INFO[0m [1m[22mConfigured 3 pre-batch rollout filter(s):[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22m  Monitoring gibberish filter (type=gibberish, enforce=False, token_id_threshold=100000, logprob_offset=2.0)[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22m  Monitoring repetition filter (type=repetition, enforce=False, window=3000, prob_threshold=0.99)[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22mConfigured 1 post-batch rollout filter(s):[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22m  Monitoring zero_advantage filter (type=zero_advantage, enforce=False)[0m[0m
+[2m16:17:22[0m [1m   INFO[0m [1m[22mLoading training environments[0m[0m
+[2m16:17:29[0m [1m   INFO[0m [1m[22mEnv vla-corrector ready: num_tasks=64 group_scoring=False[0m[0m
+[2m16:17:29[0m [32m[1mSUCCESS[0m [32m[1m[22mTrain environment(s) ready[0m[0m
+[2m16:17:29[0m [1m   INFO[0m [1m[22mWaiting for policy inference pool to be ready[0m[0m
+[2m16:17:39[0m [33m[1mWARNING[0m [33m[1m[22mInference server was not reached after 10 seconds (Error: All connection attempts failed) on http://localhost:8000[0m[0m
+[2m16:17:49[0m [33m[1mWARNING[0m [33m[1m[22mInference server was not reached after 20 seconds (Error: All connection attempts failed) on http://localhost:8000[0m[0m
+[2m16:17:59[0m [33m[1mWARNING[0m [33m[1m[22mInference server was not reached after 30 seconds (Error: All connection attempts failed) on http://localhost:8000[0m[0m
+[2m16:18:09[0m [33m[1mWARNING[0m [33m[1m[22mInference server was not reached after 40 seconds (Error: All connection attempts failed) on http://localhost:8000[0m[0m
+[2m16:18:19[0m [33m[1mWARNING[0m [33m[1m[22mInference server was not reached after 50 seconds (Error: All connection attempts failed) on http://localhost:8000[0m[0m
+[2m16:18:24[0m [32m[1mSUCCESS[0m [32m[1m[22mPolicy inference pool ready[0m[0m
+[2m16:18:24[0m [1m   INFO[0m [1m[22mInitializing weight broadcast (type='filesystem')[0m[0m
+[2m16:18:24[0m [1m   INFO[0m [1m[22mInitializing training batch sender (type='filesystem')[0m[0m
+[2m16:18:24[0m [1m   INFO[0m [1m[22mTraining from scratch[0m[0m
+[2m16:18:24[0m [1m   INFO[0m [1m[22mStarting orchestrator loop (max_steps=20)[0m[0m
+[2m16:18:34[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:18:44[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:18:54[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:02[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 8cc9e808-9a9c-4ac7-8103-7682eb0116f7 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:19:03[0m [1m   INFO[0m [1m[22mLogging 8 samples to W&B table at step 0[0m[0m
+[2m16:19:03[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 0 |   38.9s | Reward -0.1490 | Trainable 8/9 (88.9%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 0 | Error 11.1% | Truncation 0.0%[0m[0m
+[2m16:19:04[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:14[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:17[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 8cc9e808-9a9c-4ac7-8103-7682eb0116f7 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:19:17[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 8cc9e808-9a9c-4ac7-8103-7682eb0116f7 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:19:24[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:34[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:44[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:19:54[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:04[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:14[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:24[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:29[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 1 |  1m 25s | Reward -0.1490 | Trainable 13/15 (86.7%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 13.3% | Truncation 0.0%[0m[0m
+[2m16:20:29[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group e548ad88-4eb1-4ced-ad70-3f4a1ba898c3 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:20:29[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group e548ad88-4eb1-4ced-ad70-3f4a1ba898c3 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:20:34[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:38[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 57ea6d1c-919b-4d8e-81f3-588bb6768ba8 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:20:44[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+6 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:20:54[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+6 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:04[0m [1m   INFO[0m [1m[22mTrain batch 5/8 (62.5%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:08[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 2 |   39.7s | Reward -0.1486 | Trainable 6/9 (66.7%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 33.3% | Truncation 0.0%[0m[0m
+[2m16:21:14[0m [1m   INFO[0m [1m[22mTrain batch 3/8 (37.5%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:24[0m [1m   INFO[0m [1m[22mTrain batch 3/8 (37.5%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:34[0m [1m   INFO[0m [1m[22mTrain batch 3/8 (37.5%) (+5 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:44[0m [1m   INFO[0m [1m[22mTrain batch 3/8 (37.5%) (+6 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:21:53[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 3 |   44.6s | Reward -0.1494 | Trainable 7/7 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 2 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:21:54[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:04[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:14[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+5 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:24[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+6 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:34[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 4 |   41.0s | Reward -0.1491 | Trainable 8/9 (88.9%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:22:34[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:44[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:22:54[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+6 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:04[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:07[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 5 |   33.3s | Reward -0.1458 | Trainable 7/7 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:23:14[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:24[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:34[0m [1m   INFO[0m [1m[22mTrain batch 2/8 (25.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:39[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 3237ab66-6013-4b09-8060-1d178b19911b (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:23:40[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 6 |   33.1s | Reward -0.1477 | Trainable 7/8 (87.5%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 2 | Error 12.5% | Truncation 0.0%[0m[0m
+[2m16:23:44[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:23:54[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:04[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:14[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:18[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 7 |   37.7s | Reward -0.1488 | Trainable 8/8 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 2 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:24:24[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:34[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:44[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:24:54[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:04[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:05[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 8 |   47.4s | Reward -0.1489 | Trainable 8/8 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:25:14[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:24[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:33[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 3a259afe-b69a-495d-9d83-05aaba8242ad (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:25:34[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:44[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+5 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:54[0m [1m   INFO[0m [1m[22mTrain batch 1/8 (12.5%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:25:58[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group d06f1054-95ce-4373-a1d9-29b60e2e22f6 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:25:58[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group d06f1054-95ce-4373-a1d9-29b60e2e22f6 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:26:00[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 9 |   54.2s | Reward -0.1496 | Trainable 7/10 (70.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 30.0% | Truncation 0.0%[0m[0m
+[2m16:26:04[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:26:14[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:26:24[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:26:34[0m [1m   INFO[0m [1m[22mTrain batch 0/8 (0.0%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:26:44[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:26:54[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:04[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:14[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+9 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:22[0m [1m   INFO[0m [1m[22mLogging 16 samples to W&B table at step 10[0m[0m
+[2m16:27:22[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 10 |  1m 22s | Reward -0.1488 | Trainable 14/16 (87.5%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:27:24[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:34[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:44[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:27:51[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 11 |   29.4s | Reward -0.1493 | Trainable 6/6 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:27:54[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+1 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:04[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:14[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:24[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+5 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:34[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:41[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 12 |   49.5s | Reward -0.1479 | Trainable 8/10 (80.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 2 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:28:44[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:28:54[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:04[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+2 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:14[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+4 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:24[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:30[0m [32m[1mSUCCESS[0m [32m[1m[22mStep 13 |   49.4s | Reward -0.1488 | Trainable 6/6 (100.0%) | Turns 4.0 | Branches 1.0 | Max Off-Policy 1 | Error 0.0% | Truncation 0.0%[0m[0m
+[2m16:29:34[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:35[0m [33m[1mWARNING[0m [33m[1m[22mRollout task failed in group 9cca398a-b0d6-4199-8ea8-77f3c92f6e84 (vla-corrector): RuntimeError('ReadError: [Errno 104] Connection reset by peer')[0m[0m
+[2m16:29:44[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:29:54[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+3 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m
+[2m16:30:04[0m [1m   INFO[0m [1m[22mTrain batch 6/8 (75.0%) (+7 buffered); 8 inflight rollouts (train=8, eval=0)[0m[0m

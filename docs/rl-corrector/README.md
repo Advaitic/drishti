@@ -8,7 +8,8 @@ train the corrector with **GRPO** on self-hosted **prime-rl**.
 This is the entry point. Detail lives in:
 - **[RESULTS.md](RESULTS.md)** — milestones + numbers (the positive record).
 - **[DEBUG_LOG.md](DEBUG_LOG.md)** — every error, dead-end, and fix (6 phases, ~30 gotchas).
-- **[../rl-corrector.md](../rl-corrector.md)** — the original engineering design/plan.
+- **[DESIGN.md](DESIGN.md)** — the original engineering design/plan.
+- **[PRIME_RL_CONSTRAINTS.md](PRIME_RL_CONSTRAINTS.md)** — the prime-rl / hosted-training limits we hit.
 - **[../LEARNINGS.md](../LEARNINGS.md)** — the failure-detection foundation (SMD/RND/ACE, calibration).
 - `results/` — raw proof (logs, calib report, eval frames, the trained GRPO LoRA adapter).
 
@@ -28,8 +29,8 @@ it's what decides *when* to call the corrector. `rl-corrector` branched cleanly 
 
 | Stage | Result |
 |---|---|
-| Finetune the VLA | MolmoAct2 action-expert finetune → grasps **0 → ~69%** (joint-frame bug found + fixed) |
-| Calibration | RND separates success/fail — **combined AUC 1.0**, threshold ~0.09 |
+| Finetune the VLA | MolmoAct2 action-expert finetune → **task success 0 → 11/16 (69%)** under buffered execution (`n_action_steps=4`); zero-shot never grasped at all (joint-frame bug found + fixed) |
+| Calibration | RND separates success/fail — **combined AUC 1.0** (*in-sample*, 16 runs, RND-only), threshold 0.107 |
 | Stage 2 (does prompting help?) | Partial pass — a *procedural* instruction nets **+12%**, situation-dependent |
 | RL-env smoke | Full loop on the live VLA: spike→correct→resume→**reward**, 6/6, mean 0.50 |
 | **Stage 3 — prime-rl GRPO** | **Signal path PROVEN: sim reward → GRPO advantages → LoRA weight update** on the Qwen3-VL-4B corrector (modest run: 66–100% trainable rollouts/step) |
@@ -77,9 +78,12 @@ Getting the loop running end-to-end was the goal; making it *climb* is the open 
      recipe) — adapts perception, likely lifts success above ~69%.
    - **Clean the joint-frame fix** — rebuild the finetune dataset in the model frame (identity
      transform) instead of the empirical `env_j1=90-pred, env_j2=pred+90` patch.
-3. **Corrector quality** — the VLA was finetuned on one fixed instruction, so it's only weakly
-   language-steerable (Stage-2: 0.3–9.2° action change). Consider finetuning the VLA with *varied*
-   instructions so corrections have more leverage.
+3. **Corrector quality** — the VLA was finetuned on one fixed instruction, and it is not measurably
+   language-steerable: **0.02°/joint** of action change under opposite instructions. (The earlier
+   Stage-2 figure of "0.3–9.2° action change" is retracted — it came from a probe that popped the
+   same action buffer that drove the arm, so it measured its own interference; DEBUG_LOG Phase 5.)
+   Finetuning the VLA on *varied* instructions was the obvious fix; it was tried and also came back
+   negative — see RESULTS.md, "Language-diversity finetune".
 4. **Scale the GRPO run** — once reward climbs, more steps + parallel rollout pods (rollout throughput
    is the bottleneck, not $).
 
@@ -87,11 +91,20 @@ Getting the loop running end-to-end was the goal; making it *climb* is the open 
 
 ## Reproduce
 
+- **Tests** (no GPU, no checkpoint): `pytest -q` — 22 passed at the time of writing.
+- **The loop on a laptop, without a policy**: `uvicorn drishti.sim.stub_server:app --port 8100`
+  swaps a deterministic CPU `StubVLA` in behind the same HTTP contract, so
+  start→run→spike→correct→resume→reward is exercisable without a checkpoint. The rewards are
+  plumbing, not science. (MuJoCo rendering inside the async loop stalls on macOS; drive
+  `EpisodeManager` directly there, as `tests/test_rollout_server.py` does.)
 - **Failure-detection path** (HF zero-shot VLA): `scripts/pod_setup.sh`.
 - **Finetuned-VLA + GRPO path**: a 2-GPU **direct-SSH** pod (datacrunch/massedcompute — NOT crusoe,
   which is proxied-SSH-only). Build a LeRobot venv (see DEBUG_LOG Phase 2/6: `uv sync --python 3.12
   --extra molmoact2 --extra dataset`, transformers 5.x), install prime-rl from source (the working
   install is the nested `prime-rl/prime-rl/`), install the env (`uv pip install -e
-  environments/vla-corrector`), launch the rollout server (`:build_default_app --factory`,
-  `DRISHTI_LEROBOT_CKPT=…`, `UNCERTAINTY=calib`), then `uv run rl @ configs/rl/smoke.toml`.
+  environments/vla-corrector`), launch the rollout server with
+  `DRISHTI_LEROBOT_CKPT=… UNCERTAINTY=calib uvicorn "drishti.sim.rollout_server:build_default_app"
+  --factory --host 0.0.0.0 --port 8100`, then `uv run rl @ configs/rl/smoke.toml`.
+  The `--factory` form is required: there is deliberately no module-level `app`, so the old
+  `rollout_server:app` target resolves to `None`.
 - The 11 GB finetuned checkpoint is backed up at `data/molmoact2_so101_ft_ckpt/` (gitignored).

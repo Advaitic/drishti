@@ -1,0 +1,70 @@
+{
+  "source": "aha",
+  "split": "episode",
+  "seed": 0,
+  "train_frac": 0.7,
+  "n_train_success_runs": 13,
+  "n_calib_state_frames": 2092,
+  "n_calib_embed_frames": 268,
+  "embed_dim": 1536,
+  "norm": {
+    "smd": [
+      3.8577311083180725,
+      1.0483573826224497
+    ],
+    "rnd": [
+      0.014230948661847563,
+      0.0041790253520417285
+    ]
+  },
+  "threshold": 0.059432508986872634,
+  "pctl": 90.0,
+  "signals": [
+    "smd",
+    "rnd"
+  ],
+  "combine": "mean_capped_z(smd,rnd)",
+  "cap": 32.0,
+  "n_eval_runs": 35,
+  "n_fail": 29,
+  "n_succ": 6,
+  "auc_fail_vs_success": 0.8103448275862069,
+  "auc_per_signal": {
+    "smd": 0.6954022988505747,
+    "rnd": 0.7816091954022989
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 1.0,
+  "per_failure_mode": {
+    "grasp": {
+      "n_fail": 6,
+      "auc_combined": 0.5833333333333334,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.6434091628571191
+    },
+    "slip": {
+      "n_fail": 6,
+      "auc_combined": 0.8611111111111112,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.7977641504434957
+    },
+    "translation_x": {
+      "n_fail": 6,
+      "auc_combined": 1.0,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.5786586742482823
+    },
+    "translation_z": {
+      "n_fail": 5,
+      "auc_combined": 0.9666666666666667,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.527352420050336
+    },
+    "wrong_sequence": {
+      "n_fail": 6,
+      "auc_combined": 0.6666666666666666,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.639809905791107
+    }
+  }
+}

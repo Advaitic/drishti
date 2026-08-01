@@ -1,0 +1,20 @@
+[pick_up_cup] success: 8/8
+[pick_up_cup] grasp: 3/8
+[pick_up_cup] slip: 3/8
+[pick_up_cup] translation_x: 3/8
+[pick_up_cup] translation_z: 2/8
+[pick_up_cup] rotation_z: not available for this task, skipping
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+Warn >>> get_failure reached max attempts. Won't crash but will retry some more times. task_name: pick_up_cup
+[pick_up_cup] wrong_object: 0/8
+[pick_up_cup] wrong_sequence: 3/8

@@ -1,0 +1,27 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 185042.82it/s]
+/root/lerobot/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  26%|██▋       | 343/1295 [00:00<00:00, 3427.76it/s]Loading weights:  53%|█████▎    | 686/1295 [00:00<00:00, 1533.47it/s]Loading weights:  69%|██████▉   | 893/1295 [00:01<00:00, 696.87it/s] Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1186.01it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 59353.36it/s]
+positions (seed 0): [(np.float64(0.265), np.float64(-0.014)), (np.float64(0.242), np.float64(-0.029)), (np.float64(0.273), np.float64(0.025)), (np.float64(0.264), np.float64(0.014)), (np.float64(0.262), np.float64(0.026)), (np.float64(0.273), np.float64(-0.03)), (np.float64(0.274), np.float64(-0.028)), (np.float64(0.269), np.float64(-0.019))]
+  nas= 4 pos0 [ 0.265 -0.014] -> . (160)
+  nas= 4 pos1 [ 0.242 -0.029] -> . (160)
+  nas= 4 pos2 [0.273 0.025] -> S (46)
+  nas= 4 pos3 [0.264 0.014] -> S (137)
+  nas= 4 pos4 [0.262 0.026] -> S (70)
+  nas= 4 pos5 [ 0.273 -0.03 ] -> . (160)
+  nas= 4 pos6 [ 0.274 -0.028] -> . (160)
+  nas= 4 pos7 [ 0.269 -0.019] -> . (160)
+=> nas= 4: 3/8 success (0.38) avg_steps=132
+  nas=10 pos0 [ 0.265 -0.014] -> . (160)
+  nas=10 pos1 [ 0.242 -0.029] -> . (160)
+  nas=10 pos2 [0.273 0.025] -> S (52)
+  nas=10 pos3 [0.264 0.014] -> . (160)
+  nas=10 pos4 [0.262 0.026] -> S (44)
+  nas=10 pos5 [ 0.273 -0.03 ] -> . (160)
+  nas=10 pos6 [ 0.274 -0.028] -> . (160)
+  nas=10 pos7 [ 0.269 -0.019] -> . (160)
+=> nas=10: 2/8 success (0.25) avg_steps=132
+
+=== A/B RESULT: {4: 3, 10: 2} -> best nas=4 ===

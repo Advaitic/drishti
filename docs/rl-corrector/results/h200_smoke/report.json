@@ -1,0 +1,35 @@
+{
+  "threshold": 0.08292004897527702,
+  "pctl": 90.0,
+  "n_success_runs_calib": 9,
+  "n_calib_steps": 652,
+  "embed_dim": 1536,
+  "combine": "mean_capped_z(smd,rnd,act)",
+  "cap": 32.0,
+  "norm": {
+    "smd": [
+      2.175495336073905,
+      1.0696093478766
+    ],
+    "rnd": [
+      0.008969606877378892,
+      0.002407386474791264
+    ],
+    "act": [
+      0.028246649709513034,
+      0.027671222467361107
+    ]
+  },
+  "n_runs_scored": 16,
+  "n_fail_runs": 7,
+  "n_succ_runs": 9,
+  "auc_fail_vs_success": 1.0,
+  "auc_per_signal": {
+    "smd": 0.746031746031746,
+    "rnd": 1.0,
+    "act": 0.015873015873015872
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 0.1111111111111111,
+  "mean_lead_steps_on_caught_fails": 104.0
+}

@@ -5,7 +5,6 @@ pick-and-place in a MuJoCo SO-101 sim. When the VLA's calibrated **uncertainty**
 gets the failure context (telemetry + spike frames) and emits a corrective prompt; the **verifiable
 reward** is task success. RL via GRPO on self-hosted `prime-rl`.
 
-
 ## Pieces
 
 | file | role |
@@ -24,7 +23,7 @@ reward** is task success. RL via GRPO on self-hosted `prime-rl`.
 
 **Stage 0 — local, $0 (DONE).** Rollout server + verifiers env built and tested on a stub VLA.
 ```bash
-PYTHONPATH=.:environments/vla-corrector .venv/bin/python -m pytest tests/ -q     # 15 passed
+pytest -q                                                                        # 22 passed
 ```
 
 **Stage 1 — rent 1×4090, ~$1–3.** Bring up MolmoAct2 and clear the two empirical gates.
@@ -42,7 +41,7 @@ python -m drishti.calibrate --auto                       # fit the uncertainty t
 **Stage 2 — eval, ~$2–5.** Prompted (untrained) corrector vs. baseline → Δsuccess. Proceed only if
 corrections measurably help.
 ```bash
-UNCERTAINTY=calib uvicorn drishti.sim.rollout_server:app --port 8100   # now use the calibrated threshold
+UNCERTAINTY=calib uvicorn "drishti.sim.rollout_server:build_default_app" --factory --port 8100   # now use the calibrated threshold
 prime eval run vla-corrector -m Qwen/Qwen3-VL-4B-Instruct -a '{"rollout_url":"http://POD:8100","max_turns":1}'  # baseline
 prime eval run vla-corrector -m Qwen/Qwen3-VL-4B-Instruct -a '{"rollout_url":"http://POD:8100","max_turns":4}'  # prompted
 ```

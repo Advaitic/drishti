@@ -1,0 +1,136 @@
+Reading package lists...
+E: Could not open lock file /var/lib/apt/lists/lock - open (13: Permission denied)
+E: Unable to lock directory /var/lib/apt/lists/
+W: Problem unlinking the file /var/cache/apt/pkgcache.bin - RemoveCaches (13: Permission denied)
+W: Problem unlinking the file /var/cache/apt/srcpkgcache.bin - RemoveCaches (13: Permission denied)
+Get:1 file:/var/cuda-repo-ubuntu2204-12-2-local  InRelease [1,572 B]
+Get:1 file:/var/cuda-repo-ubuntu2204-12-2-local  InRelease [1,572 B]
+Hit:2 https://nvidia.github.io/libnvidia-container/stable/deb/amd64  InRelease
+Hit:3 https://download.docker.com/linux/ubuntu jammy InRelease
+Hit:4 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease
+Hit:5 https://mcache-dca.massedcompute.com/debian-archive jammy InRelease
+Hit:6 https://mcache-dca.massedcompute.com/debian-archive jammy-updates InRelease
+Hit:7 https://mcache-dca.massedcompute.com/debian-archive jammy-backports InRelease
+Hit:8 https://mcache-dca.massedcompute.com/debian-security/ jammy-security InRelease
+Hit:9 https://packagecloud.io/ookla/speedtest-cli/ubuntu jammy InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+libegl1 is already the newest version (1.4.0-1).
+libegl1 set to manually installed.
+libgl1 is already the newest version (1.4.0-1).
+libgl1 set to manually installed.
+ffmpeg is already the newest version (7:4.4.2-0ubuntu0.22.04.1).
+Suggested packages:
+  git-daemon-run | git-daemon-sysvinit git-doc git-email git-gui gitk gitweb
+  git-cvs git-mediawiki git-svn libcurl4-doc libidn11-dev libkrb5-dev
+  libldap2-dev librtmp-dev libssh2-1-dev
+The following packages will be upgraded:
+  curl git libcurl4 libcurl4-openssl-dev libglib2.0-0 libglib2.0-bin
+6 upgraded, 0 newly installed, 0 to remove and 222 not upgraded.
+Need to get 5,593 kB of archives.
+After this operation, 11.3 kB of additional disk space will be used.
+Get:1 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 libglib2.0-bin amd64 2.72.4-0ubuntu2.9 [80.9 kB]
+Get:2 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 libglib2.0-0 amd64 2.72.4-0ubuntu2.9 [1,467 kB]
+Get:3 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 libcurl4-openssl-dev amd64 7.81.0-1ubuntu1.25 [387 kB]
+Get:4 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 curl amd64 7.81.0-1ubuntu1.25 [194 kB]
+Get:5 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 libcurl4 amd64 7.81.0-1ubuntu1.25 [291 kB]
+Get:6 https://mcache-dca.massedcompute.com/debian-archive jammy-updates/main amd64 git amd64 1:2.34.1-1ubuntu1.17 [3,174 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 5,593 kB in 0s (32.5 MB/s)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 104839 files and directories currently installed.)
+Preparing to unpack .../0-libglib2.0-bin_2.72.4-0ubuntu2.9_amd64.deb ...
+Unpacking libglib2.0-bin (2.72.4-0ubuntu2.9) over (2.72.4-0ubuntu2.7) ...
+Preparing to unpack .../1-libglib2.0-0_2.72.4-0ubuntu2.9_amd64.deb ...
+Unpacking libglib2.0-0:amd64 (2.72.4-0ubuntu2.9) over (2.72.4-0ubuntu2.7) ...
+Preparing to unpack .../2-libcurl4-openssl-dev_7.81.0-1ubuntu1.25_amd64.deb ...
+Unpacking libcurl4-openssl-dev:amd64 (7.81.0-1ubuntu1.25) over (7.81.0-1ubuntu1.21) ...
+Preparing to unpack .../3-curl_7.81.0-1ubuntu1.25_amd64.deb ...
+Unpacking curl (7.81.0-1ubuntu1.25) over (7.81.0-1ubuntu1.21) ...
+Preparing to unpack .../4-libcurl4_7.81.0-1ubuntu1.25_amd64.deb ...
+Unpacking libcurl4:amd64 (7.81.0-1ubuntu1.25) over (7.81.0-1ubuntu1.21) ...
+Preparing to unpack .../5-git_1%3a2.34.1-1ubuntu1.17_amd64.deb ...
+Unpacking git (1:2.34.1-1ubuntu1.17) over (1:2.34.1-1ubuntu1.15) ...
+Setting up libglib2.0-0:amd64 (2.72.4-0ubuntu2.9) ...
+Setting up libglib2.0-bin (2.72.4-0ubuntu2.9) ...
+Setting up git (1:2.34.1-1ubuntu1.17) ...
+Setting up libcurl4:amd64 (7.81.0-1ubuntu1.25) ...
+Setting up curl (7.81.0-1ubuntu1.25) ...
+Setting up libcurl4-openssl-dev:amd64 (7.81.0-1ubuntu1.25) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.11) ...
+
+Running kernel seems to be up-to-date.
+
+Services to be restarted:
+ systemctl restart irqbalance.service
+ systemctl restart packagekit.service
+ systemctl restart polkit.service
+ systemctl restart qemu-guest-agent.service
+ systemctl restart switcheroo-control.service
+ systemctl restart udisks2.service
+
+Service restarts being deferred:
+ systemctl restart ModemManager.service
+ systemctl restart networkd-dispatcher.service
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+downloading uv 0.11.26 x86_64-unknown-linux-gnu
+installing to /home/ubuntu/.local/bin
+  uv
+  uvx
+everything's installed!
+mkdir: cannot create directory ‘/home/ubuntu/.config/fish’: Permission denied
+ERROR: command failed: mkdir -p /home/ubuntu/.config/fish/conf.d
+Cloning into 'lerobot-ft'...
+=== lerobot version + molmoact2 extra ===
+molmoact2 = ["lerobot[transformers-dep]", "lerobot[peft-dep]", "lerobot[scipy-dep]"]
+smolvla = ["lerobot[transformers-dep]", "num2words>=0.5.14,<0.6.0", "lerobot[accelerate-dep]"]
+multi_task_dit = ["lerobot[transformers-dep]", "lerobot[diffusers-dep]"]
+groot = [
+--
+    "lerobot[molmoact2]",
+    "lerobot[smolvla]",
+    "lerobot[fastwam]",
+    # "lerobot[groot]", TODO(Steven): Gr00t requires specific installation instructions for flash-attn
+=== uv sync --extra molmoact2 (heavy) ===
+      [199/516] Compiling C++ object
+      numpy/_core/libnpymath.a.p/src_npymath_halffloat.cpp.o
+      [200/516] Compiling C object
+      numpy/_core/libargfunc.dispatch.h_SSE42.a.p/meson-generated_argfunc.dispatch.c.o
+      [201/516] Compiling C object
+      numpy/_core/libargfunc.dispatch.h_baseline.a.p/meson-generated_argfunc.dispatch.c.o
+      [202/516] Compiling C object
+      numpy/_core/libargfunc.dispatch.h_AVX512_SKX.a.p/meson-generated_argfunc.dispatch.c.o
+      [203/516] Compiling C object
+      numpy/_core/libargfunc.dispatch.h_AVX2.a.p/meson-generated_argfunc.dispatch.c.o
+      [204/516] Compiling C++ object
+      numpy/_core/libx86_simd_qsort.dispatch.h_AVX2.a.p/src_npysort_x86_simd_qsort.dispatch.cpp.o
+      [205/516] Compiling C++ object
+      numpy/_core/libx86_simd_qsort_16bit.dispatch.h_AVX512_ICL.a.p/src_npysort_x86_simd_qsort_16bit.dispatch.cpp.o
+      [206/516] Compiling C++ object
+      numpy/_core/libx86_simd_argsort.dispatch.h_AVX512_SKX.a.p/src_npysort_x86_simd_argsort.dispatch.cpp.o
+      [207/516] Compiling C++ object
+      numpy/_core/libx86_simd_qsort.dispatch.h_AVX512_SKX.a.p/src_npysort_x86_simd_qsort.dispatch.cpp.o
+      [208/516] Compiling C++ object
+      numpy/_core/libx86_simd_argsort.dispatch.h_AVX2.a.p/src_npysort_x86_simd_argsort.dispatch.cpp.o
+      ninja: build stopped: subcommand failed.
+
+
+hint: `numpy` (v2.2.6) was included because `lerobot` (v0.5.2) depends on `numpy`
+hint: Build failures usually indicate a problem with the package or the build environment=== verify ===
+
+hint: `numpy` (v2.2.6) was included because `lerobot` (v0.5.2) depends on `numpy`
+hint: Build failures usually indicate a problem with the package or the build environment(check policy.type=molmoact2 availability separately)
+INSTALL_DONE rc=0

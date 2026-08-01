@@ -1,0 +1,52 @@
+{
+  "source": "aha",
+  "split": "episode",
+  "seed": 0,
+  "train_frac": 0.7,
+  "n_train_success_runs": 7,
+  "n_calib_state_frames": 853,
+  "n_calib_embed_frames": 216,
+  "embed_dim": 1536,
+  "norm": {
+    "smd": [
+      3.8488211280323887,
+      1.064996022793202
+    ],
+    "rnd": [
+      0.010695898364945495,
+      0.0023638488495039446
+    ]
+  },
+  "threshold": 0.08387120480916657,
+  "pctl": 90.0,
+  "signals": [
+    "smd",
+    "rnd"
+  ],
+  "combine": "mean_capped_z(smd,rnd)",
+  "cap": 32.0,
+  "n_eval_runs": 16,
+  "n_fail": 13,
+  "n_succ": 3,
+  "auc_fail_vs_success": 0.8461538461538461,
+  "auc_per_signal": {
+    "smd": 1.0,
+    "rnd": 0.7692307692307693
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 1.0,
+  "per_failure_mode": {
+    "grasp": {
+      "n_fail": 10,
+      "auc_combined": 0.8666666666666667,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.7136000511755959
+    },
+    "slip": {
+      "n_fail": 3,
+      "auc_combined": 0.7777777777777778,
+      "caught_frac": 1.0,
+      "mean_peak_step_frac": 0.5483808628097683
+    }
+  }
+}

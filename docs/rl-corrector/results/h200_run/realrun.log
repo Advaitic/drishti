@@ -1,0 +1,30 @@
+===== stop leftover smoke procs =====
+===== 1. frontier profile (4x3 grid x4 trials = 48 baseline episodes) =====
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 25048.93it/s]
+/home/ubuntu/lerobot/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  34%|███▍      | 441/1295 [00:00<00:00, 4400.20it/s]Loading weights:  68%|██████▊   | 882/1295 [00:00<00:00, 1054.76it/s]Loading weights: 100%|██████████| 1295/1295 [00:00<00:00, 1672.18it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 14053.89it/s]
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 10039.75it/s]
+>>> profiling 12 positions x 4 baseline trials = 48 episodes
+libEGL warning: failed to open /dev/dri/renderD128: Permission denied
+
+libEGL warning: egl: failed to create dri2 screen
+  [1/12] (+0.215,-0.055)  success 0/4  progress~0.22  (188s)
+  [2/12] (+0.215,+0.000)  success 0/4  progress~0.30  (373s)
+  [3/12] (+0.215,+0.055)  success 0/4  progress~0.20  (568s)
+  [4/12] (+0.245,-0.055)  success 0/4  progress~0.30  (755s)
+  [5/12] (+0.245,+0.000)  success 0/4  progress~0.38  (945s)
+  [6/12] (+0.245,+0.055)  success 0/4  progress~0.26  (1131s)
+  [7/12] (+0.275,-0.055)  success 0/4  progress~0.30  (1309s)
+  [8/12] (+0.275,+0.000)  success 2/4  progress~0.79  (1465s)
+  [9/12] (+0.275,+0.055)  success 4/4  progress~1.00  (1538s)
+  [10/12] (+0.305,-0.055)  success 0/4  progress~0.30  (1711s)
+  [11/12] (+0.305,+0.000)  success 4/4  progress~1.00  (1715s)
+  [12/12] (+0.305,+0.055)  success 0/4  progress~0.21  (1890s)
+>>> 1 positions in [0.2,0.8] success band. always-succeed=2 never=9 frontier=1. wrote /home/ubuntu/drishti/data/frontier.json
+===== 2. inject curriculum + max_steps=40 =====
+curriculum band: [[0.275, 0.0]] | note: 1 positions in [0.2,0.8] success band
+configs updated
+===== 3. the 40-step run (dense reward + curriculum) =====

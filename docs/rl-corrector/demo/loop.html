@@ -40,7 +40,7 @@
   .title{font-family:var(--disp);font-weight:700;font-size:clamp(34px,4.6vw,60px);
     letter-spacing:-.01em;line-height:.96;margin-top:12px}
   .title em{font-style:normal;color:var(--muted)}
-  .sub{font-size:13.5px;color:var(--muted);margin-top:12px;max-width:44ch;line-height:1.55}
+  .sub{font-size:13.5px;color:var(--muted);margin-top:16px;max-width:46ch;line-height:1.9;letter-spacing:.02em}
   .sub b{color:var(--ink);font-weight:500}
 
   /* diagram */
@@ -59,14 +59,14 @@
   .packet{filter:drop-shadow(0 0 6px currentColor)}
 
   /* nodes */
-  .node{position:absolute;transform:translate(-50%,-50%);width:184px;
+  .node{position:absolute;transform:translate(-50%,-50%);width:190px;
     background:linear-gradient(180deg,#151a24,#0f131b);border:1px solid var(--edge);
-    border-radius:13px;padding:13px 14px;z-index:4;
+    border-radius:13px;padding:15px 17px;z-index:4;
     box-shadow:0 18px 40px -22px #000,inset 0 1px 0 rgba(255,255,255,.04);
     opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
-  .node .tag{font-size:10px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
-  .node .name{font-family:var(--disp);font-weight:600;font-size:19px;margin-top:3px;line-height:1.05}
-  .node .meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.35}
+  .node .tag{font-size:10px;letter-spacing:.26em;color:var(--faint);text-transform:uppercase}
+  .node .name{font-family:var(--disp);font-weight:600;font-size:19px;margin-top:6px;line-height:1.1}
+  .node .meta{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.65;letter-spacing:.02em}
   .node .dot{position:absolute;top:12px;right:12px;width:7px;height:7px;border-radius:50%}
   .node.accent{border-color:rgba(255,180,84,.4);box-shadow:0 0 0 1px rgba(255,180,84,.12),0 18px 44px -20px #000}
   .node.accent .name{color:var(--amber)}
@@ -81,21 +81,21 @@
   .n-fail{left:16%;top:50%;animation-delay:.44s}
 
   /* correction prompt callout */
-  .prompt{position:absolute;left:75%;top:19%;transform:translate(-50%,-50%);z-index:7;
-    background:#1b140a;border:1px solid var(--amber);border-radius:10px;padding:9px 13px;
-    font-size:12.5px;color:#ffd9a1;white-space:nowrap;
+  .prompt{position:absolute;left:77%;top:34%;transform:translate(-50%,-50%);z-index:7;
+    background:#1b140a;border:1px solid var(--amber);border-radius:10px;padding:11px 15px;
+    font-size:12.5px;letter-spacing:.03em;color:#ffd9a1;white-space:nowrap;
     box-shadow:0 0 22px -4px rgba(255,180,84,.5);opacity:0;animation:rise .6s ease .8s forwards}
   .prompt b{color:var(--amber);font-weight:600}
   .prompt .cur{display:inline-block;width:7px;height:15px;background:var(--amber);
-    vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+    vertical-align:-2px;margin-left:4px;animation:blink 1s steps(1) infinite}
   @keyframes blink{50%{opacity:0}}
-  .prompt::after{content:"";position:absolute;left:16px;bottom:-7px;width:12px;height:12px;
-    background:#1b140a;border-right:1px solid var(--amber);border-bottom:1px solid var(--amber);
+  .prompt::after{content:"";position:absolute;left:26px;top:-7px;width:12px;height:12px;
+    background:#1b140a;border-left:1px solid var(--amber);border-top:1px solid var(--amber);
     transform:rotate(45deg)}
 
   /* edge labels */
-  .elabel{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.02em}
-  .elabel.k{fill:var(--faint);font-size:9.5px;letter-spacing:.18em}
+  .elabel{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.05em}
+  .elabel.k{fill:var(--faint);font-size:9.5px;letter-spacing:.22em}
 
   /* legend + footer */
   .legend{position:absolute;right:44px;top:34px;z-index:6;text-align:right;font-size:11px;color:var(--muted)}
@@ -103,7 +103,7 @@
   .legend i{width:20px;height:2px;border-radius:2px;display:inline-block}
   .foot{position:absolute;left:44px;bottom:26px;right:44px;z-index:6;display:flex;
     justify-content:space-between;align-items:flex-end;gap:20px}
-  .foot .cap{font-size:12.5px;color:var(--muted);max-width:60ch;line-height:1.5}
+  .foot .cap{font-size:12.5px;color:var(--muted);max-width:62ch;line-height:1.75;letter-spacing:.015em}
   .foot .cap b{color:var(--ink);font-weight:500}
   .next{font-size:12px;color:var(--amber);letter-spacing:.16em;text-transform:uppercase;
     white-space:nowrap;display:flex;align-items:center;gap:9px}
@@ -151,14 +151,14 @@
           <path class="flow amber" d="M200,268 A340,225 0 0 1 438,140" marker-end="url(#ar-amber)"/>
 
           <!-- edge labels -->
-          <text class="elabel" x="720" y="150" text-anchor="middle">corrective prompt</text>
-          <text class="elabel k" x="720" y="166" text-anchor="middle">VLM → VLA</text>
-          <text class="elabel" x="800" y="500" text-anchor="middle">6-D joint actions</text>
-          <text class="elabel k" x="800" y="516" text-anchor="middle">receding horizon</text>
-          <text class="elabel" x="228" y="500" text-anchor="middle">rollout → success / spike</text>
-          <text class="elabel k" x="228" y="516" text-anchor="middle">MuJoCo step</text>
-          <text class="elabel" x="250" y="150" text-anchor="middle">failure report</text>
-          <text class="elabel k" x="250" y="166" text-anchor="middle">state · uncertainty · frames</text>
+          <text class="elabel" x="726" y="148" text-anchor="middle">corrective prompt</text>
+          <text class="elabel k" x="726" y="168" text-anchor="middle">VLM → VLA</text>
+          <text class="elabel" x="806" y="498" text-anchor="middle">6-D joint actions</text>
+          <text class="elabel k" x="806" y="518" text-anchor="middle">receding horizon</text>
+          <text class="elabel" x="222" y="498" text-anchor="middle">rollout → success / spike</text>
+          <text class="elabel k" x="222" y="518" text-anchor="middle">MuJoCo step</text>
+          <text class="elabel" x="244" y="148" text-anchor="middle">failure report</text>
+          <text class="elabel k" x="244" y="168" text-anchor="middle">state · uncertainty · frames</text>
           <text class="elabel" x="120" y="330" text-anchor="middle" transform="rotate(-90 120 330)"
             fill="var(--teal)">reward = task success → GRPO update</text>
 

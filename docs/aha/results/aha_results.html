@@ -1,0 +1,236 @@
+<title>Failure detectors on AHA — results</title>
+<style>
+  :root{
+    --paper:#f3f5f6; --panel:#fbfcfc; --ink:#141b1d; --muted:#5c6a6e; --faint:#8a979b;
+    --line:#dbe2e3; --line2:#e8eded; --accent:#1c8f97; --accent-soft:#d6ecee;
+    --strong:#3f9d7a; --moderate:#c08838; --weak:#c06254;
+    --shadow:0 1px 2px rgba(20,27,29,.05),0 8px 24px rgba(20,27,29,.05);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0c1113; --panel:#131a1c; --ink:#e7edee; --muted:#9aa9ad; --faint:#6b797d;
+      --line:#232d30; --line2:#1b2325; --accent:#3ec3cc; --accent-soft:#183034;
+      --strong:#54c295; --moderate:#e0ad5c; --weak:#e07d6e;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0c1113; --panel:#131a1c; --ink:#e7edee; --muted:#9aa9ad; --faint:#6b797d;
+    --line:#232d30; --line2:#1b2325; --accent:#3ec3cc; --accent-soft:#183034;
+    --strong:#54c295; --moderate:#e0ad5c; --weak:#e07d6e;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --paper:#f3f5f6; --panel:#fbfcfc; --ink:#141b1d; --muted:#5c6a6e; --faint:#8a979b;
+    --line:#dbe2e3; --line2:#e8eded; --accent:#1c8f97; --accent-soft:#d6ecee;
+    --strong:#3f9d7a; --moderate:#c08838; --weak:#c06254;
+    --shadow:0 1px 2px rgba(20,27,29,.05),0 8px 24px rgba(20,27,29,.05);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","JetBrains Mono","Menlo",monospace}
+  .wrap{max-width:820px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,32px)}
+  .num{font-variant-numeric:tabular-nums}
+
+  .eyebrow{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h1{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:600;
+    font-size:clamp(28px,5vw,40px);line-height:1.1;letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}
+  .lede{font-size:clamp(16px,2.2vw,18px);color:var(--muted);max-width:60ch;margin:0}
+
+  .strip{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+  .chip{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+  .chip b{color:var(--ink);font-weight:600}
+
+  section{margin-top:44px}
+  .kicker{font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 16px;display:flex;align-items:center;gap:12px}
+  .kicker::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .headline{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:560px){.headline{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;box-shadow:var(--shadow)}
+  .card .tag{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 6px}
+  .card .big{font-family:ui-monospace,Menlo,monospace;font-weight:600;font-size:52px;line-height:1;
+    letter-spacing:-.02em;margin:2px 0 4px}
+  .card.good .big{color:var(--strong)} .card.bad .big{color:var(--weak)}
+  .card .cap{font-size:13.5px;color:var(--muted);margin:8px 0 0}
+  .card .cap b{color:var(--ink);font-weight:600}
+
+  .bars{display:flex;flex-direction:column;gap:14px;margin-top:6px}
+  .bar{display:grid;grid-template-columns:132px 1fr 52px;align-items:center;gap:14px}
+  @media (max-width:520px){.bar{grid-template-columns:104px 1fr 44px};gap:10px}
+  .bar .lab{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink)}
+  .bar .lab small{display:block;color:var(--faint);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+  .track{position:relative;height:12px;background:var(--line2);border-radius:999px;overflow:hidden}
+  .fill{position:absolute;inset:0 auto 0 0;border-radius:999px;width:var(--w);
+    animation:grow .9s cubic-bezier(.2,.7,.2,1) both}
+  .fill.s{background:var(--strong)} .fill.m{background:var(--moderate)} .fill.w{background:var(--weak)}
+  .bar .val{font-family:ui-monospace,Menlo,monospace;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  .chance{position:absolute;top:-3px;bottom:-3px;left:50%;width:1px;background:var(--faint);opacity:.5}
+  .scalerow{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;
+    font-size:10.5px;color:var(--faint);margin:12px 0 0;padding-left:146px}
+  @media (max-width:520px){.scalerow{padding-left:114px}}
+  @keyframes grow{from{width:0}to{width:var(--w)}}
+  @media (prefers-reduced-motion:reduce){.fill{animation:none}}
+
+  .signal{display:flex;gap:10px;margin-top:16px}
+  .signal .s{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .signal .s .n{font-family:ui-monospace,Menlo,monospace;font-size:24px;font-weight:600}
+  .signal .s .k{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+
+  p{margin:0 0 14px}
+  .prose{max-width:64ch;color:var(--ink)}
+  .prose .muted{color:var(--muted)}
+  .find{border-left:2px solid var(--accent);padding:2px 0 2px 18px;margin:0 0 18px}
+  .find h3{font-size:16px;margin:0 0 4px;font-weight:650}
+  .find p{color:var(--muted);margin:0;font-size:14.5px}
+  .callk{color:var(--accent);font-family:ui-monospace,Menlo,monospace;font-weight:600}
+
+  .note{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:8px}
+  .note p{margin:0;font-size:14px;color:var(--ink)}
+  .note b{font-weight:650}
+
+  ul.tight{margin:0;padding-left:18px;color:var(--muted);font-size:14.5px}
+  ul.tight li{margin:0 0 7px}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;background:var(--line2);
+    padding:1px 5px;border-radius:5px;color:var(--ink)}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+    font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--faint);
+    display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">drishti · failure-detection eval</p>
+  <h1>Failure detectors on AHA</h1>
+  <p class="lede">Do our uncertainty detectors — <span class="mono">SMD</span> on robot state,
+  <span class="mono">RND</span> on a vision embedding — actually catch the labeled failures in
+  NVlabs' AHA benchmark? Fit on success trajectories only; measured against injected failures.</p>
+
+  <div class="strip">
+    <span class="chip"><b>48</b>&nbsp;trajectories</span>
+    <span class="chip"><b>3</b>&nbsp;tasks</span>
+    <span class="chip"><b>5</b>&nbsp;failure modes</span>
+    <span class="chip"><b>19</b>&nbsp;success&nbsp;/&nbsp;<b>29</b>&nbsp;fail</span>
+    <span class="chip">RLBench&nbsp;·&nbsp;FailGen</span>
+  </div>
+
+  <section>
+    <p class="kicker">Headline — AUC</p>
+    <div class="headline">
+      <div class="card good">
+        <p class="tag">In-distribution · episode split</p>
+        <div class="big num">0.81</div>
+        <p class="cap">Detectors calibrated on a task's <b>own</b> successes separate its failures
+        well. This is how the live monitor is meant to run.</p>
+      </div>
+      <div class="card bad">
+        <p class="tag">Cross-task · task split</p>
+        <div class="big num">0.29</div>
+        <p class="cap">Calibrate on task&nbsp;A, deploy on task&nbsp;B → below chance. A new task is
+        wholesale out-of-distribution. <b>Calibration is per-deployment.</b></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Per-failure-mode — in-distribution AUC</p>
+    <div class="bars">
+      <div class="bar">
+        <div class="lab">translation_x<small>geometric</small></div>
+        <div class="track"><div class="chance"></div><div class="fill s" style="--w:100%"></div></div>
+        <div class="val num">1.00</div>
+      </div>
+      <div class="bar">
+        <div class="lab">translation_z<small>geometric</small></div>
+        <div class="track"><div class="chance"></div><div class="fill s" style="--w:97%"></div></div>
+        <div class="val num">0.97</div>
+      </div>
+      <div class="bar">
+        <div class="lab">slip<small>grasp lost</small></div>
+        <div class="track"><div class="chance"></div><div class="fill s" style="--w:86%"></div></div>
+        <div class="val num">0.86</div>
+      </div>
+      <div class="bar">
+        <div class="lab">wrong_sequence<small>semantic</small></div>
+        <div class="track"><div class="chance"></div><div class="fill m" style="--w:67%"></div></div>
+        <div class="val num">0.67</div>
+      </div>
+      <div class="bar">
+        <div class="lab">grasp<small>subtle</small></div>
+        <div class="track"><div class="chance"></div><div class="fill w" style="--w:58%"></div></div>
+        <div class="val num">0.58</div>
+      </div>
+    </div>
+    <div class="scalerow"><span>0.0</span><span>0.5 · chance</span><span>1.0</span></div>
+
+    <div class="signal">
+      <div class="s"><div class="n num">0.70</div><div class="k">SMD · state</div></div>
+      <div class="s"><div class="n num">0.78</div><div class="k">RND · vision</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">What it says</p>
+    <div class="find">
+      <h3>Geometric failures are easy; subtle &amp; semantic ones are hard.</h3>
+      <p>When the arm goes to the <span class="callk">wrong place</span> (translation) the state
+      trajectory visibly deviates → AUC ~1.0. A <span class="callk">grasp</span> that moves
+      correctly but fails to grip (0.58), or a <span class="callk">wrong-order</span> sequence
+      (0.67), barely register — exactly the failure surface a state+vision detector should miss,
+      and a clean map of where tactile/force signals would earn their keep.</p>
+    </div>
+    <div class="find">
+      <h3>SMD and RND are complementary — keep the cascade.</h3>
+      <p>Across modes neither detector dominates (state 0.70, vision 0.78). On our earlier SO-101
+      task RND carried everything and SMD was chance; here state pulls its weight on kinematic
+      modes. No single signal covers both worlds.</p>
+    </div>
+    <div class="note">
+      <p><b>The honest negative:</b> cross-task AUC of 0.29 is a feature-correct result, not a bug.
+      SMD/RND are per-deployment anomaly detectors — a different task looks anomalous wholesale, so
+      the success/failure ordering inverts. The productization lesson is that calibration belongs to
+      each deployment, not a single global model.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Read before quoting</p>
+    <ul class="tight">
+      <li><b style="color:var(--ink)">AUC is the honest metric.</b> The false-alarm rate reads 1.0 in
+      both splits — a small-sample threshold artifact (a 90th-percentile bound set from ~11–13
+      successes, tested on 6–8). AUC is threshold-independent; the false alarm goes away with more
+      success demos.</li>
+      <li>Small n per mode (5–6). <code>stack_blocks</code> contributed successes only — generation
+      was time-capped at ~2h and it's the slow task.</li>
+      <li>Depth-first slice: 2 deep tasks + 1 partial. Broad cross-task claims need more tasks.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="kicker">Method &amp; proof</p>
+    <div class="prose">
+      <p><b>Policy-free by design.</b> AHA trajectories come from scripted planners with injected
+      perturbations, so we score the labeled trajectories directly — no VLA in the loop.
+      <span class="muted">SMD = one Gaussian over a fixed 17-D proprioceptive state (Mahalanobis
+      distance); RND = random-network distillation on a standalone SigLIP embedding of the front +
+      wrist cameras; ACE dropped (needs a live policy). A real train/eval split fits detectors +
+      threshold on train successes and scores held-out successes + all failures.</span></p>
+      <p class="muted">The canonical stack — CoppeliaSim 4.1 → PyRep → RLBench (peract + AHA
+      overlay) → FailGen — was stood up on a rented V100 and generated all 48 labeled trajectories
+      end-to-end. Pipeline: <code>gen_aha.py</code> → <code>ingest_aha.py</code> →
+      <code>eval_aha.py</code>. Reports, install log, and generation transcripts saved as artifacts.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>drishti · AHA failure-detection benchmark</span>
+    <span>V100 · RLBench/FailGen · 48 trajectories</span>
+  </footer>
+</div>

@@ -1,0 +1,99 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 36331.80it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  21%|██        | 274/1295 [00:00<00:00, 2735.52it/s]Loading weights:  42%|████▏     | 548/1295 [00:00<00:00, 2576.48it/s]Loading weights:  62%|██████▏   | 807/1295 [00:00<00:00, 867.29it/s] Loading weights:  75%|███████▍  | 969/1295 [00:01<00:00, 742.93it/s]Loading weights:  99%|█████████▉| 1285/1295 [00:01<00:00, 1119.70it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1118.36it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 12010.42it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4682.64it/s]
+[1/16] run_52435cab2a58 success=False rate=0/1
+[2/16] run_28e5506194e2 success=False rate=0/2
+[3/16] run_65a4efb0e447 success=True rate=1/3
+[4/16] run_dd68cbeb75e0 success=True rate=2/4
+[5/16] run_3647a707c306 success=True rate=3/5
+[6/16] run_feeed1412ece success=False rate=3/6
+[7/16] run_9c6e486eb54b success=False rate=3/7
+[8/16] run_34ec11b64bb3 success=False rate=3/8
+[9/16] run_bf9dfeccc130 success=True rate=4/9
+[10/16] run_2f211a933076 success=True rate=5/10
+[11/16] run_b0181f500b53 success=False rate=5/11
+[12/16] run_199977baf4e1 success=True rate=6/12
+[13/16] run_b033a4032d9f success=True rate=7/13
+[14/16] run_5c1cde659b97 success=True rate=8/14
+[15/16] run_f656114f304f success=True rate=9/15
+[16/16] run_ea6a0469c6bf success=True rate=10/16
+done: 10/16 success. Next: python -m drishti.calibrate --auto
+===CALIBRATE===
+calibrating on 10 successful runs · 566 state-frames · 566 embed-frames · embed_dim 1536
+{
+  "threshold": 0.10724273766170005,
+  "pctl": 90.0,
+  "n_success_runs_calib": 10,
+  "n_calib_steps": 566,
+  "embed_dim": 1536,
+  "combine": "mean_capped_z(smd,rnd,act)",
+  "cap": 32.0,
+  "norm": {
+    "smd": [
+      2.1413442181492566,
+      1.1494886540890397
+    ],
+    "rnd": [
+      0.006618964655716433,
+      0.002008070062247185
+    ],
+    "act": [
+      0.12452059475760194,
+      0.27586897987516307
+    ]
+  },
+  "n_runs_scored": 16,
+  "n_fail_runs": 6,
+  "n_succ_runs": 10,
+  "auc_fail_vs_success": 1.0,
+  "auc_per_signal": {
+    "smd": 0.5166666666666667,
+    "rnd": 1.0,
+    "act": 0.43333333333333335
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 0.1,
+  "mean_lead_steps_on_caught_fails": 127.5
+}
+===REPORT===
+{
+  "threshold": 0.10724273766170005,
+  "pctl": 90.0,
+  "n_success_runs_calib": 10,
+  "n_calib_steps": 566,
+  "embed_dim": 1536,
+  "combine": "mean_capped_z(smd,rnd,act)",
+  "cap": 32.0,
+  "norm": {
+    "smd": [
+      2.1413442181492566,
+      1.1494886540890397
+    ],
+    "rnd": [
+      0.006618964655716433,
+      0.002008070062247185
+    ],
+    "act": [
+      0.12452059475760194,
+      0.27586897987516307
+    ]
+  },
+  "n_runs_scored": 16,
+  "n_fail_runs": 6,
+  "n_succ_runs": 10,
+  "auc_fail_vs_success": 1.0,
+  "auc_per_signal": {
+    "smd": 0.5166666666666667,
+    "rnd": 1.0,
+    "act": 0.43333333333333335
+  },
+  "fail_caught_frac": 1.0,
+  "false_alarm_frac": 0.1,
+  "mean_lead_steps_on_caught_fails": 127.5
+}===END===

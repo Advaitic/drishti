@@ -1,0 +1,10 @@
+[pick_and_lift] success: 10/10
+[pick_and_lift] grasp: 3/10
+[pick_and_lift] slip: 3/10
+[pick_and_lift] translation_x: 3/10
+[pick_and_lift] translation_z: 3/10
+[pick_and_lift] rotation_z: not available for this task, skipping
+[pick_and_lift] wrong_object: not available for this task, skipping
+[pick_and_lift] wrong_sequence: 3/10
+[pick_and_lift] no_rotation: not available for this task, skipping
+WARNING: QApplication was not created in the main() thread.

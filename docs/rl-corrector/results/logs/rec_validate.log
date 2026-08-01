@@ -1,0 +1,16 @@
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 12714.29it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 317/1295 [00:00<00:00, 3164.29it/s]Loading weights:  49%|████▉     | 634/1295 [00:00<00:00, 1996.25it/s]Loading weights:  66%|██████▋   | 858/1295 [00:00<00:00, 842.75it/s] Loading weights:  77%|███████▋  | 1000/1295 [00:00<00:00, 883.86it/s]Loading weights:  99%|█████████▉| 1285/1295 [00:01<00:00, 1241.91it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1217.28it/s]
+Loading weights from local directory
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 11148.47it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4821.88it/s]
+[1/2] run_bfdb12ab7114 success=False rate=0/1
+[2/2] run_99ff99bcab01 success=False rate=0/2
+done: 0/2 success. Next: python -m drishti.calibrate --auto
+
+real	5m3.920s
+user	10m29.448s
+sys	0m41.259s

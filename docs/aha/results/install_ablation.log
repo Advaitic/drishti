@@ -1,0 +1,756 @@
++ export DEBIAN_FRONTEND=noninteractive
++ DEBIAN_FRONTEND=noninteractive
++ cd /root
++ rm -f /root/INSTALL_DONE /root/INSTALL_FAIL
++ export COPPELIASIM_ROOT=/root/CoppeliaSim
++ COPPELIASIM_ROOT=/root/CoppeliaSim
++ export LD_LIBRARY_PATH=:/root/CoppeliaSim
++ LD_LIBRARY_PATH=:/root/CoppeliaSim
++ export QT_QPA_PLATFORM_PLUGIN_PATH=/root/CoppeliaSim
++ QT_QPA_PLATFORM_PLUGIN_PATH=/root/CoppeliaSim
++ export DISPLAY=:99
++ DISPLAY=:99
++ step 'apt deps'
+++ date -u +%H:%M:%S
++ echo '===== STEP: apt deps ===== 07:47:09'
+===== STEP: apt deps ===== 07:47:09
++ apt-get update -y
+Hit:1 https://download.docker.com/linux/ubuntu jammy InRelease
+Hit:2 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease
+Hit:3 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy InRelease
+Hit:4 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:5 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:6 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-backports InRelease
+Reading package lists...
++ apt-get install -y --no-install-recommends git wget xz-utils build-essential ca-certificates xvfb libgl1-mesa-glx libgl1-mesa-dri libglib2.0-0 libx11-6 libxcb1 libxext6 libsm6 libice6 libxrender1 libfontconfig1 libxkbcommon-x11-0 libdbus-1-3 libxcb-xinerama0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xkb1 libxcb-shape0 libxcb-util1 python3-venv python3-dev libffi-dev libssl-dev
+Reading package lists...
+Building dependency tree...
+Reading state information...
+build-essential is already the newest version (12.9ubuntu3).
+build-essential set to manually installed.
+libfontconfig1 is already the newest version (2.13.1-4.2ubuntu5).
+libfontconfig1 set to manually installed.
+libice6 is already the newest version (2:1.0.10-1build2).
+libice6 set to manually installed.
+libsm6 is already the newest version (2:1.2.3-1build2).
+libsm6 set to manually installed.
+libxcb-icccm4 is already the newest version (0.4.1-1.1build2).
+libxcb-icccm4 set to manually installed.
+libxcb-image0 is already the newest version (0.4.0-2).
+libxcb-image0 set to manually installed.
+libxcb-keysyms1 is already the newest version (0.4.0-1build3).
+libxcb-keysyms1 set to manually installed.
+libxcb-randr0 is already the newest version (1.14-3ubuntu3).
+libxcb-randr0 set to manually installed.
+libxcb-render-util0 is already the newest version (0.3.9-1build3).
+libxcb-render-util0 set to manually installed.
+libxcb-shape0 is already the newest version (1.14-3ubuntu3).
+libxcb-shape0 set to manually installed.
+libxcb-util1 is already the newest version (0.4.0-1build2).
+libxcb-util1 set to manually installed.
+libxcb-xinerama0 is already the newest version (1.14-3ubuntu3).
+libxcb-xinerama0 set to manually installed.
+libxcb-xkb1 is already the newest version (1.14-3ubuntu3).
+libxcb-xkb1 set to manually installed.
+libxcb1 is already the newest version (1.14-3ubuntu3).
+libxcb1 set to manually installed.
+libxext6 is already the newest version (2:1.3.4-1build1).
+libxext6 set to manually installed.
+libxkbcommon-x11-0 is already the newest version (1.4.0-1).
+libxkbcommon-x11-0 set to manually installed.
+libxrender1 is already the newest version (1:0.9.10-1build4).
+libxrender1 set to manually installed.
+libdbus-1-3 is already the newest version (1.12.20-2ubuntu4.1).
+libdbus-1-3 set to manually installed.
+libglib2.0-0 is already the newest version (2.72.4-0ubuntu2.9).
+libglib2.0-0 set to manually installed.
+libx11-6 is already the newest version (2:1.7.5-1ubuntu0.3).
+libx11-6 set to manually installed.
+wget is already the newest version (1.21.2-2ubuntu1.1).
+wget set to manually installed.
+Suggested packages:
+  git-daemon-run | git-daemon-sysvinit git-doc git-email git-gui gitk gitweb
+  git-cvs git-mediawiki git-svn libssl-doc python3.10-doc binfmt-support
+Recommended packages:
+  libgl1-amber-dri javascript-common
+The following NEW packages will be installed:
+  libexpat1-dev libffi-dev libgl1-mesa-glx libjs-jquery libjs-sphinxdoc
+  libjs-underscore libpython3-dev libpython3.10-dev libssl-dev python3-dev
+  python3-pip-whl python3-setuptools-whl python3-venv python3.10-dev
+  python3.10-venv xvfb zlib1g-dev
+The following packages will be upgraded:
+  ca-certificates git libegl-mesa0 libgbm1 libgl1-mesa-dri libglapi-mesa
+  libglx-mesa0 libpython3.10 libpython3.10-minimal libpython3.10-stdlib
+  libssl3 python3.10 python3.10-minimal xz-utils
+14 upgraded, 17 newly installed, 0 to remove and 176 not upgraded.
+Need to get 33.9 MB of archives.
+After this operation, 42.4 MB of additional disk space will be used.
+Get:1 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpython3.10 amd64 3.10.12-1~22.04.16 [1950 kB]
+Get:2 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libssl3 amd64 3.0.2-0ubuntu1.25 [1906 kB]
+Get:3 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3.10 amd64 3.10.12-1~22.04.16 [508 kB]
+Get:4 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpython3.10-stdlib amd64 3.10.12-1~22.04.16 [1850 kB]
+Get:5 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3.10-minimal amd64 3.10.12-1~22.04.16 [2254 kB]
+Get:6 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpython3.10-minimal amd64 3.10.12-1~22.04.16 [817 kB]
+Get:7 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 ca-certificates all 20260601~22.04.1 [141 kB]
+Get:8 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 xz-utils amd64 5.2.5-2ubuntu1.1 [84.8 kB]
+Get:9 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 git amd64 1:2.34.1-1ubuntu1.17 [3174 kB]
+Get:10 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libegl-mesa0 amd64 23.2.1-1ubuntu3.1~22.04.4 [118 kB]
+Get:11 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libgbm1 amd64 23.2.1-1ubuntu3.1~22.04.4 [33.7 kB]
+Get:12 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libgl1-mesa-dri amd64 23.2.1-1ubuntu3.1~22.04.4 [8860 kB]
+Get:13 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libglx-mesa0 amd64 23.2.1-1ubuntu3.1~22.04.4 [158 kB]
+Get:14 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libglapi-mesa amd64 23.2.1-1ubuntu3.1~22.04.4 [35.6 kB]
+Get:15 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libexpat1-dev amd64 2.4.7-1ubuntu0.7 [148 kB]
+Get:16 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libgl1-mesa-glx amd64 23.0.4-0ubuntu1~22.04.1 [5584 B]
+Get:17 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy/main amd64 libjs-jquery all 3.6.0+dfsg+~3.5.13-1 [321 kB]
+Get:18 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy/main amd64 libjs-underscore all 1.13.2~dfsg-2 [118 kB]
+Get:19 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy/main amd64 libjs-sphinxdoc all 4.3.2-1 [139 kB]
+Get:20 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 zlib1g-dev amd64 1:1.2.11.dfsg-2ubuntu9.2 [164 kB]
+Get:21 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpython3.10-dev amd64 3.10.12-1~22.04.16 [4766 kB]
+Get:22 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpython3-dev amd64 3.10.6-1~22.04.1 [7064 B]
+Get:23 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libssl-dev amd64 3.0.2-0ubuntu1.25 [2377 kB]
+Get:24 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3.10-dev amd64 3.10.12-1~22.04.16 [508 kB]
+Get:25 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3-dev amd64 3.10.6-1~22.04.1 [26.0 kB]
+Get:26 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 python3-pip-whl all 22.0.2+dfsg-1ubuntu0.7 [1683 kB]
+Get:27 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 python3-setuptools-whl all 59.6.0-1.2ubuntu0.22.04.3 [789 kB]
+Get:28 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 python3.10-venv amd64 3.10.12-1~22.04.16 [5724 B]
+Get:29 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 python3-venv amd64 3.10.6-1~22.04.1 [1042 B]
+Get:30 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 xvfb amd64 2:21.1.4-2ubuntu1.7~22.04.16 [866 kB]
+Get:31 http://fin-01.clouds.archive.ubuntu.com/ubuntu jammy/main amd64 libffi-dev amd64 3.4.2-4 [63.7 kB]
+Preconfiguring packages ...
+Fetched 33.9 MB in 1s (41.0 MB/s)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 117355 files and directories currently installed.)
+Preparing to unpack .../libpython3.10_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking libpython3.10:amd64 (3.10.12-1~22.04.16) over (3.10.12-1~22.04.14) ...
+Preparing to unpack .../libssl3_3.0.2-0ubuntu1.25_amd64.deb ...
+Unpacking libssl3:amd64 (3.0.2-0ubuntu1.25) over (3.0.2-0ubuntu1.21) ...
+Setting up libssl3:amd64 (3.0.2-0ubuntu1.25) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 117355 files and directories currently installed.)
+Preparing to unpack .../00-python3.10_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking python3.10 (3.10.12-1~22.04.16) over (3.10.12-1~22.04.14) ...
+Preparing to unpack .../01-libpython3.10-stdlib_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking libpython3.10-stdlib:amd64 (3.10.12-1~22.04.16) over (3.10.12-1~22.04.14) ...
+Preparing to unpack .../02-python3.10-minimal_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking python3.10-minimal (3.10.12-1~22.04.16) over (3.10.12-1~22.04.14) ...
+Preparing to unpack .../03-libpython3.10-minimal_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking libpython3.10-minimal:amd64 (3.10.12-1~22.04.16) over (3.10.12-1~22.04.14) ...
+Preparing to unpack .../04-ca-certificates_20260601~22.04.1_all.deb ...
+Unpacking ca-certificates (20260601~22.04.1) over (20240203~22.04.1) ...
+Preparing to unpack .../05-xz-utils_5.2.5-2ubuntu1.1_amd64.deb ...
+Unpacking xz-utils (5.2.5-2ubuntu1.1) over (5.2.5-2ubuntu1) ...
+Preparing to unpack .../06-git_1%3a2.34.1-1ubuntu1.17_amd64.deb ...
+Unpacking git (1:2.34.1-1ubuntu1.17) over (1:2.34.1-1ubuntu1.15) ...
+Preparing to unpack .../07-libegl-mesa0_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+Unpacking libegl-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) over (23.2.1-1ubuntu3.1~22.04.3) ...
+Preparing to unpack .../08-libgbm1_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+Unpacking libgbm1:amd64 (23.2.1-1ubuntu3.1~22.04.4) over (23.2.1-1ubuntu3.1~22.04.3) ...
+Preparing to unpack .../09-libgl1-mesa-dri_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+Unpacking libgl1-mesa-dri:amd64 (23.2.1-1ubuntu3.1~22.04.4) over (23.2.1-1ubuntu3.1~22.04.3) ...
+Preparing to unpack .../10-libglx-mesa0_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+Unpacking libglx-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) over (23.2.1-1ubuntu3.1~22.04.3) ...
+Preparing to unpack .../11-libglapi-mesa_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+Unpacking libglapi-mesa:amd64 (23.2.1-1ubuntu3.1~22.04.4) over (23.2.1-1ubuntu3.1~22.04.3) ...
+Selecting previously unselected package libexpat1-dev:amd64.
+Preparing to unpack .../12-libexpat1-dev_2.4.7-1ubuntu0.7_amd64.deb ...
+Unpacking libexpat1-dev:amd64 (2.4.7-1ubuntu0.7) ...
+Selecting previously unselected package libgl1-mesa-glx:amd64.
+Preparing to unpack .../13-libgl1-mesa-glx_23.0.4-0ubuntu1~22.04.1_amd64.deb ...
+Unpacking libgl1-mesa-glx:amd64 (23.0.4-0ubuntu1~22.04.1) ...
+Selecting previously unselected package libjs-jquery.
+Preparing to unpack .../14-libjs-jquery_3.6.0+dfsg+~3.5.13-1_all.deb ...
+Unpacking libjs-jquery (3.6.0+dfsg+~3.5.13-1) ...
+Selecting previously unselected package libjs-underscore.
+Preparing to unpack .../15-libjs-underscore_1.13.2~dfsg-2_all.deb ...
+Unpacking libjs-underscore (1.13.2~dfsg-2) ...
+Selecting previously unselected package libjs-sphinxdoc.
+Preparing to unpack .../16-libjs-sphinxdoc_4.3.2-1_all.deb ...
+Unpacking libjs-sphinxdoc (4.3.2-1) ...
+Selecting previously unselected package zlib1g-dev:amd64.
+Preparing to unpack .../17-zlib1g-dev_1%3a1.2.11.dfsg-2ubuntu9.2_amd64.deb ...
+Unpacking zlib1g-dev:amd64 (1:1.2.11.dfsg-2ubuntu9.2) ...
+Selecting previously unselected package libpython3.10-dev:amd64.
+Preparing to unpack .../18-libpython3.10-dev_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking libpython3.10-dev:amd64 (3.10.12-1~22.04.16) ...
+Selecting previously unselected package libpython3-dev:amd64.
+Preparing to unpack .../19-libpython3-dev_3.10.6-1~22.04.1_amd64.deb ...
+Unpacking libpython3-dev:amd64 (3.10.6-1~22.04.1) ...
+Selecting previously unselected package libssl-dev:amd64.
+Preparing to unpack .../20-libssl-dev_3.0.2-0ubuntu1.25_amd64.deb ...
+Unpacking libssl-dev:amd64 (3.0.2-0ubuntu1.25) ...
+Selecting previously unselected package python3.10-dev.
+Preparing to unpack .../21-python3.10-dev_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking python3.10-dev (3.10.12-1~22.04.16) ...
+Selecting previously unselected package python3-dev.
+Preparing to unpack .../22-python3-dev_3.10.6-1~22.04.1_amd64.deb ...
+Unpacking python3-dev (3.10.6-1~22.04.1) ...
+Selecting previously unselected package python3-pip-whl.
+Preparing to unpack .../23-python3-pip-whl_22.0.2+dfsg-1ubuntu0.7_all.deb ...
+Unpacking python3-pip-whl (22.0.2+dfsg-1ubuntu0.7) ...
+Selecting previously unselected package python3-setuptools-whl.
+Preparing to unpack .../24-python3-setuptools-whl_59.6.0-1.2ubuntu0.22.04.3_all.deb ...
+Unpacking python3-setuptools-whl (59.6.0-1.2ubuntu0.22.04.3) ...
+Selecting previously unselected package python3.10-venv.
+Preparing to unpack .../25-python3.10-venv_3.10.12-1~22.04.16_amd64.deb ...
+Unpacking python3.10-venv (3.10.12-1~22.04.16) ...
+Selecting previously unselected package python3-venv.
+Preparing to unpack .../26-python3-venv_3.10.6-1~22.04.1_amd64.deb ...
+Unpacking python3-venv (3.10.6-1~22.04.1) ...
+Selecting previously unselected package xvfb.
+Preparing to unpack .../27-xvfb_2%3a21.1.4-2ubuntu1.7~22.04.16_amd64.deb ...
+Unpacking xvfb (2:21.1.4-2ubuntu1.7~22.04.16) ...
+Selecting previously unselected package libffi-dev:amd64.
+Preparing to unpack .../28-libffi-dev_3.4.2-4_amd64.deb ...
+Unpacking libffi-dev:amd64 (3.4.2-4) ...
+Setting up python3-setuptools-whl (59.6.0-1.2ubuntu0.22.04.3) ...
+Setting up libgbm1:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+Setting up xvfb (2:21.1.4-2ubuntu1.7~22.04.16) ...
+Setting up libffi-dev:amd64 (3.4.2-4) ...
+Setting up ca-certificates (20260601~22.04.1) ...
+Updating certificates in /etc/ssl/certs...
+rehash: warning: skipping ca-certificates.crt,it does not contain exactly one certificate or CRL
+14 added, 39 removed; done.
+Setting up libexpat1-dev:amd64 (2.4.7-1ubuntu0.7) ...
+Setting up xz-utils (5.2.5-2ubuntu1.1) ...
+Setting up libssl-dev:amd64 (3.0.2-0ubuntu1.25) ...
+Setting up libpython3.10-minimal:amd64 (3.10.12-1~22.04.16) ...
+Setting up git (1:2.34.1-1ubuntu1.17) ...
+Setting up libglapi-mesa:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+Setting up zlib1g-dev:amd64 (1:1.2.11.dfsg-2ubuntu9.2) ...
+Setting up libjs-jquery (3.6.0+dfsg+~3.5.13-1) ...
+Setting up libjs-underscore (1.13.2~dfsg-2) ...
+Setting up python3-pip-whl (22.0.2+dfsg-1ubuntu0.7) ...
+Setting up libgl1-mesa-dri:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+Setting up python3.10-minimal (3.10.12-1~22.04.16) ...
+Setting up libpython3.10-stdlib:amd64 (3.10.12-1~22.04.16) ...
+Setting up libegl-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+Setting up libjs-sphinxdoc (4.3.2-1) ...
+Setting up libpython3.10:amd64 (3.10.12-1~22.04.16) ...
+Setting up libglx-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+Setting up python3.10 (3.10.12-1~22.04.16) ...
+Setting up libpython3.10-dev:amd64 (3.10.12-1~22.04.16) ...
+Setting up python3.10-dev (3.10.12-1~22.04.16) ...
+Setting up libgl1-mesa-glx:amd64 (23.0.4-0ubuntu1~22.04.1) ...
+Setting up libpython3-dev:amd64 (3.10.6-1~22.04.1) ...
+Setting up python3.10-venv (3.10.12-1~22.04.16) ...
+Setting up python3-venv (3.10.6-1~22.04.1) ...
+Setting up python3-dev (3.10.6-1~22.04.1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.13) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for install-info (6.8-4build1) ...
+Processing triggers for ca-certificates (20260601~22.04.1) ...
+Updating certificates in /etc/ssl/certs...
+0 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d...
+
+done.
+done.
+
+Running kernel seems to be up-to-date.
+
+Services to be restarted:
+ systemctl restart packagekit.service
+ systemctl restart ssh.service
+ systemctl restart systemd-journald.service
+ /etc/needrestart/restart.d/systemd-manager
+ systemctl restart systemd-networkd.service
+ systemctl restart systemd-resolved.service
+ systemctl restart systemd-timesyncd.service
+ systemctl restart systemd-udevd.service
+
+Service restarts being deferred:
+ systemctl restart networkd-dispatcher.service
+ systemctl restart systemd-logind.service
+ systemctl restart unattended-upgrades.service
+ systemctl restart user@0.service
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
++ step 'CoppeliaSim v4.1'
+++ date -u +%H:%M:%S
++ echo '===== STEP: CoppeliaSim v4.1 ===== 07:47:37'
+===== STEP: CoppeliaSim v4.1 ===== 07:47:37
++ cd /root
++ '[' '!' -d /root/CoppeliaSim ']'
++ wget -q https://downloads.coppeliarobotics.com/V4_1_0/CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz -O cs.tar.xz
++ tar -xf cs.tar.xz
++ mv CoppeliaSim_Edu_V4_1_0_Ubuntu20_04 CoppeliaSim
++ rm -f cs.tar.xz
++ cat
++ step 'python venv (create if missing)'
+++ date -u +%H:%M:%S
++ echo '===== STEP: python venv (create if missing) ===== 07:47:51'
+===== STEP: python venv (create if missing) ===== 07:47:51
++ '[' -d /root/aha-venv ']'
++ python3 -m venv /root/aha-venv
++ source /root/aha-venv/bin/activate
+++ deactivate nondestructive
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ '[' -n /usr/bin/bash -o -n '' ']'
+++ hash -r
+++ '[' -n '' ']'
+++ unset VIRTUAL_ENV
+++ unset VIRTUAL_ENV_PROMPT
+++ '[' '!' nondestructive = nondestructive ']'
+++ VIRTUAL_ENV=/root/aha-venv
+++ export VIRTUAL_ENV
+++ _OLD_VIRTUAL_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+++ PATH=/root/aha-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+++ export PATH
+++ '[' -n '' ']'
+++ '[' -z '' ']'
+++ _OLD_VIRTUAL_PS1=
+++ PS1='(aha-venv) '
+++ export PS1
+++ VIRTUAL_ENV_PROMPT='(aha-venv) '
+++ export VIRTUAL_ENV_PROMPT
+++ '[' -n /usr/bin/bash -o -n '' ']'
+++ hash -r
++ pip install --upgrade pip wheel setuptools
+Requirement already satisfied: pip in ./aha-venv/lib/python3.10/site-packages (22.0.2)
+Collecting pip
+  Downloading pip-26.1.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 14.8 MB/s eta 0:00:00
+Collecting wheel
+  Downloading wheel-0.47.0-py3-none-any.whl (32 kB)
+Requirement already satisfied: setuptools in ./aha-venv/lib/python3.10/site-packages (59.6.0)
+Collecting setuptools
+  Downloading setuptools-83.0.0-py3-none-any.whl (1.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 21.7 MB/s eta 0:00:00
+Collecting packaging>=24.0
+  Downloading packaging-26.2-py3-none-any.whl (100 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.2/100.2 KB 13.8 MB/s eta 0:00:00
+Installing collected packages: setuptools, pip, packaging, wheel
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 59.6.0
+    Uninstalling setuptools-59.6.0:
+      Successfully uninstalled setuptools-59.6.0
+  Attempting uninstall: pip
+    Found existing installation: pip 22.0.2
+    Uninstalling pip-22.0.2:
+      Successfully uninstalled pip-22.0.2
+Successfully installed packaging-26.2 pip-26.1.2 setuptools-83.0.0 wheel-0.47.0
++ python -c 'import numpy'
++ pip install numpy==1.23.5 cffi
+Collecting numpy==1.23.5
+  Downloading numpy-1.23.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.3 kB)
+Collecting cffi
+  Downloading cffi-2.1.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+Collecting pycparser (from cffi)
+  Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Downloading numpy-1.23.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (17.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 79.6 MB/s  0:00:00
+Downloading cffi-2.1.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (218 kB)
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+Installing collected packages: pycparser, numpy, cffi
+
+Successfully installed cffi-2.1.0 numpy-1.23.5 pycparser-3.0
++ step 'PyRep (skip if importable)'
+++ date -u +%H:%M:%S
++ echo '===== STEP: PyRep (skip if importable) ===== 07:48:01'
+===== STEP: PyRep (skip if importable) ===== 07:48:01
++ cd /root
++ '[' -d PyRep ']'
++ git clone -q https://github.com/stepjam/PyRep.git
++ python -c 'import pyrep'
++ cd PyRep
++ pip install -r requirements.txt
+Requirement already satisfied: numpy in /root/aha-venv/lib/python3.10/site-packages (from -r requirements.txt (line 1)) (1.23.5)
+Collecting cffi==1.14.2 (from -r requirements.txt (line 2))
+  Downloading cffi-1.14.2.tar.gz (470 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: pycparser in /root/aha-venv/lib/python3.10/site-packages (from cffi==1.14.2->-r requirements.txt (line 2)) (3.0)
+Building wheels for collected packages: cffi
+  Building wheel for cffi (pyproject.toml): started
+  Building wheel for cffi (pyproject.toml): finished with status 'done'
+  Created wheel for cffi: filename=cffi-1.14.2-cp310-cp310-linux_x86_64.whl size=379338 sha256=343b3c6bf51f1bdb6894ce33b65cf26f5597dc2ac9b24d13ba9e37f150b557b9
+  Stored in directory: /root/.cache/pip/wheels/4e/60/de/b1655dca98eb75e541d1cf805bf68f85bc4ee8f60cea7def4c
+Successfully built cffi
+Installing collected packages: cffi
+  Attempting uninstall: cffi
+    Found existing installation: cffi 2.1.0
+    Uninstalling cffi-2.1.0:
+      Successfully uninstalled cffi-2.1.0
+Successfully installed cffi-1.14.2
++ pip install .
+Processing ./.
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: cffi>=1.0.0 in /root/aha-venv/lib/python3.10/site-packages (from PyRep==4.1.0.3) (1.14.2)
+Requirement already satisfied: pycparser in /root/aha-venv/lib/python3.10/site-packages (from cffi>=1.0.0->PyRep==4.1.0.3) (3.0)
+Building wheels for collected packages: PyRep
+  Building wheel for PyRep (pyproject.toml): started
+  Building wheel for PyRep (pyproject.toml): finished with status 'done'
+  Created wheel for PyRep: filename=pyrep-4.1.0.3-cp310-cp310-linux_x86_64.whl size=539202 sha256=efd8cc8f3e7e6961ae982fbbb6ca6decdf8befe103f172169459d67ad9e40a2a
+  Stored in directory: /tmp/pip-ephem-wheel-cache-itfe5qz3/wheels/07/01/61/f5e0c3df6a1c45170bdc536fda157c81c90ecc1a00c047cbb1
+Successfully built PyRep
+Installing collected packages: PyRep
+Successfully installed PyRep-4.1.0.3
++ step 'clone NVlabs/AHA'
+++ date -u +%H:%M:%S
++ echo '===== STEP: clone NVlabs/AHA ===== 07:48:31'
+===== STEP: clone NVlabs/AHA ===== 07:48:31
++ cd /root
++ '[' -d AHA ']'
++ git clone -q https://github.com/NVlabs/AHA.git
++ step 'RLBench (MohitShridhar peract fork + AHA overlay via update.py)'
+++ date -u +%H:%M:%S
++ echo '===== STEP: RLBench (MohitShridhar peract fork + AHA overlay via update.py) ===== 07:48:35'
+===== STEP: RLBench (MohitShridhar peract fork + AHA overlay via update.py) ===== 07:48:35
++ cd /root/AHA
++ '[' -d RLBench ']'
++ git clone -q -b peract https://github.com/MohitShridhar/RLBench.git
++ python update.py
+Starting file replacement for 6 files...
+Replaced './RLBench/rlbench/backend/observation.py' with './aha/Data_Generation/RLBench/rlbench/backend/observation.py'
+Replaced './RLBench/rlbench/backend/scene.py' with './aha/Data_Generation/RLBench/rlbench/backend/scene.py'
+Replaced './RLBench/rlbench/backend/waypoints.py' with './aha/Data_Generation/RLBench/rlbench/backend/waypoints.py'
+Replaced './RLBench/rlbench/demo.py' with './aha/Data_Generation/RLBench/rlbench/demo.py'
+Replaced './RLBench/rlbench/observation_config.py' with './aha/Data_Generation/RLBench/rlbench/observation_config.py'
+Replaced './RLBench/rlbench/task_environment.py' with './aha/Data_Generation/RLBench/rlbench/task_environment.py'
+File replacement completed successfully.
++ python -c 'import rlbench'
++ cd /root/AHA/RLBench
++ pip install -r requirements.txt
+Requirement already satisfied: numpy in /root/aha-venv/lib/python3.10/site-packages (from -r requirements.txt (line 1)) (1.23.5)
+Collecting Pillow (from -r requirements.txt (line 2))
+  Downloading pillow-12.3.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pyquaternion (from -r requirements.txt (line 3))
+  Downloading pyquaternion-0.9.9-py3-none-any.whl.metadata (1.4 kB)
+Collecting html-testRunner (from -r requirements.txt (line 4))
+  Downloading html_testRunner-1.2.1-py2.py3-none-any.whl.metadata (2.1 kB)
+Requirement already satisfied: setuptools in /root/aha-venv/lib/python3.10/site-packages (from -r requirements.txt (line 5)) (83.0.0)
+Collecting natsort (from -r requirements.txt (line 6))
+  Downloading natsort-8.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting Jinja2>=2.10.1 (from html-testRunner->-r requirements.txt (line 4))
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=2.10.1->html-testRunner->-r requirements.txt (line 4))
+  Downloading markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Downloading pillow-12.3.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 70.0 MB/s  0:00:00
+Downloading pyquaternion-0.9.9-py3-none-any.whl (14 kB)
+Downloading html_testRunner-1.2.1-py2.py3-none-any.whl (11 kB)
+Downloading natsort-8.4.0-py3-none-any.whl (38 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Installing collected packages: pyquaternion, Pillow, natsort, MarkupSafe, Jinja2, html-testRunner
+
+Successfully installed Jinja2-3.1.6 MarkupSafe-3.0.3 Pillow-12.3.0 html-testRunner-1.2.1 natsort-8.4.0 pyquaternion-0.9.9
++ pip install -e .
+Obtaining file:///root/AHA/RLBench
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: rlbench
+  Building editable for rlbench (pyproject.toml): started
+  Building editable for rlbench (pyproject.toml): finished with status 'done'
+  Created wheel for rlbench: filename=rlbench-1.2.0-0.editable-py3-none-any.whl size=7310 sha256=e42cbdbb82bdab4ee2ccc779861fc4cfe07d58c9c20c61cdac973fde21cb0a98
+  Stored in directory: /tmp/pip-ephem-wheel-cache-nqctrdbw/wheels/13/ab/6e/4c9603017c5cbdf4854cf516a1028bc1ad456af758e7c5175e
+Successfully built rlbench
+Installing collected packages: rlbench
+Successfully installed rlbench-1.2.0
++ step 'failgen (skip if importable)'
+++ date -u +%H:%M:%S
++ echo '===== STEP: failgen (skip if importable) ===== 07:49:05'
+===== STEP: failgen (skip if importable) ===== 07:49:05
++ python -c 'import failgen'
++ cd /root/AHA/aha/Data_Generation/rlbench-failgen
++ pip install -r requirements.txt
+Collecting hydra-core (from -r requirements.txt (line 1))
+  Downloading hydra_core-1.3.4-py3-none-any.whl.metadata (5.7 kB)
+Collecting moviepy (from -r requirements.txt (line 2))
+  Downloading moviepy-2.2.1-py3-none-any.whl.metadata (6.9 kB)
+Requirement already satisfied: numpy in /root/aha-venv/lib/python3.10/site-packages (from -r requirements.txt (line 3)) (1.23.5)
+Requirement already satisfied: pillow in /root/aha-venv/lib/python3.10/site-packages (from -r requirements.txt (line 4)) (12.3.0)
+Collecting omegaconf<2.4,>=2.2 (from hydra-core->-r requirements.txt (line 1))
+  Downloading omegaconf-2.3.1-py3-none-any.whl.metadata (4.5 kB)
+Collecting antlr4-python3-runtime==4.9.* (from hydra-core->-r requirements.txt (line 1))
+  Downloading antlr4-python3-runtime-4.9.3.tar.gz (117 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: packaging in /root/aha-venv/lib/python3.10/site-packages (from hydra-core->-r requirements.txt (line 1)) (26.2)
+Collecting PyYAML>=5.1.0 (from omegaconf<2.4,>=2.2->hydra-core->-r requirements.txt (line 1))
+  Downloading pyyaml-6.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting decorator<6.0,>=4.0.2 (from moviepy->-r requirements.txt (line 2))
+  Downloading decorator-5.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting imageio<3.0,>=2.5 (from moviepy->-r requirements.txt (line 2))
+  Downloading imageio-2.37.3-py3-none-any.whl.metadata (9.7 kB)
+Collecting imageio_ffmpeg>=0.2.0 (from moviepy->-r requirements.txt (line 2))
+  Downloading imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting numpy (from -r requirements.txt (line 3))
+  Downloading numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+Collecting proglog<=1.0.0 (from moviepy->-r requirements.txt (line 2))
+  Downloading proglog-0.1.12-py3-none-any.whl.metadata (794 bytes)
+Collecting python-dotenv>=0.10 (from moviepy->-r requirements.txt (line 2))
+  Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+Collecting pillow (from -r requirements.txt (line 4))
+  Downloading pillow-11.3.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+Collecting tqdm (from proglog<=1.0.0->moviepy->-r requirements.txt (line 2))
+  Downloading tqdm-4.68.4-py3-none-any.whl.metadata (57 kB)
+Downloading hydra_core-1.3.4-py3-none-any.whl (155 kB)
+Downloading omegaconf-2.3.1-py3-none-any.whl (79 kB)
+Downloading moviepy-2.2.1-py3-none-any.whl (129 kB)
+Downloading pillow-11.3.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 24.6 MB/s  0:00:00
+Downloading decorator-5.3.1-py3-none-any.whl (10 kB)
+Downloading imageio-2.37.3-py3-none-any.whl (317 kB)
+Downloading proglog-0.1.12-py3-none-any.whl (6.3 kB)
+Downloading numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.8/16.8 MB 69.9 MB/s  0:00:00
+Downloading imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl (29.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 29.5/29.5 MB 89.8 MB/s  0:00:00
+Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Downloading pyyaml-6.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (770 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 770.3/770.3 kB 27.8 MB/s  0:00:00
+Downloading tqdm-4.68.4-py3-none-any.whl (676 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 676.6/676.6 kB 25.0 MB/s  0:00:00
+Building wheels for collected packages: antlr4-python3-runtime
+  Building wheel for antlr4-python3-runtime (pyproject.toml): started
+  Building wheel for antlr4-python3-runtime (pyproject.toml): finished with status 'done'
+  Created wheel for antlr4-python3-runtime: filename=antlr4_python3_runtime-4.9.3-py3-none-any.whl size=144589 sha256=6e860ab692f70901e2259dbc6d30b2c810fd091332cc5fadd35de3d432ec6af6
+  Stored in directory: /root/.cache/pip/wheels/12/93/dd/1f6a127edc45659556564c5730f6d4e300888f4bca2d4c5a88
+Successfully built antlr4-python3-runtime
+Installing collected packages: antlr4-python3-runtime, tqdm, PyYAML, python-dotenv, pillow, numpy, imageio_ffmpeg, decorator, proglog, omegaconf, imageio, moviepy, hydra-core
+  Attempting uninstall: pillow
+    Found existing installation: pillow 12.3.0
+    Uninstalling pillow-12.3.0:
+      Successfully uninstalled pillow-12.3.0
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.23.5
+    Uninstalling numpy-1.23.5:
+      Successfully uninstalled numpy-1.23.5
+
+Successfully installed PyYAML-6.0.3 antlr4-python3-runtime-4.9.3 decorator-5.3.1 hydra-core-1.3.4 imageio-2.37.3 imageio_ffmpeg-0.6.0 moviepy-2.2.1 numpy-2.2.6 omegaconf-2.3.1 pillow-11.3.0 proglog-0.1.12 python-dotenv-1.2.2 tqdm-4.68.4
++ pip install -e .
+Obtaining file:///root/AHA/aha/Data_Generation/rlbench-failgen
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: failgen
+  Building editable for failgen (pyproject.toml): started
+  Building editable for failgen (pyproject.toml): finished with status 'done'
+  Created wheel for failgen: filename=failgen-0.0.1-0.editable-py3-none-any.whl size=2717 sha256=60e164c4b77a35c8569ac644af820b3f6051355959e56010c20dad4587d5c6b9
+  Stored in directory: /tmp/pip-ephem-wheel-cache-hggad0xh/wheels/73/2a/66/b3788be26491b6c607571d0a19f5f0751b9343d526b33774f9
+Successfully built failgen
+Installing collected packages: failgen
+Successfully installed failgen-0.0.1
++ step 'embed/eval deps (torch CUDA + torchvision + transformers + store)'
+++ date -u +%H:%M:%S
++ echo '===== STEP: embed/eval deps (torch CUDA + torchvision + transformers + store) ===== 07:49:16'
+===== STEP: embed/eval deps (torch CUDA + torchvision + transformers + store) ===== 07:49:16
++ python -c 'import torch,torchvision'
++ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+Looking in indexes: https://download.pytorch.org/whl/cu121
+Collecting torch
+  Downloading torch-2.5.1%2Bcu121-cp310-cp310-linux_x86_64.whl (780.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.4/780.4 MB 74.8 MB/s  0:00:07
+Collecting torchvision
+  Downloading torchvision-0.20.1%2Bcu121-cp310-cp310-linux_x86_64.whl (7.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 77.7 MB/s  0:00:00
+Collecting filelock (from torch)
+  Downloading filelock-3.29.0-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.8.0 (from torch)
+  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting networkx (from torch)
+  Downloading networkx-3.4.2-py3-none-any.whl.metadata (6.3 kB)
+Requirement already satisfied: jinja2 in /root/aha-venv/lib/python3.10/site-packages (from torch) (3.1.6)
+Collecting fsspec (from torch)
+  Downloading fsspec-2026.4.0-py3-none-any.whl.metadata (10 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch)
+  Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 93.7 MB/s  0:00:00
+Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch)
+  Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 31.8 MB/s  0:00:00
+Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch)
+  Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 90.4 MB/s  0:00:00
+Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch)
+  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 81.2 MB/s  0:00:06
+Collecting nvidia-cublas-cu12==12.1.3.1 (from torch)
+  Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 85.8 MB/s  0:00:04
+Collecting nvidia-cufft-cu12==11.0.2.54 (from torch)
+  Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 96.8 MB/s  0:00:01
+Collecting nvidia-curand-cu12==10.3.2.106 (from torch)
+  Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 97.2 MB/s  0:00:00
+Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch)
+  Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 95.3 MB/s  0:00:01
+Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch)
+  Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 96.1 MB/s  0:00:02
+Collecting nvidia-nccl-cu12==2.21.5 (from torch)
+  Downloading nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl (188.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188.7/188.7 MB 96.8 MB/s  0:00:01
+Collecting nvidia-nvtx-cu12==12.1.105 (from torch)
+  Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)
+Collecting triton==3.1.0 (from torch)
+  Downloading triton-3.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (209.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.5/209.5 MB 91.7 MB/s  0:00:02
+Collecting sympy==1.13.1 (from torch)
+  Downloading sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
+Collecting nvidia-nvjitlink-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch)
+  Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy==1.13.1->torch)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Requirement already satisfied: numpy in /root/aha-venv/lib/python3.10/site-packages (from torchvision) (2.2.6)
+Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /root/aha-venv/lib/python3.10/site-packages (from torchvision) (11.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /root/aha-venv/lib/python3.10/site-packages (from jinja2->torch) (3.0.3)
+Downloading sympy-1.13.1-py3-none-any.whl (6.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.2/6.2 MB 65.3 MB/s  0:00:00
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 19.6 MB/s  0:00:00
+Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Downloading filelock-3.29.0-py3-none-any.whl (39 kB)
+Downloading fsspec-2026.4.0-py3-none-any.whl (203 kB)
+Downloading networkx-3.4.2-py3-none-any.whl (1.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 54.5 MB/s  0:00:00
+Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 96.9 MB/s  0:00:00
+Installing collected packages: mpmath, typing-extensions, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cudnn-cu12, nvidia-cusolver-cu12, torch, torchvision
+
+Successfully installed filelock-3.29.0 fsspec-2026.4.0 mpmath-1.3.0 networkx-3.4.2 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.21.5 nvidia-nvjitlink-cu12-12.9.86 nvidia-nvtx-cu12-12.1.105 sympy-1.13.1 torch-2.5.1+cu121 torchvision-0.20.1+cu121 triton-3.1.0 typing-extensions-4.15.0
++ python -c 'import transformers,PIL,sqlalchemy,safetensors,omegaconf'
++ pip install 'transformers>=4.40' pillow sqlalchemy safetensors omegaconf
+Collecting transformers>=4.40
+  Downloading transformers-5.13.0-py3-none-any.whl.metadata (32 kB)
+Requirement already satisfied: pillow in /root/aha-venv/lib/python3.10/site-packages (11.3.0)
+Collecting sqlalchemy
+  Downloading sqlalchemy-2.0.51-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+Collecting safetensors
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Requirement already satisfied: omegaconf in /root/aha-venv/lib/python3.10/site-packages (2.3.1)
+Collecting huggingface-hub<2.0,>=1.5.0 (from transformers>=4.40)
+  Downloading huggingface_hub-1.22.0-py3-none-any.whl.metadata (14 kB)
+Requirement already satisfied: numpy>=1.17 in /root/aha-venv/lib/python3.10/site-packages (from transformers>=4.40) (2.2.6)
+Requirement already satisfied: packaging>=20.0 in /root/aha-venv/lib/python3.10/site-packages (from transformers>=4.40) (26.2)
+Requirement already satisfied: pyyaml>=5.1 in /root/aha-venv/lib/python3.10/site-packages (from transformers>=4.40) (6.0.3)
+Collecting regex>=2025.10.22 (from transformers>=4.40)
+  Downloading regex-2026.6.28-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers>=4.40)
+  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+Collecting typer (from transformers>=4.40)
+  Downloading typer-0.26.8-py3-none-any.whl.metadata (15 kB)
+Requirement already satisfied: tqdm>=4.60 in /root/aha-venv/lib/python3.10/site-packages (from transformers>=4.40) (4.68.4)
+Collecting click<9.0.0,>=8.4.2 (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading click-8.4.2-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: filelock>=3.10.0 in /root/aha-venv/lib/python3.10/site-packages (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40) (3.29.0)
+Requirement already satisfied: fsspec>=2023.5.0 in /root/aha-venv/lib/python3.10/site-packages (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40) (2026.4.0)
+Collecting hf-xet<2.0.0,>=1.5.1 (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading hf_xet-1.5.1-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting httpx<1,>=0.23.0 (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: typing-extensions>=4.1.0 in /root/aha-venv/lib/python3.10/site-packages (from huggingface-hub<2.0,>=1.5.0->transformers>=4.40) (4.15.0)
+Collecting anyio (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading anyio-4.14.1-py3-none-any.whl.metadata (4.6 kB)
+Collecting certifi (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
+Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting idna (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading idna-3.18-py3-none-any.whl.metadata (6.1 kB)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting greenlet>=1 (from sqlalchemy)
+  Downloading greenlet-3.5.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+Requirement already satisfied: antlr4-python3-runtime==4.9.* in /root/aha-venv/lib/python3.10/site-packages (from omegaconf) (4.9.3)
+Collecting exceptiongroup>=1.0.2 (from anyio->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers>=4.40)
+  Downloading exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)
+Collecting shellingham>=1.3.0 (from typer->transformers>=4.40)
+  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer->transformers>=4.40)
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer->transformers>=4.40)
+  Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers>=4.40)
+  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers>=4.40)
+  Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers>=4.40)
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading transformers-5.13.0-py3-none-any.whl (11.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.5/11.5 MB 29.0 MB/s  0:00:00
+Downloading huggingface_hub-1.22.0-py3-none-any.whl (765 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 765.1/765.1 kB 22.3 MB/s  0:00:00
+Downloading click-8.4.2-py3-none-any.whl (119 kB)
+Downloading hf_xet-1.5.1-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 56.1 MB/s  0:00:00
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 58.6 MB/s  0:00:00
+Downloading sqlalchemy-2.0.51-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 60.0 MB/s  0:00:00
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading greenlet-3.5.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (615 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 615.7/615.7 kB 21.7 MB/s  0:00:00
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading regex-2026.6.28-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (794 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 794.1/794.1 kB 26.8 MB/s  0:00:00
+Downloading anyio-4.14.1-py3-none-any.whl (124 kB)
+Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
+Downloading idna-3.18-py3-none-any.whl (65 kB)
+Downloading certifi-2026.6.17-py3-none-any.whl (133 kB)
+Downloading typer-0.26.8-py3-none-any.whl (122 kB)
+Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 41.4 MB/s  0:00:00
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Installing collected packages: shellingham, safetensors, regex, pygments, mdurl, idna, hf-xet, h11, greenlet, exceptiongroup, click, certifi, annotated-doc, sqlalchemy, markdown-it-py, httpcore, anyio, rich, httpx, typer, huggingface-hub, tokenizers, transformers
+
+Successfully installed annotated-doc-0.0.4 anyio-4.14.1 certifi-2026.6.17 click-8.4.2 exceptiongroup-1.3.1 greenlet-3.5.3 h11-0.16.0 hf-xet-1.5.1 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.22.0 idna-3.18 markdown-it-py-4.2.0 mdurl-0.1.2 pygments-2.20.0 regex-2026.6.28 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 sqlalchemy-2.0.51 tokenizers-0.22.2 transformers-5.13.0 typer-0.26.8
++ step 'Xvfb :99'
+++ date -u +%H:%M:%S
++ echo '===== STEP: Xvfb :99 ===== 07:51:00'
+===== STEP: Xvfb :99 ===== 07:51:00
++ pgrep Xvfb
++ sleep 3
++ Xvfb :99 -screen 0 1400x900x24
++ step 'smoke import'
+++ date -u +%H:%M:%S
++ echo '===== STEP: smoke import ===== 07:51:03'
+===== STEP: smoke import ===== 07:51:03
++ python -c '
+from failgen.env_wrapper import FailGenEnvWrapper
+import rlbench, torch, transformers, numpy
+print('\''IMPORTS_OK numpy'\'', numpy.__version__, '\''torch'\'', torch.__version__, '\''cuda'\'', torch.cuda.is_available())
+'
+IMPORTS_OK numpy 2.2.6 torch 2.5.1+cu121 cuda True
+++ date -u +%H:%M:%S
++ echo 'ALL_DONE 07:51:06'
+ALL_DONE 07:51:06
++ touch /root/INSTALL_DONE

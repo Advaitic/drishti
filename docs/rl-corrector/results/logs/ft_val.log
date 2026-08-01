@@ -1,0 +1,196 @@
+INFO 2026-07-02 16:15:56 ot_train.py:228 {'batch_size': 4,
+ 'checkpoint_path': None,
+ 'cudnn_deterministic': False,
+ 'dataset': {'depth_output_unit': 'mm',
+             'episodes': None,
+             'eval_split': 0.0,
+             'image_transforms': {'enable': False,
+                                  'max_num_transforms': 3,
+                                  'random_order': False,
+                                  'tfs': {'affine': {'kwargs': {'degrees': [-5.0,
+                                                                            5.0],
+                                                                'translate': [0.05,
+                                                                              0.05]},
+                                                     'type': 'RandomAffine',
+                                                     'weight': 1.0},
+                                          'brightness': {'kwargs': {'brightness': [0.8,
+                                                                                   1.2]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'contrast': {'kwargs': {'contrast': [0.8,
+                                                                               1.2]},
+                                                       'type': 'ColorJitter',
+                                                       'weight': 1.0},
+                                          'hue': {'kwargs': {'hue': [-0.05,
+                                                                     0.05]},
+                                                  'type': 'ColorJitter',
+                                                  'weight': 1.0},
+                                          'saturation': {'kwargs': {'saturation': [0.5,
+                                                                                   1.5]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'sharpness': {'kwargs': {'sharpness': [0.5,
+                                                                                 1.5]},
+                                                        'type': 'SharpnessJitter',
+                                                        'weight': 1.0}}},
+             'repo_id': 'drishti/so101_sim_pickplace',
+             'return_uint8': False,
+             'revision': None,
+             'root': '/home/ubuntu/drishti/data/lerobot/so101_sim_pickplace',
+             'streaming': False,
+             'use_imagenet_stats': True,
+             'video_backend': 'pyav'},
+ 'env': None,
+ 'env_eval_freq': 20000,
+ 'eval': {'batch_size': 11,
+          'n_episodes': 50,
+          'recording': False,
+          'recording_private': False,
+          'recording_repo_id': None,
+          'use_async_envs': True},
+ 'eval_steps': 0,
+ 'job': {'detach': False,
+         'image': 'huggingface/lerobot-gpu:latest',
+         'tags': [],
+         'target': None,
+         'timeout': '2d'},
+ 'job_name': 'molmoact2',
+ 'log_freq': 5,
+ 'max_eval_samples': 0,
+ 'num_workers': 2,
+ 'optimizer': {'betas': [0.9, 0.95],
+               'eps': 1e-06,
+               'grad_clip_norm': 1.0,
+               'lr': 1e-05,
+               'type': 'adamw',
+               'weight_decay': 0.0},
+ 'output_dir': 'outputs/ft_validate',
+ 'peft': None,
+ 'persistent_workers': True,
+ 'policy': {'action_mode': 'continuous',
+            'add_control_tokens': True,
+            'add_setup_tokens': True,
+            'checkpoint_force_download': False,
+            'checkpoint_path': 'allenai/MolmoAct2-SO100_101',
+            'checkpoint_revision': None,
+            'chunk_size': 16,
+            'control_mode': 'absolute joint pose',
+            'dataset_feature_names': {},
+            'device': 'cuda',
+            'discrete_action_tokenizer': 'allenai/MolmoAct2-FAST-Tokenizer',
+            'discrete_generation_max_steps': None,
+            'discrete_loss_token_weighting': 'root_subsegments_root_tokens',
+            'enable_inference_cuda_graph': True,
+            'enable_knowledge_insulation': False,
+            'enable_lora_action_expert': False,
+            'enable_lora_vlm': False,
+            'eval_seed': None,
+            'expected_max_action_dim': 32,
+            'flow_matching_beta_alpha': 1.0,
+            'flow_matching_beta_beta': 1.5,
+            'flow_matching_cutoff': 1.0,
+            'flow_matching_time_offset': 0.001,
+            'flow_matching_time_scale': 0.999,
+            'freeze_embedding': True,
+            'gradient_checkpointing': True,
+            'image_keys': ['observation.images.up', 'observation.images.wrist'],
+            'inference_action_mode': None,
+            'input_features': {},
+            'joint_offsets': [0.0, 90.0, 90.0, 0.0, 0.0, 0.0],
+            'joint_signs': [1.0, -1.0, 1.0, 1.0, 1.0, 1.0],
+            'license': None,
+            'lora_alpha': 16,
+            'lora_bias': 'none',
+            'lora_dropout': 0.05,
+            'lora_rank': 64,
+            'mask_action_dim_padding': True,
+            'max_sequence_length': None,
+            'model_dtype': 'bfloat16',
+            'n_action_steps': 16,
+            'n_obs_steps': 1,
+            'norm_tag': None,
+            'normalization_mapping': {'ACTION': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'STATE': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'VISUAL': <NormalizationMode.IDENTITY: 'IDENTITY'>},
+            'normalize_gripper': True,
+            'normalize_language': True,
+            'num_flow_timesteps': 8,
+            'num_inference_steps': None,
+            'num_state_tokens': 256,
+            'optimizer_action_expert_lr': 5e-05,
+            'optimizer_betas': [0.9, 0.95],
+            'optimizer_connector_lr': 5e-06,
+            'optimizer_eps': 1e-06,
+            'optimizer_grad_clip_norm': 1.0,
+            'optimizer_lr': 1e-05,
+            'optimizer_vit_lr': 5e-06,
+            'optimizer_weight_decay': 0.0,
+            'output_features': {},
+            'per_episode_seed': False,
+            'pretrained_path': None,
+            'pretrained_revision': None,
+            'private': None,
+            'push_to_hub': False,
+            'repo_id': None,
+            'rtc_config': None,
+            'scheduler_decay_lr': 1e-06,
+            'scheduler_decay_steps': 100000,
+            'scheduler_warmup_steps': 200,
+            'setup_type': 'single so101 robotic arm',
+            'softmax_auxiliary_loss': True,
+            'softmax_auxiliary_loss_scale': 0.0001,
+            'tags': None,
+            'train_action_expert_only': True,
+            'type': 'molmoact2',
+            'use_amp': False,
+            'use_peft': False},
+ 'prefetch_factor': 4,
+ 'rename_map': {},
+ 'resume': False,
+ 'reward_model': None,
+ 'sample_weighting': None,
+ 'save_checkpoint': False,
+ 'save_checkpoint_to_hub': False,
+ 'save_freq': 100000,
+ 'scheduler': {'decay_lr': 1e-06,
+               'num_decay_steps': 100000,
+               'num_warmup_steps': 200,
+               'peak_lr': 1e-05,
+               'type': 'cosine_decay_with_warmup'},
+ 'seed': 1000,
+ 'steps': 20,
+ 'tolerance_s': 0.0001,
+ 'use_policy_training_preset': True,
+ 'wandb': {'add_tags': True,
+           'disable_artifact': False,
+           'enable': False,
+           'entity': None,
+           'mode': None,
+           'notes': None,
+           'project': 'lerobot',
+           'run_id': None}}
+INFO 2026-07-02 16:15:56 ot_train.py:236 Logs will be saved locally.
+INFO 2026-07-02 16:15:56 ot_train.py:254 Creating dataset
+INFO 2026-07-02 16:15:56 ot_train.py:288 Creating policy
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 15496.20it/s]
+/home/ubuntu/lerobot-ft/.venv/lib/python3.12/site-packages/transformers/modeling_rope_utils.py:1032: FutureWarning: `rope_config_validation` is deprecated and has been removed. Its functionality has been moved to RotaryEmbeddingConfigMixin.validate_rope method. PreTrainedConfig inherits this class, so please call self.validate_rope() instead. Also, make sure to use the new rope_parameters syntax. You can call self.standardize_rope_params() in the meantime.
+  warnings.warn(
+Loading weights:   0%|          | 0/1295 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 315/1295 [00:00<00:00, 3126.92it/s]Loading weights:  48%|████▊     | 628/1295 [00:00<00:00, 2193.71it/s]Loading weights:  67%|██████▋   | 864/1295 [00:00<00:00, 751.04it/s] Loading weights:  78%|███████▊  | 1009/1295 [00:01<00:00, 784.32it/s]Loading weights: 100%|██████████| 1295/1295 [00:01<00:00, 1126.10it/s]
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files: 100%|██████████| 18/18 [00:00<00:00, 15499.38it/s]
+INFO 2026-07-02 16:18:13 ot_train.py:361 Creating optimizer and scheduler
+INFO 2026-07-02 16:18:13 hedulers.py:111 Auto-scaling LR scheduler: num_training_steps (20) < num_decay_steps (100000). Scaling warmup: 200 → 0, decay: 100000 → 20 (scale factor: 0.000)
+INFO 2026-07-02 16:18:13 ot_train.py:393 Output dir: outputs/ft_validate
+INFO 2026-07-02 16:18:13 ot_train.py:400 cfg.steps=20 (20)
+INFO 2026-07-02 16:18:13 ot_train.py:401 dataset.num_frames=3150 (3K)
+INFO 2026-07-02 16:18:13 ot_train.py:402 dataset.num_episodes=50
+INFO 2026-07-02 16:18:13 ot_train.py:405 Effective batch size: 4 x 1 = 4
+INFO 2026-07-02 16:18:13 ot_train.py:406 num_learnable_params=577564448 (578M)
+INFO 2026-07-02 16:18:13 ot_train.py:407 num_total_params=5442196208 (5B)
+Training:   0%|          | 0/20 [00:00<?, ?step/s]INFO 2026-07-02 16:18:13 ot_train.py:558 Start offline training on a fixed dataset, with effective batch size: 4
+Training:   5%|▌         | 1/20 [00:02<00:47,  2.49s/step]Training:  10%|█         | 2/20 [00:03<00:27,  1.52s/step]Training:  15%|█▌        | 3/20 [00:04<00:21,  1.26s/step]Training:  20%|██        | 4/20 [00:05<00:20,  1.27s/step]Training:  25%|██▌       | 5/20 [00:06<00:17,  1.15s/step]INFO 2026-07-02 16:18:20 ot_train.py:602 step:5 smpl:20 ep:0 epch:0.01 loss:0.648 grdn:4.809 lr:4.7e-05 updt_s:0.985 data_s:0.307 smp/s:3 mem_gb:14.83
+Training:  30%|███       | 6/20 [00:07<00:14,  1.03s/step]Training:  35%|███▌      | 7/20 [00:08<00:14,  1.12s/step]Training:  40%|████      | 8/20 [00:09<00:12,  1.05s/step]Training:  45%|████▌     | 9/20 [00:10<00:10,  1.01step/s]Training:  50%|█████     | 10/20 [00:11<00:11,  1.19s/step]INFO 2026-07-02 16:18:25 ot_train.py:602 step:10 smpl:40 ep:1 epch:0.01 loss:0.311 grdn:2.775 lr:3.4e-05 updt_s:0.821 data_s:0.270 smp/s:4 mem_gb:14.83
+Training:  55%|█████▌    | 11/20 [00:12<00:09,  1.07s/step]Training:  60%|██████    | 12/20 [00:13<00:08,  1.02s/step]Training:  65%|██████▌   | 13/20 [00:14<00:06,  1.04step/s]Training:  70%|███████   | 14/20 [00:15<00:05,  1.07step/s]Training:  75%|███████▌  | 15/20 [00:16<00:05,  1.05s/step]INFO 2026-07-02 16:18:30 ot_train.py:602 step:15 smpl:60 ep:1 epch:0.02 loss:0.280 grdn:2.705 lr:1.8e-05 updt_s:0.751 data_s:0.187 smp/s:4 mem_gb:14.83
+Training:  80%|████████  | 16/20 [00:17<00:03,  1.01step/s]Training:  85%|████████▌ | 17/20 [00:19<00:03,  1.17s/step]Training:  90%|█████████ | 18/20 [00:20<00:02,  1.20s/step]Training:  95%|█████████▌| 19/20 [00:21<00:01,  1.09s/step]Training: 100%|██████████| 20/20 [00:22<00:00,  1.01s/step]INFO 2026-07-02 16:18:35 ot_train.py:602 step:20 smpl:80 ep:1 epch:0.03 loss:0.256 grdn:2.300 lr:6.6e-06 updt_s:0.816 data_s:0.250 smp/s:4 mem_gb:14.83
+Training: 100%|██████████| 20/20 [00:22<00:00,  1.10s/step]
+INFO 2026-07-02 16:18:35 ot_train.py:733 End of training
+TRAIN_DONE rc=0

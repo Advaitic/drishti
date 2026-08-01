@@ -1,0 +1,379 @@
+=== INGEST (frames + full state + inline SigLIP embed_<f>.npy) ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 6679.69it/s]
+ok   run_aha_8817d9ca0907  pick_and_lift/grasp/episodes/episode0  steps=136
+ok   run_aha_e6bf36e4e18f  pick_and_lift/grasp/episodes/episode1  steps=121
+ok   run_aha_85d49ec577be  pick_and_lift/grasp/episodes/episode2  steps=157
+ok   run_aha_492720249ab6  pick_and_lift/slip/episodes/episode0  steps=118
+ok   run_aha_b675859781c1  pick_and_lift/slip/episodes/episode1  steps=213
+ok   run_aha_05715958fefe  pick_and_lift/slip/episodes/episode2  steps=197
+ok   run_aha_63be38a0b570  pick_and_lift/success/episodes/episode0  steps=139
+ok   run_aha_4910cb1b9df3  pick_and_lift/success/episodes/episode1  steps=127
+ok   run_aha_309ba71cf95b  pick_and_lift/success/episodes/episode2  steps=112
+ok   run_aha_cd18167f93bc  pick_and_lift/success/episodes/episode3  steps=124
+ok   run_aha_196fb26154e4  pick_and_lift/success/episodes/episode4  steps=155
+ok   run_aha_11fb6e3020f5  pick_and_lift/success/episodes/episode5  steps=122
+ok   run_aha_9c47e4d0de71  pick_and_lift/success/episodes/episode6  steps=150
+ok   run_aha_804fc51a4ce4  pick_and_lift/success/episodes/episode7  steps=120
+ok   run_aha_b00d4e96372a  pick_and_lift/success/episodes/episode8  steps=104
+ok   run_aha_f44798fe260d  pick_and_lift/success/episodes/episode9  steps=115
+ok   run_aha_b9d64da14f7e  pick_and_lift/translation_z/episodes/episode0  steps=173
+ok   run_aha_aec01e212428  pick_and_lift/translation_z/episodes/episode1  steps=188
+ok   run_aha_b3577065e5df  pick_and_lift/translation_z/episodes/episode2  steps=167
+ok   run_aha_054cc1069cc0  pick_and_lift/wrong_sequence/episodes/episode0  steps=141
+ok   run_aha_2b8e0d6be4f9  pick_and_lift/wrong_sequence/episodes/episode1  steps=142
+ok   run_aha_b78a87518071  pick_and_lift/wrong_sequence/episodes/episode2  steps=196
+ok   run_aha_2b6a8aa9a91e  pick_up_cup/grasp/episodes/episode0  steps=112
+ok   run_aha_e01079b87ada  pick_up_cup/grasp/episodes/episode1  steps=123
+ok   run_aha_a8af9335febc  pick_up_cup/grasp/episodes/episode2  steps=128
+ok   run_aha_a8d248996bde  pick_up_cup/success/episodes/episode0  steps=95
+ok   run_aha_5c635c60bf83  pick_up_cup/success/episodes/episode1  steps=88
+ok   run_aha_a7b4a2f79723  pick_up_cup/success/episodes/episode2  steps=81
+ok   run_aha_5b5543a1025f  pick_up_cup/success/episodes/episode3  steps=80
+ok   run_aha_a38e4ed2dfb4  pick_up_cup/success/episodes/episode4  steps=121
+ok   run_aha_1b0be1928c26  pick_up_cup/success/episodes/episode5  steps=85
+ok   run_aha_f664dc857764  pick_up_cup/success/episodes/episode6  steps=95
+ok   run_aha_7955379934fc  pick_up_cup/success/episodes/episode7  steps=128
+ok   run_aha_930a3c423098  pick_up_cup/success/episodes/episode8  steps=99
+ok   run_aha_f0552b2f6168  pick_up_cup/success/episodes/episode9  steps=79
+ok   run_aha_a9bdd40bf0f0  pick_up_cup/translation_z/episodes/episode0  steps=126
+ok   run_aha_897bf9712676  pick_up_cup/translation_z/episodes/episode1  steps=125
+ok   run_aha_b75e852d246e  pick_up_cup/translation_z/episodes/episode2  steps=129
+ok   run_aha_005766ebfbb7  pick_up_cup/wrong_sequence/episodes/episode0  steps=110
+ok   run_aha_7b48c7d48a46  pick_up_cup/wrong_sequence/episodes/episode1  steps=135
+ok   run_aha_2ad2fedfc052  pick_up_cup/wrong_sequence/episodes/episode2  steps=107
+ok   run_aha_528c6bd3584e  put_item_in_drawer/success/episodes/episode0  steps=366
+ok   run_aha_ec93a15d767a  put_item_in_drawer/success/episodes/episode1  steps=382
+ok   run_aha_b003c0a506ff  put_item_in_drawer/success/episodes/episode2  steps=413
+ok   run_aha_f0f272ef44de  put_item_in_drawer/success/episodes/episode3  steps=433
+ok   run_aha_876f67389f9a  put_item_in_drawer/success/episodes/episode4  steps=396
+ok   run_aha_fa7ab9b37a9b  put_item_in_drawer/success/episodes/episode5  steps=366
+ok   run_aha_265b4864a2e6  put_item_in_drawer/success/episodes/episode6  steps=369
+ok   run_aha_19881b1a68de  put_item_in_drawer/success/episodes/episode7  steps=433
+ok   run_aha_215a5bb6e052  put_item_in_drawer/success/episodes/episode8  steps=459
+ok   run_aha_a39d0e6ea3d0  put_item_in_drawer/success/episodes/episode9  steps=383
+ok   run_aha_a1b302f6368e  put_money_in_safe/success/episodes/episode0  steps=171
+ok   run_aha_84cd7f2764f2  put_money_in_safe/success/episodes/episode1  steps=209
+ok   run_aha_a93a0cc37b11  put_money_in_safe/success/episodes/episode2  steps=181
+ok   run_aha_6fb89f26f829  put_money_in_safe/success/episodes/episode3  steps=187
+ok   run_aha_ad1386a96f0c  put_money_in_safe/success/episodes/episode4  steps=206
+ok   run_aha_cb6ed7bfbcaf  put_money_in_safe/success/episodes/episode5  steps=172
+ok   run_aha_b4d67b78e7c4  put_money_in_safe/success/episodes/episode6  steps=186
+ok   run_aha_8169f7ff7ab7  put_money_in_safe/success/episodes/episode7  steps=201
+ok   run_aha_ab31a9bde90f  put_money_in_safe/success/episodes/episode8  steps=180
+ok   run_aha_f528379a14db  put_money_in_safe/success/episodes/episode9  steps=180
+ok   run_aha_3c5916ec1403  slide_block_to_target/grasp/episodes/episode0  steps=119
+ok   run_aha_31f76ff8068b  slide_block_to_target/grasp/episodes/episode1  steps=122
+ok   run_aha_df56f54b3589  slide_block_to_target/grasp/episodes/episode2  steps=117
+ok   run_aha_5ae5ec54bfb4  slide_block_to_target/slip/episodes/episode2  steps=111
+ok   run_aha_a65be15255d9  slide_block_to_target/success/episodes/episode0  steps=101
+ok   run_aha_45a4f5562740  slide_block_to_target/success/episodes/episode1  steps=110
+ok   run_aha_0ed28f75cafb  slide_block_to_target/success/episodes/episode2  steps=92
+ok   run_aha_95c043b3de9b  slide_block_to_target/success/episodes/episode3  steps=105
+ok   run_aha_91b5e1cde8cf  slide_block_to_target/success/episodes/episode4  steps=108
+ok   run_aha_d9783d12e6e5  slide_block_to_target/success/episodes/episode5  steps=93
+ok   run_aha_c4bf1e9af68f  slide_block_to_target/success/episodes/episode6  steps=100
+ok   run_aha_c3e7ce6eef85  slide_block_to_target/success/episodes/episode7  steps=104
+ok   run_aha_81d333ae3d6c  slide_block_to_target/success/episodes/episode8  steps=119
+ok   run_aha_718eed18eb3f  slide_block_to_target/success/episodes/episode9  steps=90
+ok   run_aha_f31745073d20  slide_block_to_target/translation_z/episodes/episode0  steps=104
+ok   run_aha_017f876c8118  slide_block_to_target/translation_z/episodes/episode1  steps=100
+ok   run_aha_6267dbd5156b  slide_block_to_target/translation_z/episodes/episode2  steps=142
+ok   run_aha_456dc130ea90  slide_block_to_target/wrong_sequence/episodes/episode0  steps=93
+ok   run_aha_8c675f454a92  slide_block_to_target/wrong_sequence/episodes/episode1  steps=136
+ok   run_aha_d7cb62479956  slide_block_to_target/wrong_sequence/episodes/episode2  steps=106
+ok   run_aha_ee93810a7f0f  stack_blocks/grasp/episodes/episode0  steps=480
+ok   run_aha_e7e09d60c437  stack_blocks/grasp/episodes/episode1  steps=368
+ok   run_aha_bf509bd762ff  stack_blocks/grasp/episodes/episode2  steps=416
+ok   run_aha_b75fbae267ca  stack_blocks/slip/episodes/episode0  steps=366
+ok   run_aha_993adb97dfc9  stack_blocks/slip/episodes/episode1  steps=311
+ok   run_aha_88db0580c578  stack_blocks/slip/episodes/episode2  steps=490
+ok   run_aha_8f5e753ac0ae  stack_blocks/success/episodes/episode0  steps=349
+ok   run_aha_ffde2a4c1a71  stack_blocks/success/episodes/episode1  steps=431
+ok   run_aha_302dbb3b0039  stack_blocks/success/episodes/episode2  steps=431
+ok   run_aha_7d960dc96c64  stack_blocks/success/episodes/episode3  steps=350
+ok   run_aha_fa85b9d71a3c  stack_blocks/success/episodes/episode4  steps=379
+ok   run_aha_a875cc01e73e  stack_blocks/success/episodes/episode5  steps=239
+ok   run_aha_a1c19d9494c7  stack_blocks/success/episodes/episode6  steps=258
+ok   run_aha_92bb611f8290  stack_blocks/success/episodes/episode7  steps=257
+ok   run_aha_dbbd31240fa6  stack_blocks/success/episodes/episode8  steps=327
+ok   run_aha_835d8e5f2f90  stack_blocks/success/episodes/episode9  steps=251
+ok   run_aha_aedc270386a3  stack_blocks/translation_z/episodes/episode0  steps=329
+ok   run_aha_9737c37c31e4  stack_blocks/translation_z/episodes/episode1  steps=482
+ok   run_aha_50e2fa718d54  take_lid_off_saucepan/grasp/episodes/episode0  steps=79
+ok   run_aha_7b72ecb78ab7  take_lid_off_saucepan/grasp/episodes/episode1  steps=117
+ok   run_aha_f167daafaab8  take_lid_off_saucepan/grasp/episodes/episode2  steps=96
+ok   run_aha_e979bb7020c1  take_lid_off_saucepan/slip/episodes/episode0  steps=97
+ok   run_aha_c6c9f6aab80d  take_lid_off_saucepan/slip/episodes/episode1  steps=89
+ok   run_aha_04abb5ebebed  take_lid_off_saucepan/slip/episodes/episode2  steps=124
+ok   run_aha_9fbb442c7b5e  take_lid_off_saucepan/success/episodes/episode0  steps=71
+ok   run_aha_8155690176f7  take_lid_off_saucepan/success/episodes/episode1  steps=117
+ok   run_aha_e9e2687342aa  take_lid_off_saucepan/success/episodes/episode2  steps=78
+ok   run_aha_037d6c1f102f  take_lid_off_saucepan/success/episodes/episode3  steps=72
+ok   run_aha_72cf77a52572  take_lid_off_saucepan/success/episodes/episode4  steps=91
+ok   run_aha_04292a11c1d3  take_lid_off_saucepan/success/episodes/episode5  steps=112
+ok   run_aha_bc1e7ad705f9  take_lid_off_saucepan/success/episodes/episode6  steps=78
+ok   run_aha_3a46140a28ff  take_lid_off_saucepan/success/episodes/episode7  steps=76
+ok   run_aha_af93462da0e9  take_lid_off_saucepan/success/episodes/episode8  steps=96
+ok   run_aha_56d89a478d68  take_lid_off_saucepan/success/episodes/episode9  steps=70
+ok   run_aha_d2f4b5b2f716  take_lid_off_saucepan/translation_z/episodes/episode0  steps=103
+ok   run_aha_44bef801bd0a  take_lid_off_saucepan/translation_z/episodes/episode1  steps=140
+ok   run_aha_c648c9998179  take_lid_off_saucepan/translation_z/episodes/episode2  steps=85
+
+ingested 70 success + 48 failure runs (0 already present)
+=== EMBED extra encoders on GPU ===
+--- dinov2-cls ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 7034.78it/s]
+run_aha_005766ebfbb7: 14 frames -> dinov2-cls
+run_aha_017f876c8118: 13 frames -> dinov2-cls
+run_aha_037d6c1f102f: 9 frames -> dinov2-cls
+run_aha_04292a11c1d3: 14 frames -> dinov2-cls
+run_aha_04abb5ebebed: 16 frames -> dinov2-cls
+run_aha_054cc1069cc0: 18 frames -> dinov2-cls
+run_aha_05715958fefe: 25 frames -> dinov2-cls
+run_aha_0ed28f75cafb: 12 frames -> dinov2-cls
+run_aha_11fb6e3020f5: 16 frames -> dinov2-cls
+run_aha_196fb26154e4: 20 frames -> dinov2-cls
+run_aha_19881b1a68de: 55 frames -> dinov2-cls
+run_aha_1b0be1928c26: 11 frames -> dinov2-cls
+run_aha_215a5bb6e052: 58 frames -> dinov2-cls
+run_aha_265b4864a2e6: 47 frames -> dinov2-cls
+run_aha_2ad2fedfc052: 14 frames -> dinov2-cls
+run_aha_2b6a8aa9a91e: 14 frames -> dinov2-cls
+run_aha_2b8e0d6be4f9: 18 frames -> dinov2-cls
+run_aha_302dbb3b0039: 54 frames -> dinov2-cls
+run_aha_309ba71cf95b: 14 frames -> dinov2-cls
+run_aha_31f76ff8068b: 16 frames -> dinov2-cls
+run_aha_3a46140a28ff: 10 frames -> dinov2-cls
+run_aha_3c5916ec1403: 15 frames -> dinov2-cls
+run_aha_44bef801bd0a: 18 frames -> dinov2-cls
+run_aha_456dc130ea90: 12 frames -> dinov2-cls
+run_aha_45a4f5562740: 14 frames -> dinov2-cls
+run_aha_4910cb1b9df3: 16 frames -> dinov2-cls
+run_aha_492720249ab6: 15 frames -> dinov2-cls
+run_aha_50e2fa718d54: 10 frames -> dinov2-cls
+run_aha_528c6bd3584e: 46 frames -> dinov2-cls
+run_aha_56d89a478d68: 9 frames -> dinov2-cls
+run_aha_5ae5ec54bfb4: 14 frames -> dinov2-cls
+run_aha_5b5543a1025f: 10 frames -> dinov2-cls
+run_aha_5c635c60bf83: 11 frames -> dinov2-cls
+run_aha_6267dbd5156b: 18 frames -> dinov2-cls
+run_aha_63be38a0b570: 18 frames -> dinov2-cls
+run_aha_6fb89f26f829: 24 frames -> dinov2-cls
+run_aha_718eed18eb3f: 12 frames -> dinov2-cls
+run_aha_72cf77a52572: 12 frames -> dinov2-cls
+run_aha_7955379934fc: 16 frames -> dinov2-cls
+run_aha_7b48c7d48a46: 17 frames -> dinov2-cls
+run_aha_7b72ecb78ab7: 15 frames -> dinov2-cls
+run_aha_7d960dc96c64: 44 frames -> dinov2-cls
+run_aha_804fc51a4ce4: 15 frames -> dinov2-cls
+run_aha_8155690176f7: 15 frames -> dinov2-cls
+run_aha_8169f7ff7ab7: 26 frames -> dinov2-cls
+run_aha_81d333ae3d6c: 15 frames -> dinov2-cls
+run_aha_835d8e5f2f90: 32 frames -> dinov2-cls
+run_aha_84cd7f2764f2: 27 frames -> dinov2-cls
+run_aha_85d49ec577be: 20 frames -> dinov2-cls
+run_aha_876f67389f9a: 50 frames -> dinov2-cls
+run_aha_8817d9ca0907: 17 frames -> dinov2-cls
+run_aha_88db0580c578: 62 frames -> dinov2-cls
+run_aha_897bf9712676: 16 frames -> dinov2-cls
+run_aha_8c675f454a92: 17 frames -> dinov2-cls
+run_aha_8f5e753ac0ae: 44 frames -> dinov2-cls
+run_aha_91b5e1cde8cf: 14 frames -> dinov2-cls
+run_aha_92bb611f8290: 33 frames -> dinov2-cls
+run_aha_930a3c423098: 13 frames -> dinov2-cls
+run_aha_95c043b3de9b: 14 frames -> dinov2-cls
+run_aha_9737c37c31e4: 61 frames -> dinov2-cls
+run_aha_993adb97dfc9: 39 frames -> dinov2-cls
+run_aha_9c47e4d0de71: 19 frames -> dinov2-cls
+run_aha_9fbb442c7b5e: 9 frames -> dinov2-cls
+run_aha_a1b302f6368e: 22 frames -> dinov2-cls
+run_aha_a1c19d9494c7: 33 frames -> dinov2-cls
+run_aha_a38e4ed2dfb4: 16 frames -> dinov2-cls
+run_aha_a39d0e6ea3d0: 48 frames -> dinov2-cls
+run_aha_a65be15255d9: 13 frames -> dinov2-cls
+run_aha_a7b4a2f79723: 11 frames -> dinov2-cls
+run_aha_a875cc01e73e: 30 frames -> dinov2-cls
+run_aha_a8af9335febc: 16 frames -> dinov2-cls
+run_aha_a8d248996bde: 12 frames -> dinov2-cls
+run_aha_a93a0cc37b11: 23 frames -> dinov2-cls
+run_aha_a9bdd40bf0f0: 16 frames -> dinov2-cls
+run_aha_ab31a9bde90f: 23 frames -> dinov2-cls
+run_aha_ad1386a96f0c: 26 frames -> dinov2-cls
+run_aha_aec01e212428: 24 frames -> dinov2-cls
+run_aha_aedc270386a3: 42 frames -> dinov2-cls
+run_aha_af93462da0e9: 12 frames -> dinov2-cls
+run_aha_b003c0a506ff: 52 frames -> dinov2-cls
+run_aha_b00d4e96372a: 13 frames -> dinov2-cls
+run_aha_b3577065e5df: 21 frames -> dinov2-cls
+run_aha_b4d67b78e7c4: 24 frames -> dinov2-cls
+run_aha_b675859781c1: 27 frames -> dinov2-cls
+run_aha_b75e852d246e: 17 frames -> dinov2-cls
+run_aha_b75fbae267ca: 46 frames -> dinov2-cls
+run_aha_b78a87518071: 25 frames -> dinov2-cls
+run_aha_b9d64da14f7e: 22 frames -> dinov2-cls
+run_aha_bc1e7ad705f9: 10 frames -> dinov2-cls
+run_aha_bf509bd762ff: 52 frames -> dinov2-cls
+run_aha_c3e7ce6eef85: 13 frames -> dinov2-cls
+run_aha_c4bf1e9af68f: 13 frames -> dinov2-cls
+run_aha_c648c9998179: 11 frames -> dinov2-cls
+run_aha_c6c9f6aab80d: 12 frames -> dinov2-cls
+run_aha_cb6ed7bfbcaf: 22 frames -> dinov2-cls
+run_aha_cd18167f93bc: 16 frames -> dinov2-cls
+run_aha_d2f4b5b2f716: 13 frames -> dinov2-cls
+run_aha_d7cb62479956: 14 frames -> dinov2-cls
+run_aha_d9783d12e6e5: 12 frames -> dinov2-cls
+run_aha_dbbd31240fa6: 41 frames -> dinov2-cls
+run_aha_df56f54b3589: 15 frames -> dinov2-cls
+run_aha_e01079b87ada: 16 frames -> dinov2-cls
+run_aha_e6bf36e4e18f: 16 frames -> dinov2-cls
+run_aha_e7e09d60c437: 46 frames -> dinov2-cls
+run_aha_e979bb7020c1: 13 frames -> dinov2-cls
+run_aha_e9e2687342aa: 10 frames -> dinov2-cls
+run_aha_ec93a15d767a: 48 frames -> dinov2-cls
+run_aha_ee93810a7f0f: 60 frames -> dinov2-cls
+run_aha_f0552b2f6168: 10 frames -> dinov2-cls
+run_aha_f0f272ef44de: 55 frames -> dinov2-cls
+run_aha_f167daafaab8: 12 frames -> dinov2-cls
+run_aha_f31745073d20: 13 frames -> dinov2-cls
+run_aha_f44798fe260d: 15 frames -> dinov2-cls
+run_aha_f528379a14db: 23 frames -> dinov2-cls
+run_aha_f664dc857764: 12 frames -> dinov2-cls
+run_aha_fa7ab9b37a9b: 46 frames -> dinov2-cls
+run_aha_fa85b9d71a3c: 48 frames -> dinov2-cls
+run_aha_ffde2a4c1a71: 54 frames -> dinov2-cls
+
+dinov2-cls: embedded 2747 frames across 118 runs (0 already present)
+--- dinov2-mean ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 7229.66it/s]
+run_aha_005766ebfbb7: 14 frames -> dinov2-mean
+run_aha_017f876c8118: 13 frames -> dinov2-mean
+run_aha_037d6c1f102f: 9 frames -> dinov2-mean
+run_aha_04292a11c1d3: 14 frames -> dinov2-mean
+run_aha_04abb5ebebed: 16 frames -> dinov2-mean
+run_aha_054cc1069cc0: 18 frames -> dinov2-mean
+run_aha_05715958fefe: 25 frames -> dinov2-mean
+run_aha_0ed28f75cafb: 12 frames -> dinov2-mean
+run_aha_11fb6e3020f5: 16 frames -> dinov2-mean
+run_aha_196fb26154e4: 20 frames -> dinov2-mean
+run_aha_19881b1a68de: 55 frames -> dinov2-mean
+run_aha_1b0be1928c26: 11 frames -> dinov2-mean
+run_aha_215a5bb6e052: 58 frames -> dinov2-mean
+run_aha_265b4864a2e6: 47 frames -> dinov2-mean
+run_aha_2ad2fedfc052: 14 frames -> dinov2-mean
+run_aha_2b6a8aa9a91e: 14 frames -> dinov2-mean
+run_aha_2b8e0d6be4f9: 18 frames -> dinov2-mean
+run_aha_302dbb3b0039: 54 frames -> dinov2-mean
+run_aha_309ba71cf95b: 14 frames -> dinov2-mean
+run_aha_31f76ff8068b: 16 frames -> dinov2-mean
+run_aha_3a46140a28ff: 10 frames -> dinov2-mean
+run_aha_3c5916ec1403: 15 frames -> dinov2-mean
+run_aha_44bef801bd0a: 18 frames -> dinov2-mean
+run_aha_456dc130ea90: 12 frames -> dinov2-mean
+run_aha_45a4f5562740: 14 frames -> dinov2-mean
+run_aha_4910cb1b9df3: 16 frames -> dinov2-mean
+run_aha_492720249ab6: 15 frames -> dinov2-mean
+run_aha_50e2fa718d54: 10 frames -> dinov2-mean
+run_aha_528c6bd3584e: 46 frames -> dinov2-mean
+run_aha_56d89a478d68: 9 frames -> dinov2-mean
+run_aha_5ae5ec54bfb4: 14 frames -> dinov2-mean
+run_aha_5b5543a1025f: 10 frames -> dinov2-mean
+run_aha_5c635c60bf83: 11 frames -> dinov2-mean
+run_aha_6267dbd5156b: 18 frames -> dinov2-mean
+run_aha_63be38a0b570: 18 frames -> dinov2-mean
+run_aha_6fb89f26f829: 24 frames -> dinov2-mean
+run_aha_718eed18eb3f: 12 frames -> dinov2-mean
+run_aha_72cf77a52572: 12 frames -> dinov2-mean
+run_aha_7955379934fc: 16 frames -> dinov2-mean
+run_aha_7b48c7d48a46: 17 frames -> dinov2-mean
+run_aha_7b72ecb78ab7: 15 frames -> dinov2-mean
+run_aha_7d960dc96c64: 44 frames -> dinov2-mean
+run_aha_804fc51a4ce4: 15 frames -> dinov2-mean
+run_aha_8155690176f7: 15 frames -> dinov2-mean
+run_aha_8169f7ff7ab7: 26 frames -> dinov2-mean
+run_aha_81d333ae3d6c: 15 frames -> dinov2-mean
+run_aha_835d8e5f2f90: 32 frames -> dinov2-mean
+run_aha_84cd7f2764f2: 27 frames -> dinov2-mean
+run_aha_85d49ec577be: 20 frames -> dinov2-mean
+run_aha_876f67389f9a: 50 frames -> dinov2-mean
+run_aha_8817d9ca0907: 17 frames -> dinov2-mean
+run_aha_88db0580c578: 62 frames -> dinov2-mean
+run_aha_897bf9712676: 16 frames -> dinov2-mean
+run_aha_8c675f454a92: 17 frames -> dinov2-mean
+run_aha_8f5e753ac0ae: 44 frames -> dinov2-mean
+run_aha_91b5e1cde8cf: 14 frames -> dinov2-mean
+run_aha_92bb611f8290: 33 frames -> dinov2-mean
+run_aha_930a3c423098: 13 frames -> dinov2-mean
+run_aha_95c043b3de9b: 14 frames -> dinov2-mean
+run_aha_9737c37c31e4: 61 frames -> dinov2-mean
+run_aha_993adb97dfc9: 39 frames -> dinov2-mean
+run_aha_9c47e4d0de71: 19 frames -> dinov2-mean
+run_aha_9fbb442c7b5e: 9 frames -> dinov2-mean
+run_aha_a1b302f6368e: 22 frames -> dinov2-mean
+run_aha_a1c19d9494c7: 33 frames -> dinov2-mean
+run_aha_a38e4ed2dfb4: 16 frames -> dinov2-mean
+run_aha_a39d0e6ea3d0: 48 frames -> dinov2-mean
+run_aha_a65be15255d9: 13 frames -> dinov2-mean
+run_aha_a7b4a2f79723: 11 frames -> dinov2-mean
+run_aha_a875cc01e73e: 30 frames -> dinov2-mean
+run_aha_a8af9335febc: 16 frames -> dinov2-mean
+run_aha_a8d248996bde: 12 frames -> dinov2-mean
+run_aha_a93a0cc37b11: 23 frames -> dinov2-mean
+run_aha_a9bdd40bf0f0: 16 frames -> dinov2-mean
+run_aha_ab31a9bde90f: 23 frames -> dinov2-mean
+run_aha_ad1386a96f0c: 26 frames -> dinov2-mean
+run_aha_aec01e212428: 24 frames -> dinov2-mean
+run_aha_aedc270386a3: 42 frames -> dinov2-mean
+run_aha_af93462da0e9: 12 frames -> dinov2-mean
+run_aha_b003c0a506ff: 52 frames -> dinov2-mean
+run_aha_b00d4e96372a: 13 frames -> dinov2-mean
+run_aha_b3577065e5df: 21 frames -> dinov2-mean
+run_aha_b4d67b78e7c4: 24 frames -> dinov2-mean
+run_aha_b675859781c1: 27 frames -> dinov2-mean
+run_aha_b75e852d246e: 17 frames -> dinov2-mean
+run_aha_b75fbae267ca: 46 frames -> dinov2-mean
+run_aha_b78a87518071: 25 frames -> dinov2-mean
+run_aha_b9d64da14f7e: 22 frames -> dinov2-mean
+run_aha_bc1e7ad705f9: 10 frames -> dinov2-mean
+run_aha_bf509bd762ff: 52 frames -> dinov2-mean
+run_aha_c3e7ce6eef85: 13 frames -> dinov2-mean
+run_aha_c4bf1e9af68f: 13 frames -> dinov2-mean
+run_aha_c648c9998179: 11 frames -> dinov2-mean
+run_aha_c6c9f6aab80d: 12 frames -> dinov2-mean
+run_aha_cb6ed7bfbcaf: 22 frames -> dinov2-mean
+run_aha_cd18167f93bc: 16 frames -> dinov2-mean
+run_aha_d2f4b5b2f716: 13 frames -> dinov2-mean
+run_aha_d7cb62479956: 14 frames -> dinov2-mean
+run_aha_d9783d12e6e5: 12 frames -> dinov2-mean
+run_aha_dbbd31240fa6: 41 frames -> dinov2-mean
+run_aha_df56f54b3589: 15 frames -> dinov2-mean
+run_aha_e01079b87ada: 16 frames -> dinov2-mean
+run_aha_e6bf36e4e18f: 16 frames -> dinov2-mean
+run_aha_e7e09d60c437: 46 frames -> dinov2-mean
+run_aha_e979bb7020c1: 13 frames -> dinov2-mean
+run_aha_e9e2687342aa: 10 frames -> dinov2-mean
+run_aha_ec93a15d767a: 48 frames -> dinov2-mean
+run_aha_ee93810a7f0f: 60 frames -> dinov2-mean
+run_aha_f0552b2f6168: 10 frames -> dinov2-mean
+run_aha_f0f272ef44de: 55 frames -> dinov2-mean
+run_aha_f167daafaab8: 12 frames -> dinov2-mean
+run_aha_f31745073d20: 13 frames -> dinov2-mean
+run_aha_f44798fe260d: 15 frames -> dinov2-mean
+run_aha_f528379a14db: 23 frames -> dinov2-mean
+run_aha_f664dc857764: 12 frames -> dinov2-mean
+run_aha_fa7ab9b37a9b: 46 frames -> dinov2-mean
+run_aha_fa85b9d71a3c: 48 frames -> dinov2-mean
+run_aha_ffde2a4c1a71: 54 frames -> dinov2-mean
+
+dinov2-mean: embedded 2747 frames across 118 runs (0 already present)
+=== state dim sanity + embed variants present ===
+runs: 118 {'translation_z': 14, 'success': 70, 'slip': 10, 'grasp': 15, 'wrong_sequence': 9}
+state dim: 30
+embed variants in a run dir: ['000.npy', '008.npy', '016.npy', '024.npy', '032.npy', '040.npy']
