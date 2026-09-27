@@ -1,3 +1,6 @@
+> [!WARNING]
+> **scrappy work in progress:** feel free to reimplement or contribute, but don't use it in production yet.
+
 <h1 align="center">drishti</h1>
 
 <p align="center">
